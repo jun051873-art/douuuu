@@ -67,18 +67,20 @@
                 const time = data.timestamp ? data.timestamp.toDate().toLocaleString('zh-TW', { hour12: false }) : '無時間';
                 
                 const item = document.createElement('div');
-                item.className = 'log-item';
-                
-                // 這裡就是你最期待的「赤裸透視」結構
-                item.innerHTML = `
+                                item.innerHTML = `
                     <div style="text-align: left;">
                         <div class="action-text">${data.action}</div>
                         <div class="location-tag">
-                            📍 座標：${data.location && data.location.lat ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '無定位'}
+                            <a href="${data.location ? 'https://www.google.com/maps?q=' + data.location.lat + ',' + data.location.lon : '#'}" 
+                               target="_blank" 
+                               style="color: #0071e3; text-decoration: none;">
+                               📍 座標：${data.location && data.location.lat ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '無定位'}
+                            </a>
                         </div>
                     </div>
                     <div class="time-text">${time}</div>
                 `;
+
                 logContainer.appendChild(item);
             });
         } catch (e) {
