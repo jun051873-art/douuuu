@@ -57,9 +57,9 @@
         }
 
         logContainer.innerHTML = '';
-        querySnapshot.forEach((doc) => {
+                querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const time = data.timestamp ? data.timestamp.toDate().toLocaleString('zh-TW', { hour12: false }) : '傳送中...';
+            const time = data.timestamp ? data.timestamp.toDate().toLocaleString('zh-TW', { hour12: false }) : '讀取中...';
             
             const item = document.createElement('div');
             item.className = 'log-item';
@@ -67,10 +67,10 @@
                 <div style="text-align: left;">
                     <div class="action-text">${data.action}</div>
                     <div class="time-text" style="font-size: 11px; color: #0071e3; margin-top: 4px;">
-                        📍 座標：${data.location ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '讀取中...'}
+                        📍 座標：${data.location ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '無定位資料'}
                     </div>
                 </div>
                 <div class="time-text">${time}</div>
             `;
-
-
+            logContainer.appendChild(item);
+        });
