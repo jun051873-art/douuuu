@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -63,28 +63,13 @@
             
             const item = document.createElement('div');
             item.className = 'log-item';
-            item.innerHTML = `
-    <div style="text-align: left;">
-        <div class="action-text">${data.action}</div>
-        <div class="time-text" style="font-size: 11px; color: #0071e3; margin-top: 4px;">
-            📍 座標：${data.location ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '無定位'}
-        </div>
-    </div>
-    <div class="time-text">${time}</div>
-`;
+                    item.innerHTML = `
+            <div style="text-align: left;">
+                <div class="action-text">${data.action}</div>
+                <div class="time-text" style="font-size: 11px; color: #0071e3; margin-top: 4px;">
+                    📍 座標：${data.location ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '讀取中...'}
+                </div>
+            </div>
+            <div class="time-text">${time}</div>
+        `;
 
-            `;
-            logContainer.appendChild(item);
-        });
-    } catch (e) {
-        console.error("讀取失敗", e);
-        logContainer.innerHTML = '<div class="empty-state">讀取失敗，請檢查權限</div>';
-    }
-  }
-
-  window.fetchLogs = fetchLogs;
-  fetchLogs(); // 初始讀取
-</script>
-
-</body>
-</html>
