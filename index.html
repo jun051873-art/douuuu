@@ -1,157 +1,66 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>此時此刻 - 編輯模式</title>
-    <style>
-        body { background-color: #ffffff; font-family: -apple-system, sans-serif; margin: 0; display: flex; justify-content: center; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        .zen-container { max-width: 500px; width: 100%; margin: 60px 25px; text-align: left; }
-        
-        .ios-title { font-size: 42px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 50px; color: #1d1d1f; cursor: pointer; }
-        .ios-title span { font-size: 24px; color: #d2d2d7; vertical-align: middle; }
+<style>
+    /* 賈伯斯式的流動空間 */
+    .bubble-sea {
+        position: relative;
+        width: 100%;
+        height: 70vh;
+        overflow: hidden;
+        background: #fff;
+        touch-action: none;
+    }
+    
+    .bubble {
+        position: absolute;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: 700;
+        background: #f5f5f7;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        user-select: none;
+    }
 
-        .pill-group { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 40px; }
-        
-        /* 大氣氣泡按鈕 */
-        .pill { 
-            background: #f5f5f7; border: none; padding: 18px 32px; border-radius: 40px;
-            font-size: 20px; font-weight: 600; color: #1d1d1f; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        .pill:active { transform: scale(0.92); background: #e8e8ed; }
+    .bubble:active { transform: scale(0.9); }
 
-        /* 自訂標籤顏色 */
-        .pill.custom { background: #e1f0ff; color: #0071e3; }
-
-        /* 刪除小叉叉 (編輯模式下顯示) */
-        .delete-tag {
-            position: absolute; top: -5px; right: -5px; width: 24px; height: 24px;
-            background: #ff3b30; color: white; border-radius: 50%; font-size: 14px;
-            display: none; align-items: center; justify-content: center;
-        }
-
-        .editing .delete-tag { display: flex; }
-        .editing .pill { animation: shake 0.3s infinite; }
-
-        @keyframes shake {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(1deg); }
-            75% { transform: rotate(-1deg); }
-            100% { transform: rotate(0deg); }
-        }
-
-        .input-nexus { 
-            display: flex; align-items: center; border-bottom: 2px solid #1d1d1f; 
-            padding: 15px 0; margin-top: 40px;
-        }
-        input[type="text"] { 
-            flex: 1; border: none; outline: none; font-size: 24px; font-weight: 500;
-            background: transparent; color: #1d1d1f;
-        }
-        .action-circle { 
-            width: 44px; height: 44px; background: #1d1d1f; color: white; border: none; 
-            border-radius: 50%; font-size: 28px; display: flex; align-items: center; justify-content: center;
-        }
-
-        .mode-toggle { font-size: 14px; color: #0071e3; font-weight: 500; cursor: pointer; margin-top: 10px; }
-    </style>
-</head>
-<body>
+    /* 中心核心輸入區 - 你的靈魂接口 */
+    .core-input {
+        width: 140px;
+        height: 140px;
+        background: #1d1d1f;
+        color: #fff;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.2);
+    }
+</style>
 
 <div class="zen-container">
-    <h1 class="ios-title" onclick="location.href='view.html'">此時此刻 <span>〉</span></h1>
+    <h1 class="ios-title" onclick="location.href='view.html'">時空回路 <span>〉</span></h1>
     
-    <div class="pill-group" id="pillGroup">
+    <div class="bubble-sea" id="bubbleSea">
+        <div class="bubble" style="width:110px; height:110px; top:15%; left:10%; font-size:20px;" onclick="saveActivity('💼 工作')">工作</div>
+        <div class="bubble" style="width:90px; height:90px; top:20%; left:65%; font-size:18px;" onclick="saveActivity('🚽 稍息')">稍息</div>
+        <div class="bubble" style="width:120px; height:120px; top:65%; left:15%; font-size:22px;" onclick="saveActivity('🌧️ 情緒')">心情</div>
+        <div class="bubble" style="width:100px; height:100px; top:68%; left:60%; font-size:20px;" onclick="saveActivity('🍱 能量')">能量</div>
+        
+        <div class="core-input">
+            <input type="text" id="customInput" placeholder="想什麼？" style="width:90%; background:transparent; border:none; color:white; text-align:center; font-size:18px; outline:none; font-weight:500;">
+            <button onclick="handleCustomSave()" style="background:none; border:none; color:#0071e3; font-weight:800; font-size:32px; cursor:pointer; margin-top:8px;">＋</button>
         </div>
-
-    <div class="input-nexus">
-        <input type="text" id="customInput" placeholder="輸入新標籤..." />
-        <button class="action-circle" onclick="addNewTag()">＋</button>
     </div>
-
-    <div class="mode-toggle" id="modeToggle" onclick="toggleEditMode()">編輯標籤</div>
     
-    <p id="status" style="margin-top:30px; font-size:15px; color:#86868b; font-weight:500;"></p>
+    <p id="status" style="text-align:center; font-weight:600;"></p>
 </div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv",
-        authDomain: "now-doing.firebaseapp.com",
-        projectId: "now-doing",
-        storageBucket: "now-doing.firebasestorage.app",
-        messagingSenderId: "234295652644",
-        appId: "1:234295652644:web:c9b3c37de32d94"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let tags = JSON.parse(localStorage.getItem('userTags')) || ['💼 工作', '🚽 稍息', '🌧️ 情緒', '🍱 能量'];
-    let isEditing = false;
-
-    function renderTags() {
-        const group = document.getElementById('pillGroup');
-        group.innerHTML = '';
-        tags.forEach((tag, index) => {
-            const pill = document.createElement('button');
-            pill.className = `pill ${index > 3 ? 'custom' : ''}`;
-            pill.innerHTML = `${tag} <span class="delete-tag" onclick="removeTag(event, ${index})">✕</span>`;
-            pill.onclick = () => { if(!isEditing) saveActivity(tag); };
-            group.appendChild(pill);
-        });
-    }
-
-    async function saveActivity(actionName) {
-        const status = document.getElementById('status');
-        status.innerText = "正在感知位置...";
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            try {
-                await addDoc(collection(db, "daily_logs"), {
-                    action: actionName,
-                    timestamp: serverTimestamp(),
-                    location: { lat: pos.coords.latitude, lon: pos.coords.longitude }
-                });
-                status.innerText = "✨ 已存入時光回路";
-                setTimeout(() => { status.innerText = ""; }, 2500);
-            } catch (e) { status.innerText = "存檔失敗"; }
-        }, () => {
-            addDoc(collection(db, "daily_logs"), { action: actionName, timestamp: serverTimestamp() });
-            status.innerText = "✅ 已存入 (無座標)";
-        });
-    }
-
-    window.addNewTag = () => {
-        const input = document.getElementById('customInput');
-        const val = input.value.trim();
-        if (val) {
-            tags.push(val);
-            localStorage.setItem('userTags', JSON.stringify(tags));
-            renderTags();
-            input.value = '';
-        }
-    };
-
-    window.removeTag = (e, index) => {
-        e.stopPropagation();
-        tags.splice(index, 1);
-        localStorage.setItem('userTags', JSON.stringify(tags));
-        renderTags();
-    };
-
-    window.toggleEditMode = () => {
-        isEditing = !isEditing;
-        document.getElementById('pillGroup').classList.toggle('editing');
-        document.getElementById('modeToggle').innerText = isEditing ? '完成編輯' : '編輯標籤';
-    };
-
-    renderTags();
-    window.saveActivity = saveActivity;
-</script>
-
-</body>
-</html>
