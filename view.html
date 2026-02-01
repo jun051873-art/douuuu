@@ -1,129 +1,49 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>時空回路 - 深度透視</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background-color: #f5f5f7; font-family: -apple-system, sans-serif; margin: 0; color: #1d1d1f; }
-        .container { max-width: 500px; margin: 0 auto; padding: 40px 25px; }
-        
-        /* 大氣標題 */
-        .header { display: flex; align-items: center; margin-bottom: 30px; cursor: pointer; }
-        .header h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; }
-        .back-arrow { font-size: 24px; color: #0071e3; margin-right: 10px; font-weight: 800; }
+<style>
+    /* 賈伯斯美學：極簡與呼吸感 */
+    body { background-color: #ffffff; color: #1d1d1f; font-family: -apple-system, sans-serif; padding: 40px 20px; }
+    
+    .insight-card {
+        background: #f5f5f7;
+        border-radius: 30px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
 
-        /* 圖表區塊 */
-        .chart-section { 
-            background: white; border-radius: 24px; padding: 25px; 
-            margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        .chart-title { font-size: 17px; font-weight: 600; color: #86868b; margin-bottom: 20px; }
+    .percentage-bar-container {
+        height: 8px;
+        width: 100%;
+        background: #e5e5e7;
+        border-radius: 4px;
+        margin: 20px 0;
+        overflow: hidden;
+        display: flex;
+    }
 
-        /* 時光流卡片 */
-        .log-card { 
-            background: #ffffff; border-radius: 18px; padding: 18px; 
-            margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            border-left: 6px solid #d2d2d7;
-        }
-        .log-time { font-size: 12px; color: #86868b; font-weight: 600; margin-bottom: 5px; }
-        .log-action { font-size: 20px; font-weight: 700; color: #1d1d1f; }
-        
-        /* 分類顏色 */
-        .cat-work { border-left-color: #0071e3; }      /* 工作藍 */
-        .cat-life { border-left-color: #34c759; }      /* 生活綠 */
-        .cat-mood { border-left-color: #ff3b30; }      /* 情緒紅 */
-    </style>
-</head>
-<body>
+    /* 大氣的漸層顏色 */
+    .bar-work { background: #0071e3; height: 100%; transition: 1s; }
+    .bar-life { background: #34c759; height: 100%; transition: 1s; }
+    .bar-mood { background: #ff3b30; height: 100%; transition: 1s; }
+
+    .stat-label { font-size: 14px; font-weight: 600; color: #86868b; display: flex; justify-content: space-between; }
+</style>
 
 <div class="container">
-    <div class="header" onclick="location.href='index.html'">
-        <span class="back-arrow">〈</span>
-        <h1>本週透視</h1>
+    <h1 style="font-size: 42px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">時空透視</h1>
+    
+    <div class="insight-card">
+        <div class="chart-title" style="font-size: 18px; font-weight: 700;">能量分佈</div>
+        <div class="percentage-bar-container" id="barContainer">
+            <div id="workBar" class="bar-work" style="width: 0%"></div>
+            <div id="lifeBar" class="bar-life" style="width: 0%"></div>
+            <div id="moodBar" class="bar-mood" style="width: 0%"></div>
+        </div>
+        <div class="stat-label">
+            <span>工作產出</span>
+            <span>生活能量</span>
+            <span>情緒脈絡</span>
+        </div>
     </div>
-
-    <div class="chart-section">
-        <div class="chart-title">行為能量佔比</div>
-        <canvas id="insightChart"></canvas>
-    </div>
-
-    <div id="logList">
-        <p style="text-align:center; color:#86868b;">正在同步時空數據...</p>
-    </div>
+    
+    <div id="logList"></div>
 </div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv",
-        authDomain: "now-doing.firebaseapp.com",
-        projectId: "now-doing",
-        storageBucket: "now-doing.firebasestorage.app",
-        messagingSenderId: "234295652644",
-        appId: "1:234295652644:web:c9b3c37de32d94"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function loadData() {
-        const q = query(collection(db, "daily_logs"), orderBy("timestamp", "desc"), limit(100));
-        const querySnapshot = await getDocs(q);
-        
-        let stats = { "工作產出": 0, "生活能量": 0, "情緒脈絡": 0 };
-        const logList = document.getElementById('logList');
-        logList.innerHTML = '';
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const action = data.action || "未知";
-            
-            // 自動分類邏輯
-            let categoryClass = '';
-            if (action.includes("工") || action.includes("洗") || action.includes("燙")) {
-                stats["工作產出"]++;
-                categoryClass = 'cat-work';
-            } else if (action.includes("能") || action.includes("息") || action.includes("食")) {
-                stats["生活能量"]++;
-                categoryClass = 'cat-life';
-            } else {
-                stats["情緒脈絡"]++;
-                categoryClass = 'cat-mood';
-            }
-
-            const time = data.timestamp ? data.timestamp.toDate().toLocaleString('zh-TW', {hour12:false, month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : "剛才";
-            
-            const card = document.createElement('div');
-            card.className = `log-card ${categoryClass}`;
-            card.innerHTML = `<div class="log-time">${time}</div><div class="log-action">${action}</div>`;
-            logList.appendChild(card);
-        });
-
-        renderChart(stats);
-    }
-
-    function renderChart(stats) {
-        const ctx = document.getElementById('insightChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(stats),
-                datasets: [{
-                    data: Object.values(stats),
-                    backgroundColor: ['#0071e3', '#34c759', '#ff3b30'],
-                    borderWidth: 0
-                }]
-            },
-            options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
-        });
-    }
-
-    loadData();
-</script>
-</body>
-</html>
