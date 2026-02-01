@@ -67,19 +67,20 @@
                 const time = data.timestamp ? data.timestamp.toDate().toLocaleString('zh-TW', { hour12: false }) : '無時間';
                 
                 const item = document.createElement('div');
-                                item.innerHTML = `
+                                                item.innerHTML = `
                     <div style="text-align: left;">
                         <div class="action-text">${data.action}</div>
                         <div class="location-tag">
-                            <a href="${data.location ? 'https://www.google.com/maps?q=' + data.location.lat + ',' + data.location.lon : '#'}" 
+                            <a href="${data.location ? 'https://www.google.com/maps/search/?api=1&query=' + data.location.lat + ',' + data.location.lon : '#'}" 
                                target="_blank" 
-                               style="color: #0071e3; text-decoration: none;">
-                               📍 座標：${data.location && data.location.lat ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '無定位'}
+                               style="color: #0071e3; text-decoration: none; display: flex; align-items: center;">
+                                📍 <span style="margin-left: 4px;">座標：${data.location && data.location.lat ? data.location.lat.toFixed(4) + ', ' + data.location.lon.toFixed(4) : '無定位'}</span>
                             </a>
                         </div>
                     </div>
                     <div class="time-text">${time}</div>
                 `;
+
 
                 logContainer.appendChild(item);
             });
