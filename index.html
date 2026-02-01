@@ -1,16 +1,49 @@
-    // --- 核心物理交互邏輯 ---
+        // --- 核心物理交互邏輯 (手機觸控優化版) ---
     const mouse = Mouse.create(container);
-    // 加入這段，讓 Matter.js 支援手機觸控
-    mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
-    mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
+    
+    // 關鍵：這行能讓手機網頁「放開控制權」，交給物理引擎處理觸控
+    mouse.element.removeEventListener("touchstart", mouse.touchstart);
+    mouse.element.removeEventListener("touchmove", mouse.touchmove);
+    mouse.element.removeEventListener("touchend", mouse.touchend);
 
     const mouseConstraint = MouseConstraint.create(engine, {
         mouse: mouse,
         constraint: {
-            stiffness: 0.15, // 調整拉動的柔韌度
+            stiffness: 0.1, // 讓拉動感覺更有彈性
             render: { visible: false }
         }
     });
+    
+    Composite.add(engine.world, mouseConstraint);
+
+    // 邏輯區分：是想「推開氣泡」還是「點擊存檔」？
+    let startPoint = null;
+    let moved = false;
+
+    Matter.Events.on(mouseConstraint, 'mousedown', (e) => {
+        startPoint = { x: e.mouse.position.x, y: e.mouse.position.y };
+        moved = false;
+    });
+
+    Matter.Events.on(mouseConstraint, 'mousemove', (e) => {
+        if (startPoint) {
+            const distance = Vector.magnitude(Vector.sub(startPoint, e.mouse.position));
+            if (distance > 10) moved = true; // 移動超過10像素，判定為「推」
+        }
+    });
+
+    Matter.Events.on(mouseConstraint, 'mouseup', (e) => {
+        // 如果手指只是輕點且沒滑動，才執行存檔
+        if (!moved && mouseConstraint.body) {
+            const actionText = mouseConstraint.body.label;
+            // 排除掉中心黑洞或其他非標籤物體
+            if (actionText && actionText !== 'Rectangle Body') {
+                saveActivity(actionText);
+            }
+        }
+        startPoint = null;
+    });
+
     
     Composite.add(engine.world, mouseConstraint);
 
