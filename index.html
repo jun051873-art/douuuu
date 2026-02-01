@@ -1,90 +1,185 @@
-        // --- 核心物理交互邏輯 (手機觸控優化版) ---
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>此時此刻 - 賈伯斯美學版</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        /* --- 分水嶺 4: 外觀皮膚 (CSS) --- */
+        body { background-color: #ffffff; font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; touch-action: none; }
+        .ios-title { 
+            position: absolute; top: 40px; left: 30px; font-size: 42px; font-weight: 800; 
+            z-index: 100; cursor: pointer; color: #1d1d1f; letter-spacing: -1.5px;
+        }
+        .ios-title span { font-size: 24px; color: #d2d2d7; vertical-align: middle; }
+
+        .bubble-node { 
+            position: absolute; border-radius: 50%; background: #f5f5f7; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 700; color: #1d1d1f; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            pointer-events: none; border: 1px solid #e5e5e7; text-align: center;
+        }
+
+        /* 中心靈魂接口 */
+        .core-input { 
+            width: 140px; height: 140px; background: #1d1d1f; color: #fff; border-radius: 50%; 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            border: 4px solid #fff; box-shadow: 0 0 50px rgba(0,0,0,0.15);
+        }
+        input { width: 85%; background: transparent; border: none; color: white; text-align: center; font-size: 18px; outline: none; font-weight: 500; }
+        .add-btn { background: none; border: none; color: #0071e3; font-weight: 800; font-size: 36px; cursor: pointer; margin-top: 5px; }
+        
+        #status { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 15px; color: #86868b; font-weight: 600; z-index: 100; }
+    </style>
+</head>
+<body>
+
+<h1 class="ios-title" onclick="location.href='view.html'">時空回路 <span>〉</span></h1>
+
+<div id="world-container" style="width: 100vw; height: 100vh;">
+    <div class="core-input">
+        <input type="text" id="customInput" placeholder="想什麼？">
+        <button class="add-btn" onclick="addNewBubble()">＋</button>
+    </div>
+</div>
+
+<p id="status"></p>
+
+<script type="module">
+    /* --- 分水嶺 2: 雲端鑰匙 (Firebase) --- */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv",
+        authDomain: "now-doing.firebaseapp.com",
+        projectId: "now-doing",
+        storageBucket: "now-doing.firebasestorage.app",
+        messagingSenderId: "234295652644",
+        appId: "1:234295652644:web:c9b3c37de32d94"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    /* --- 分水嶺 1: 物理神經 (Matter.js) --- */
+    const { Engine, Runner, Bodies, Composite, Mouse, MouseConstraint, Vector } = Matter;
+    const engine = Engine.create();
+    engine.gravity.y = 0; // 無重力漂浮感
+
+    const container = document.getElementById('world-container');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // 持久化標籤記憶
+    let tags = JSON.parse(localStorage.getItem('userTags')) || ['💼 工作', '🚽 稍息', '🌧️ 情緒', '🍱 能量', '💆 舒緩'];
+    let bubbleBodies = [];
+
+    function createBubble(text) {
+        const radius = text.length * 10 + 35;
+        // 在中心附近隨機生成
+        const body = Bodies.circle(width/2 + (Math.random()-0.5)*100, height/2 + (Math.random()-0.5)*100, radius, {
+            restitution: 0.7, // 彈性
+            frictionAir: 0.06, // 濕滑感阻力
+            label: text
+        });
+
+        const el = document.createElement('div');
+        el.className = 'bubble-node';
+        el.innerText = text;
+        el.style.width = radius * 2 + 'px';
+        el.style.height = radius * 2 + 'px';
+        el.style.fontSize = Math.max(radius / 2.5, 14) + 'px';
+        container.appendChild(el);
+
+        body.element = el;
+        return body;
+    }
+
+    // 接上觸覺神經
     const mouse = Mouse.create(container);
-    
-    // 關鍵：這行能讓手機網頁「放開控制權」，交給物理引擎處理觸控
+    // 關鍵：修正手機觸控無法撥動的問題
     mouse.element.removeEventListener("touchstart", mouse.touchstart);
     mouse.element.removeEventListener("touchmove", mouse.touchmove);
     mouse.element.removeEventListener("touchend", mouse.touchend);
 
     const mouseConstraint = MouseConstraint.create(engine, {
         mouse: mouse,
-        constraint: {
-            stiffness: 0.1, // 讓拉動感覺更有彈性
-            render: { visible: false }
-        }
+        constraint: { stiffness: 0.15, render: { visible: false } }
     });
-    
     Composite.add(engine.world, mouseConstraint);
 
-    // 邏輯區分：是想「推開氣泡」還是「點擊存檔」？
-    let startPoint = null;
-    let moved = false;
-
-    Matter.Events.on(mouseConstraint, 'mousedown', (e) => {
-        startPoint = { x: e.mouse.position.x, y: e.mouse.position.y };
-        moved = false;
-    });
-
-    Matter.Events.on(mouseConstraint, 'mousemove', (e) => {
-        if (startPoint) {
-            const distance = Vector.magnitude(Vector.sub(startPoint, e.mouse.position));
-            if (distance > 10) moved = true; // 移動超過10像素，判定為「推」
-        }
-    });
-
-    Matter.Events.on(mouseConstraint, 'mouseup', (e) => {
-        // 如果手指只是輕點且沒滑動，才執行存檔
-        if (!moved && mouseConstraint.body) {
-            const actionText = mouseConstraint.body.label;
-            // 排除掉中心黑洞或其他非標籤物體
-            if (actionText && actionText !== 'Rectangle Body') {
-                saveActivity(actionText);
-            }
-        }
-        startPoint = null;
-    });
-
-    
-    Composite.add(engine.world, mouseConstraint);
-
-    // 關鍵：修正手機觸控偏移問題
+    // 區分撥動與點擊
     let dragStart = null;
-    let isDragging = false;
-
+    let moved = false;
     Matter.Events.on(mouseConstraint, 'mousedown', (e) => {
         dragStart = { x: e.mouse.position.x, y: e.mouse.position.y };
-        isDragging = false; 
+        moved = false;
     });
-
-    Matter.Events.on(mouseConstraint, 'mousemove', (e) => {
-        if (dragStart) {
-            const dist = Vector.magnitude(Vector.sub(dragStart, e.mouse.position));
-            if (dist > 5) isDragging = true; // 如果移動超過 5 像素，判定為拖拽
-        }
-    });
-
+    Matter.Events.on(mouseConstraint, 'mousemove', () => { if (dragStart) moved = true; });
     Matter.Events.on(mouseConstraint, 'mouseup', (e) => {
-        // 如果只是輕輕一點（沒拖拽），就執行存檔
-        if (!isDragging && mouseConstraint.body) {
+        if (!moved && mouseConstraint.body) {
             const label = mouseConstraint.body.label;
-            if (label !== 'Rectangle Body') saveActivity(label); 
+            if (label && label !== 'Rectangle Body') saveActivity(label);
         }
         dragStart = null;
-        isDragging = false;
     });
 
-    // 強化的向心力與視覺同步
+    async function saveActivity(actionName) {
+        const status = document.getElementById('status');
+        status.innerText = `🌠 正在寫入時空：${actionName}...`;
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            try {
+                await addDoc(collection(db, "daily_logs"), {
+                    action: actionName,
+                    timestamp: serverTimestamp(),
+                    location: { lat: pos.coords.latitude, lon: pos.coords.longitude }
+                });
+                status.innerText = "✨ 已存入回路";
+                setTimeout(() => { status.innerText = ""; }, 2000);
+            } catch (e) { status.innerText = "連線失敗"; }
+        }, () => {
+            addDoc(collection(db, "daily_logs"), { action: actionName, timestamp: serverTimestamp() });
+            status.innerText = "✅ 紀錄成功 (無位置)";
+        });
+    }
+
+    window.addNewBubble = () => {
+        const input = document.getElementById('customInput');
+        if (input.value.trim()) {
+            const val = input.value.trim();
+            tags.push(val);
+            localStorage.setItem('userTags', JSON.stringify(tags));
+            const b = createBubble(val);
+            bubbleBodies.push(b);
+            Composite.add(engine.world, b);
+            input.value = '';
+        }
+    };
+
     function update() {
         const center = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         bubbleBodies.forEach(body => {
-            // 只有在沒被你抓著的時候，才會緩緩向中心靠攏
+            // 向心力：讓氣泡聚攏在中心
             if (mouseConstraint.body !== body) {
                 const force = Vector.mult(Vector.normalise(Vector.sub(center, body.position)), 0.0004 * body.mass);
                 Matter.Body.applyForce(body, body.position, force);
             }
-
-            // 同步 DOM 位置
+            // 同步視覺位置
             body.element.style.transform = `translate(${body.position.x - body.circleRadius}px, ${body.position.y - body.circleRadius}px)`;
         });
         requestAnimationFrame(update);
     }
+
+    // 初始化
+    bubbleBodies = tags.map(createBubble);
+    Composite.add(engine.world, bubbleBodies);
+    Runner.run(Runner.create(), engine);
+    update();
+
+    window.saveActivity = saveActivity;
+</script>
+</body>
+</html>
