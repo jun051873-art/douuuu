@@ -1,19 +1,63 @@
-<div class="zen-container">
-    <h1 class="ios-title" onclick="location.href='view.html'" style="cursor: pointer;">
-        此時此刻 <span style="font-size: 14px; color: #d2d2d7; font-weight: 400;">〉</span>
-    </h1>
+<style>
+    /* 賈伯斯式的流動空間 */
+    .bubble-sea {
+        position: relative;
+        width: 100%;
+        height: 60vh;
+        overflow: hidden;
+        background: #fff;
+    }
     
-    <div class="pill-group">
-        <button class="pill" onclick="saveActivity('💼 工作')">工作</button>
-        <button class="pill" onclick="saveActivity('🚽 稍息')">稍息</button>
-        <button class="pill" onclick="saveActivity('🌧️ 情緒')">情緒</button>
-        <button class="pill" onclick="saveActivity('📱 靜默')">靜默</button>
-        <button class="pill" onclick="saveActivity('🍱 能量')">能量</button>
-    </div>
+    .bubble {
+        position: absolute;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: 600;
+        background: #f5f5f7;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+    }
 
-    <div class="input-nexus">
-        <input type="text" id="customInput" placeholder="寫下此時的備註..." />
-        <button class="action-circle" onclick="saveWithNote()">＋</button>
+    .bubble:active { transform: scale(0.9); }
+
+    /* 中心核心輸入區 */
+    .core-input {
+        width: 120px;
+        height: 120px;
+        background: #1d1d1f;
+        color: #fff;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+</style>
+
+<div class="zen-container">
+    <h1 class="ios-title" onclick="location.href='view.html'">時空回路 <span>〉</span></h1>
+    
+    <div class="bubble-sea" id="bubbleSea">
+        <div class="bubble" style="width:100px; height:100px; top:10%; left:20%; font-size:18px;" onclick="saveActivity('💼 工作')">工作</div>
+        <div class="bubble" style="width:80px; height:80px; top:15%; left:60%; font-size:16px;" onclick="saveActivity('🚽 稍息')">稍息</div>
+        <div class="bubble" style="width:110px; height:110px; top:60%; left:15%; font-size:19px;" onclick="saveActivity('🌧️ 情緒')">心情</div>
+        <div class="bubble" style="width:90px; height:90px; top:65%; left:55%; font-size:17px;" onclick="saveActivity('🍱 能量')">能量</div>
+        
+        <div class="core-input">
+            <input type="text" id="customInput" placeholder="想什麼？" style="width:80%; background:transparent; border:none; color:white; text-align:center; font-size:16px; outline:none;">
+            <button onclick="handleCustomSave()" style="background:none; border:none; color:#0071e3; font-weight:700; font-size:24px; cursor:pointer; margin-top:5px;">＋</button>
+        </div>
     </div>
-    <p id="status" style="margin-top:20px; font-size:13px; color:#86868b; min-height: 1.2em;"></p>
+    
+    <p id="status"></p>
 </div>
