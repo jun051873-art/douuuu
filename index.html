@@ -1,31 +1,54 @@
-<div class="card">
-    <h2 style="font-weight: 400; color: #86868b;">現在在幹嘛？</h2>
+<div class="zen-container">
+    <h1 class="ios-title">此時此刻</h1>
     
-    <div class="tags-grid">
-        <button class="tag-btn" onclick="saveActivity('💼 工作中')">💼 工作</button>
-        <button class="tag-btn" onclick="saveActivity('🚽 上廁所')">🚽 上廁所</button>
-        <button class="tag-btn" onclick="saveActivity('🌧️ 心情不美麗')">🌧️ 心情不美麗</button>
-        <button class="tag-btn" onclick="saveActivity('📱 耍廢中')">📱 耍廢</button>
-        <button class="tag-btn" onclick="saveActivity('🍱 吃飯中')">🍱 吃飯</button>
-        <button class="tag-btn" style="background:#f2f2f7; color:#0071e3;" onclick="toggleInput()">✍️ 自定義</button>
+    <div class="pill-group">
+        <button class="pill" onclick="saveActivity('💼 工作')">工作</button>
+        <button class="pill" onclick="saveActivity('🚽 稍息')">稍息</button>
+        <button class="pill" onclick="saveActivity('🌧️ 情緒')">情緒</button>
+        <button class="pill" onclick="saveActivity('📱 靜默')">靜默</button>
+        <button class="pill" onclick="saveActivity('🍱 能量')">能量</button>
     </div>
 
-    <div id="customArea" style="display:none; margin-top:20px;">
-        <input type="text" id="customInput" placeholder="想備註什麼？ (如：燙髮 $3000)">
-        <button class="confirm-btn" onclick="saveWithNote()">確定</button>
+    <div class="input-nexus">
+        <input type="text" id="customInput" placeholder="寫下此時的備註..." />
+        <button class="action-circle" onclick="saveWithNote()">＋</button>
     </div>
 </div>
 
 <style>
-    .tags-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .tag-btn { 
-        padding: 20px 10px; border-radius: 20px; border: none; 
-        background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        font-size: 16px; font-weight: 500; transition: 0.2s;
+    body { background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica; }
+    
+    .zen-container { 
+        max-width: 400px; margin: 80px auto; padding: 0 30px; text-align: left; 
     }
-    .tag-btn:active { transform: scale(0.9); background: #f5f5f7; }
-    .confirm-btn { 
-        width: 100%; padding: 15px; border-radius: 15px; border: none;
-        background: #1d1d1f; color: white; margin-top: 10px;
+
+    .ios-title { 
+        font-size: 34px; font-weight: 700; letter-spacing: -1px; margin-bottom: 40px; color: #1d1d1f;
+    }
+
+    /* 捨棄表格格線，改用自由排列的膠囊按鈕 */
+    .pill-group { 
+        display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 60px;
+    }
+
+    .pill { 
+        background: #f5f5f7; border: none; padding: 12px 24px; border-radius: 25px;
+        font-size: 17px; font-weight: 500; color: #1d1d1f; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .pill:active { transform: scale(0.9); background: #e8e8ed; }
+
+    /* 極簡輸入框：只有一條細線與一個圓形按鈕 */
+    .input-nexus { 
+        display: flex; align-items: center; border-bottom: 1.5px solid #d2d2d7; padding-bottom: 10px;
+    }
+
+    input[type="text"] { 
+        flex: 1; border: none; outline: none; font-size: 19px; background: transparent; color: #1d1d1f;
+    }
+
+    .action-circle { 
+        width: 32px; height: 32px; background: #1d1d1f; color: white; border: none; 
+        border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center;
     }
 </style>
