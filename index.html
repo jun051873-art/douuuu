@@ -67,26 +67,32 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 大腦邏輯：處理帶有備註的儲存
-  window.saveWithNote = async function() {
-    const note = document.getElementById('customInput').value;
-    if(!note) return alert("請輸入內容或點擊上方預設按鈕");
-    await saveActivity(note);
-    document.getElementById('customInput').value = "";
-  }
+  // 大腦邏輯升級：加入定位功能的 JS
+window.saveActivity = async function(activity) {
+  if(!activity) return;
+  
+  // 向 iPhone 請求定位權限與座標
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const lat = position.coords.latitude;  // 緯度
+    const lon = position.coords.longitude; // 經度
 
-  window.saveActivity = async function(activity) {
     try {
       await addDoc(collection(db, "daily_logs"), {
         action: activity,
         timestamp: serverTimestamp(),
+        location: { lat, lon }, // 自動存入座標
         device: "iPhone"
       });
-      alert("✅ 已赤裸紀錄：" + activity);
+      alert("✅ 已赤裸紀錄(含定位)：" + activity);
     } catch (e) {
       alert("儲存失敗！");
     }
-  }
+  }, (error) => {
+    // 如果使用者拒絕定位，依然可以儲存，只是沒有座標
+    saveWithoutLocation(activity);
+  });
+}
+
 </script>
 </body>
 </html>
