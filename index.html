@@ -3,45 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>此時此刻 - 蜂巢氣泡</title>
+    <title>時空回路 - 真物理氣泡</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
         body { background-color: #ffffff; font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; touch-action: none; }
         .ios-title { position: absolute; top: 40px; left: 30px; font-size: 38px; font-weight: 800; z-index: 100; cursor: pointer; color: #1d1d1f; }
+        #world-container { width: 100vw; height: 100vh; position: relative; }
         
-        #canvas-container { width: 100vw; height: 100vh; position: relative; cursor: grab; }
-        #canvas-container:active { cursor: grabbing; }
-
-        /* 中心輸入接口 */
+        /* 中心靈魂接口 */
         .core-input {
-            width: 130px; height: 130px; background: #1d1d1f; color: #fff; border-radius: 50%;
+            width: 140px; height: 140px; background: #1d1d1f; color: #fff; border-radius: 50%;
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 0 50px rgba(0,0,0,0.15); border: 4px solid #fff;
+            box-shadow: 0 0 50px rgba(0,0,0,0.15); border: 4px solid #fff; pointer-events: auto;
         }
-        input[type="text"] { width: 80%; background: transparent; border: none; color: white; text-align: center; font-size: 16px; outline: none; }
-        .add-btn { background: none; border: none; color: #0071e3; font-weight: 800; font-size: 32px; cursor: pointer; margin-top: 5px; }
+        input { width: 80%; background: transparent; border: none; color: white; text-align: center; font-size: 16px; outline: none; }
+        .add-btn { background: none; border: none; color: #0071e3; font-weight: 800; font-size: 32px; cursor: pointer; }
         
-        #status { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 14px; color: #86868b; font-weight: 600; z-index: 100; }
+        /* 實體氣泡樣式 */
+        .bubble-node {
+            position: absolute; border-radius: 50%; background: #f5f5f7;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: #1d1d1f; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            pointer-events: auto; user-select: none; border: 1px solid #e5e5e7;
+        }
+        #status { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 14px; color: #86868b; z-index: 100; }
     </style>
 </head>
 <body>
 
 <h1 class="ios-title" onclick="location.href='view.html'">時空回路</h1>
-
-<div id="canvas-container">
+<div id="world-container">
     <div class="core-input">
         <input type="text" id="customInput" placeholder="想什麼？">
         <button class="add-btn" onclick="addNewBubble()">＋</button>
     </div>
 </div>
-
 <p id="status"></p>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 你的專屬鑰匙
     const firebaseConfig = {
         apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv",
         authDomain: "now-doing.firebaseapp.com",
@@ -50,113 +53,102 @@
         messagingSenderId: "234295652644",
         appId: "1:234295652644:web:c9b3c37de32d94"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 物理引擎核心 ---
-    let tags = JSON.parse(localStorage.getItem('userTags')) || ['💼 工作', '🚽 稍息', '🌧️ 情緒', '🍱 能量', '📱 靜默', '☕ 靈感', '💆 舒緩'];
-    const container = document.getElementById('canvas-container');
-    let bubbles = [];
-    let offsetX = 0, offsetY = 0;
-    let isDragging = false;
-    let lastMouseX = 0, lastMouseY = 0;
-    let velX = 0, velY = 0;
+    // --- 物理引擎初始化 ---
+    const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint, Vector } = Matter;
+    const engine = Engine.create();
+    engine.gravity.y = 0; // 無重力，漂浮感
 
-    class Bubble {
-        constructor(text, x, y) {
-            this.text = text;
-            this.x = x;
-            this.y = y;
-            this.radius = text.length * 8 + 35;
-            this.el = document.createElement('div');
-            this.el.className = 'bubble';
-            this.updateElementStyle();
-            this.el.innerText = text;
-            this.el.style.position = 'absolute';
-            this.el.style.borderRadius = '50%';
-            this.el.style.display = 'flex';
-            this.el.style.alignItems = 'center';
-            this.el.style.justifyContent = 'center';
-            this.el.style.background = '#f5f5f7';
-            this.el.style.boxShadow = '0 10px 30px rgba(0,0,0,0.05)';
-            this.el.style.fontWeight = '700';
-            this.el.style.cursor = 'pointer';
-            this.el.style.userSelect = 'none';
-            this.el.onclick = () => saveActivity(text);
-            container.appendChild(this.el);
-        }
+    const container = document.getElementById('world-container');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-        updateElementStyle() {
-            this.el.style.width = `${this.radius * 2}px`;
-            this.el.style.height = `${this.radius * 2}px`;
-            this.el.style.fontSize = `${this.radius / 2.5}px`;
-        }
+    let tags = JSON.parse(localStorage.getItem('userTags')) || ['💼 工作', '🚽 稍息', '🌧️ 情緒', '🍱 能量', '📱 靜默'];
+    let bubbleBodies = [];
 
-        draw() {
-            this.el.style.left = `${this.x + offsetX}px`;
-            this.el.style.top = `${this.y + offsetY}px`;
-        }
-    }
-
-    function initBubbles() {
-        bubbles.forEach(b => b.el.remove());
-        bubbles = [];
-        tags.forEach((tag, i) => {
-            const angle = i * (Math.PI * 2 / tags.length);
-            const dist = 200 + Math.random() * 100;
-            const x = window.innerWidth / 2 + Math.cos(angle) * dist - 50;
-            const y = window.innerHeight / 2 + Math.sin(angle) * dist - 50;
-            bubbles.push(new Bubble(tag, x, y));
+    function createBubble(text) {
+        const radius = text.length * 8 + 40;
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        
+        // 物理實體
+        const body = Bodies.circle(x, y, radius, {
+            restitution: 0.6, // 彈性
+            frictionAir: 0.05, // 空氣阻力
+            label: text
         });
+
+        // DOM 元素 (視覺)
+        const el = document.createElement('div');
+        el.className = 'bubble-node';
+        el.innerText = text;
+        el.style.width = radius * 2 + 'px';
+        el.style.height = radius * 2 + 'px';
+        el.style.fontSize = radius / 2.5 + 'px';
+        container.appendChild(el);
+
+        body.element = el;
+        body.onTap = () => saveActivity(text);
+        return body;
     }
 
-    // --- 交互邏輯 ---
-    container.onpointerdown = (e) => {
-        isDragging = true;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-        velX = 0; velY = 0;
-    };
+    function initWorld() {
+        Composite.clear(engine.world);
+        document.querySelectorAll('.bubble-node').forEach(n => n.remove());
+        bubbleBodies = tags.map(t => createBubble(t));
+        Composite.add(engine.world, bubbleBodies);
+    }
 
-    window.onpointermove = (e) => {
-        if (!isDragging) return;
-        const dx = e.clientX - lastMouseX;
-        const dy = e.clientY - lastMouseY;
-        offsetX += dx;
-        offsetY += dy;
-        velX = dx; velY = dy;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-    };
+    // 滑動與引力邏輯
+    const runner = Runner.create();
+    Runner.run(runner, engine);
 
-    window.onpointerup = () => { isDragging = false; };
+    function update() {
+        const center = { x: width / 2, y: height / 2 };
+        bubbleBodies.forEach(body => {
+            // 向中心輕微聚攏的引力
+            const force = Vector.mult(Vector.normalise(Vector.sub(center, body.position)), 0.0005 * body.mass);
+            Matter.Body.applyForce(body, body.position, force);
 
-    function animate() {
-        if (!isDragging) {
-            offsetX += velX;
-            offsetY += velY;
-            velX *= 0.95; // 摩擦力
-            velY *= 0.95;
+            // 同步視覺與物理位置
+            body.element.style.transform = `translate(${body.position.x - body.circleRadius}px, ${body.position.y - body.circleRadius}px)`;
+        });
+        requestAnimationFrame(update);
+    }
+
+    // 處理點擊與拖拽
+    const mouse = Mouse.create(container);
+    const mouseConstraint = MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: { stiffness: 0.2, render: { visible: false } }
+    });
+    Composite.add(engine.world, mouseConstraint);
+
+    // 區分拖拽與點擊
+    let dragStart = null;
+    Matter.Events.on(mouseConstraint, 'mousedown', (e) => { dragStart = { ...e.mouse.position }; });
+    Matter.Events.on(mouseConstraint, 'mouseup', (e) => {
+        if (!dragStart) return;
+        const dist = Vector.magnitude(Vector.sub(dragStart, e.mouse.position));
+        if (dist < 10 && mouseConstraint.body) {
+            mouseConstraint.body.onTap();
         }
-        bubbles.forEach(b => b.draw());
-        requestAnimationFrame(animate);
-    }
+    });
 
-    // --- 存檔與編輯 ---
     async function saveActivity(actionName) {
         const status = document.getElementById('status');
-        status.innerText = `正在紀錄「${actionName}」的時空座標...`;
+        status.innerText = `🌌 正在寫入「${actionName}」...`;
         navigator.geolocation.getCurrentPosition(async (pos) => {
             await addDoc(collection(db, "daily_logs"), {
-                action: actionName,
-                timestamp: serverTimestamp(),
+                action: actionName, timestamp: serverTimestamp(),
                 location: { lat: pos.coords.latitude, lon: pos.coords.longitude }
             });
-            status.innerText = "✨ 紀錄成功";
+            status.innerText = "✨ 時空回路已更新";
         }, () => {
             addDoc(collection(db, "daily_logs"), { action: actionName, timestamp: serverTimestamp() });
-            status.innerText = "✅ 已紀錄 (無座標)";
+            status.innerText = "✅ 紀錄成功 (無座標)";
         });
     }
 
@@ -165,14 +157,15 @@
         if (input.value) {
             tags.push(input.value);
             localStorage.setItem('userTags', JSON.stringify(tags));
-            initBubbles();
+            const newBody = createBubble(input.value);
+            bubbleBodies.push(newBody);
+            Composite.add(engine.world, newBody);
             input.value = '';
         }
     };
 
-    initBubbles();
-    animate();
-    window.saveActivity = saveActivity;
+    initWorld();
+    update();
 </script>
 </body>
 </html>
