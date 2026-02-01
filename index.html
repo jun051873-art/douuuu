@@ -1,66 +1,178 @@
-<style>
-    /* 賈伯斯式的流動空間 */
-    .bubble-sea {
-        position: relative;
-        width: 100%;
-        height: 70vh;
-        overflow: hidden;
-        background: #fff;
-        touch-action: none;
-    }
-    
-    .bubble {
-        position: absolute;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-weight: 700;
-        background: #f5f5f7;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .bubble:active { transform: scale(0.9); }
-
-    /* 中心核心輸入區 - 你的靈魂接口 */
-    .core-input {
-        width: 140px;
-        height: 140px;
-        background: #1d1d1f;
-        color: #fff;
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 15px;
-        box-shadow: 0 0 40px rgba(0,0,0,0.2);
-    }
-</style>
-
-<div class="zen-container">
-    <h1 class="ios-title" onclick="location.href='view.html'">時空回路 <span>〉</span></h1>
-    
-    <div class="bubble-sea" id="bubbleSea">
-        <div class="bubble" style="width:110px; height:110px; top:15%; left:10%; font-size:20px;" onclick="saveActivity('💼 工作')">工作</div>
-        <div class="bubble" style="width:90px; height:90px; top:20%; left:65%; font-size:18px;" onclick="saveActivity('🚽 稍息')">稍息</div>
-        <div class="bubble" style="width:120px; height:120px; top:65%; left:15%; font-size:22px;" onclick="saveActivity('🌧️ 情緒')">心情</div>
-        <div class="bubble" style="width:100px; height:100px; top:68%; left:60%; font-size:20px;" onclick="saveActivity('🍱 能量')">能量</div>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>此時此刻 - 蜂巢氣泡</title>
+    <style>
+        body { background-color: #ffffff; font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; touch-action: none; }
+        .ios-title { position: absolute; top: 40px; left: 30px; font-size: 38px; font-weight: 800; z-index: 100; cursor: pointer; color: #1d1d1f; }
         
-        <div class="core-input">
-            <input type="text" id="customInput" placeholder="想什麼？" style="width:90%; background:transparent; border:none; color:white; text-align:center; font-size:18px; outline:none; font-weight:500;">
-            <button onclick="handleCustomSave()" style="background:none; border:none; color:#0071e3; font-weight:800; font-size:32px; cursor:pointer; margin-top:8px;">＋</button>
-        </div>
+        #canvas-container { width: 100vw; height: 100vh; position: relative; cursor: grab; }
+        #canvas-container:active { cursor: grabbing; }
+
+        /* 中心輸入接口 */
+        .core-input {
+            width: 130px; height: 130px; background: #1d1d1f; color: #fff; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 0 50px rgba(0,0,0,0.15); border: 4px solid #fff;
+        }
+        input[type="text"] { width: 80%; background: transparent; border: none; color: white; text-align: center; font-size: 16px; outline: none; }
+        .add-btn { background: none; border: none; color: #0071e3; font-weight: 800; font-size: 32px; cursor: pointer; margin-top: 5px; }
+        
+        #status { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 14px; color: #86868b; font-weight: 600; z-index: 100; }
+    </style>
+</head>
+<body>
+
+<h1 class="ios-title" onclick="location.href='view.html'">時空回路</h1>
+
+<div id="canvas-container">
+    <div class="core-input">
+        <input type="text" id="customInput" placeholder="想什麼？">
+        <button class="add-btn" onclick="addNewBubble()">＋</button>
     </div>
-    
-    <p id="status" style="text-align:center; font-weight:600;"></p>
 </div>
+
+<p id="status"></p>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // 你的專屬鑰匙
+    const firebaseConfig = {
+        apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv",
+        authDomain: "now-doing.firebaseapp.com",
+        projectId: "now-doing",
+        storageBucket: "now-doing.firebasestorage.app",
+        messagingSenderId: "234295652644",
+        appId: "1:234295652644:web:c9b3c37de32d94"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- 物理引擎核心 ---
+    let tags = JSON.parse(localStorage.getItem('userTags')) || ['💼 工作', '🚽 稍息', '🌧️ 情緒', '🍱 能量', '📱 靜默', '☕ 靈感', '💆 舒緩'];
+    const container = document.getElementById('canvas-container');
+    let bubbles = [];
+    let offsetX = 0, offsetY = 0;
+    let isDragging = false;
+    let lastMouseX = 0, lastMouseY = 0;
+    let velX = 0, velY = 0;
+
+    class Bubble {
+        constructor(text, x, y) {
+            this.text = text;
+            this.x = x;
+            this.y = y;
+            this.radius = text.length * 8 + 35;
+            this.el = document.createElement('div');
+            this.el.className = 'bubble';
+            this.updateElementStyle();
+            this.el.innerText = text;
+            this.el.style.position = 'absolute';
+            this.el.style.borderRadius = '50%';
+            this.el.style.display = 'flex';
+            this.el.style.alignItems = 'center';
+            this.el.style.justifyContent = 'center';
+            this.el.style.background = '#f5f5f7';
+            this.el.style.boxShadow = '0 10px 30px rgba(0,0,0,0.05)';
+            this.el.style.fontWeight = '700';
+            this.el.style.cursor = 'pointer';
+            this.el.style.userSelect = 'none';
+            this.el.onclick = () => saveActivity(text);
+            container.appendChild(this.el);
+        }
+
+        updateElementStyle() {
+            this.el.style.width = `${this.radius * 2}px`;
+            this.el.style.height = `${this.radius * 2}px`;
+            this.el.style.fontSize = `${this.radius / 2.5}px`;
+        }
+
+        draw() {
+            this.el.style.left = `${this.x + offsetX}px`;
+            this.el.style.top = `${this.y + offsetY}px`;
+        }
+    }
+
+    function initBubbles() {
+        bubbles.forEach(b => b.el.remove());
+        bubbles = [];
+        tags.forEach((tag, i) => {
+            const angle = i * (Math.PI * 2 / tags.length);
+            const dist = 200 + Math.random() * 100;
+            const x = window.innerWidth / 2 + Math.cos(angle) * dist - 50;
+            const y = window.innerHeight / 2 + Math.sin(angle) * dist - 50;
+            bubbles.push(new Bubble(tag, x, y));
+        });
+    }
+
+    // --- 交互邏輯 ---
+    container.onpointerdown = (e) => {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        velX = 0; velY = 0;
+    };
+
+    window.onpointermove = (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        offsetX += dx;
+        offsetY += dy;
+        velX = dx; velY = dy;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    };
+
+    window.onpointerup = () => { isDragging = false; };
+
+    function animate() {
+        if (!isDragging) {
+            offsetX += velX;
+            offsetY += velY;
+            velX *= 0.95; // 摩擦力
+            velY *= 0.95;
+        }
+        bubbles.forEach(b => b.draw());
+        requestAnimationFrame(animate);
+    }
+
+    // --- 存檔與編輯 ---
+    async function saveActivity(actionName) {
+        const status = document.getElementById('status');
+        status.innerText = `正在紀錄「${actionName}」的時空座標...`;
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            await addDoc(collection(db, "daily_logs"), {
+                action: actionName,
+                timestamp: serverTimestamp(),
+                location: { lat: pos.coords.latitude, lon: pos.coords.longitude }
+            });
+            status.innerText = "✨ 紀錄成功";
+        }, () => {
+            addDoc(collection(db, "daily_logs"), { action: actionName, timestamp: serverTimestamp() });
+            status.innerText = "✅ 已紀錄 (無座標)";
+        });
+    }
+
+    window.addNewBubble = () => {
+        const input = document.getElementById('customInput');
+        if (input.value) {
+            tags.push(input.value);
+            localStorage.setItem('userTags', JSON.stringify(tags));
+            initBubbles();
+            input.value = '';
+        }
+    };
+
+    initBubbles();
+    animate();
+    window.saveActivity = saveActivity;
+</script>
+</body>
+</html>
