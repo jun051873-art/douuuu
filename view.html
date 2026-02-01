@@ -3,37 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>時空回路 - 深度回顧</title>
+    <title>時空回路 - 深度透視</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* --- 分水嶺 4: 大氣外觀 (CSS) --- */
         body { background-color: #f5f5f7; font-family: -apple-system, sans-serif; margin: 0; color: #1d1d1f; }
         .container { max-width: 500px; margin: 0 auto; padding: 40px 25px; }
         
         /* 大氣標題 */
-        .header { display: flex; align-items: center; margin-bottom: 40px; cursor: pointer; }
-        .header h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; margin: 0; }
+        .header { display: flex; align-items: center; margin-bottom: 30px; cursor: pointer; }
+        .header h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; }
         .back-arrow { font-size: 24px; color: #0071e3; margin-right: 10px; font-weight: 800; }
 
-        /* 時光卡片 */
-        .timeline { position: relative; border-left: 2px solid #d2d2d7; margin-left: 10px; padding-left: 30px; }
-        .log-card { 
-            background: #ffffff; border-radius: 20px; padding: 20px; margin-bottom: 25px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative;
+        /* 圖表區塊 */
+        .chart-section { 
+            background: white; border-radius: 24px; padding: 25px; 
+            margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
         }
-        /* 時間點點 */
-        .log-card::before {
-            content: ""; position: absolute; left: -41px; top: 25px;
-            width: 16px; height: 16px; background: #0071e3; border-radius: 50%; border: 4px solid #f5f5f7;
-        }
+        .chart-title { font-size: 17px; font-weight: 600; color: #86868b; margin-bottom: 20px; }
 
-        .log-time { font-size: 13px; color: #86868b; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
-        .log-action { font-size: 22px; font-weight: 700; color: #1d1d1f; margin-bottom: 10px; }
-        .log-location { font-size: 14px; color: #0071e3; font-weight: 500; display: flex; align-items: center; }
+        /* 時光流卡片 */
+        .log-card { 
+            background: #ffffff; border-radius: 18px; padding: 18px; 
+            margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            border-left: 6px solid #d2d2d7;
+        }
+        .log-time { font-size: 12px; color: #86868b; font-weight: 600; margin-bottom: 5px; }
+        .log-action { font-size: 20px; font-weight: 700; color: #1d1d1f; }
         
-        /* 分類標籤顏色 */
-        .tag-work { border-left: 5px solid #0071e3; }
-        .tag-rest { border-left: 5px solid #34c759; }
-        .tag-emotion { border-left: 5px solid #ff3b30; }
+        /* 分類顏色 */
+        .cat-work { border-left-color: #0071e3; }      /* 工作藍 */
+        .cat-life { border-left-color: #34c759; }      /* 生活綠 */
+        .cat-mood { border-left-color: #ff3b30; }      /* 情緒紅 */
     </style>
 </head>
 <body>
@@ -41,16 +42,20 @@
 <div class="container">
     <div class="header" onclick="location.href='index.html'">
         <span class="back-arrow">〈</span>
-        <h1>時光流</h1>
+        <h1>本週透視</h1>
     </div>
 
-    <div class="timeline" id="logTimeline">
-        <p style="color: #86868b;">正在從雲端讀取你的回路...</p>
+    <div class="chart-section">
+        <div class="chart-title">行為能量佔比</div>
+        <canvas id="insightChart"></canvas>
+    </div>
+
+    <div id="logList">
+        <p style="text-align:center; color:#86868b;">正在同步時空數據...</p>
     </div>
 </div>
 
 <script type="module">
-    /* --- 分水嶺 2: 雲端鑰匙 (與 index.html 相同) --- */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -66,35 +71,59 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* --- 分水嶺 1: 數據神經 (時光流邏輯) --- */
-    async function loadLogs() {
-        const timeline = document.getElementById('logTimeline');
-        const q = query(collection(db, "daily_logs"), orderBy("timestamp", "desc"), limit(50));
+    async function loadData() {
+        const q = query(collection(db, "daily_logs"), orderBy("timestamp", "desc"), limit(100));
+        const querySnapshot = await getDocs(q);
         
-        try {
-            const querySnapshot = await getDocs(q);
-            timeline.innerHTML = '';
+        let stats = { "工作產出": 0, "生活能量": 0, "情緒脈絡": 0 };
+        const logList = document.getElementById('logList');
+        logList.innerHTML = '';
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const action = data.action || "未知";
             
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const time = data.timestamp ? data.timestamp.toDate().toLocaleString('zh-TW', { hour12: false }) : '剛才';
-                const loc = data.location ? `📍 ${data.location.lat.toFixed(3)}, ${data.location.lon.toFixed(3)}` : '📍 未知座標';
-                
-                const card = document.createElement('div');
-                card.className = 'log-card';
-                card.innerHTML = `
-                    <div class="log-time">${time}</div>
-                    <div class="log-action">${data.action}</div>
-                    <div class="log-location">${loc}</div>
-                `;
-                timeline.appendChild(card);
-            });
-        } catch (e) {
-            timeline.innerHTML = '<p>讀取失敗，請檢查網路設定。</p>';
-        }
+            // 自動分類邏輯
+            let categoryClass = '';
+            if (action.includes("工") || action.includes("洗") || action.includes("燙")) {
+                stats["工作產出"]++;
+                categoryClass = 'cat-work';
+            } else if (action.includes("能") || action.includes("息") || action.includes("食")) {
+                stats["生活能量"]++;
+                categoryClass = 'cat-life';
+            } else {
+                stats["情緒脈絡"]++;
+                categoryClass = 'cat-mood';
+            }
+
+            const time = data.timestamp ? data.timestamp.toDate().toLocaleString('zh-TW', {hour12:false, month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : "剛才";
+            
+            const card = document.createElement('div');
+            card.className = `log-card ${categoryClass}`;
+            card.innerHTML = `<div class="log-time">${time}</div><div class="log-action">${action}</div>`;
+            logList.appendChild(card);
+        });
+
+        renderChart(stats);
     }
 
-    loadLogs();
+    function renderChart(stats) {
+        const ctx = document.getElementById('insightChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(stats),
+                datasets: [{
+                    data: Object.values(stats),
+                    backgroundColor: ['#0071e3', '#34c759', '#ff3b30'],
+                    borderWidth: 0
+                }]
+            },
+            options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    loadData();
 </script>
 </body>
 </html>
