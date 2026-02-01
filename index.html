@@ -38,12 +38,11 @@
 
 <h1 class="ios-title" onclick="location.href='view.html'">時空回路 <span>〉</span></h1>
 
-<div id="world-container" style="width: 100vw; height: 100vh;">
-    <div class="core-input">
-        <input type="text" id="customInput" placeholder="想什麼？">
-        <button class="add-btn" onclick="addNewBubble()">＋</button>
-    </div>
+<div class="core-input" onpointerdown="event.stopPropagation();">
+    <input type="text" id="customInput" placeholder="想什麼？" onpointerdown="event.stopPropagation();">
+    <button class="add-btn" onclick="addNewBubble(); event.stopPropagation();">＋</button>
 </div>
+
 
 <p id="status"></p>
 
