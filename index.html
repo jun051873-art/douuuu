@@ -7,69 +7,93 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        /* 1. 側邊圓點 (左側) */
+        /* 1. 靈魂標語：找回那個感覺 */
+        #splash { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #fff; z-index: 3000; display: flex; align-items: center; justify-content: center; 
+            animation: splashFade 3.5s forwards; 
+        }
+        #splash h2 { 
+            font-size: 20px; font-weight: 300; letter-spacing: 2px; color: #1d1d1f; 
+            animation: textFlow 3s ease-in-out forwards; 
+        }
+        @keyframes textFlow { 0% { opacity: 0; transform: translateY(10px); } 40% { opacity: 1; transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes splashFade { 0% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+        /* 2. 主畫面：延遲出現，避免重疊 */
+        #app-content { opacity: 0; animation: contentShow 0.5s forwards; animation-delay: 3.3s; }
+        @keyframes contentShow { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 3. 左側圓點 */
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 6px; height: 6px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
+        .dot { width: 6px; height: 6px; background: #d2d2d7; border-radius: 50%; transition: 0.3s; }
         .dot.active { background: #000; transform: scale(1.6); }
 
-        /* 2. 濕滑感容器 */
-        .main-container { width: 100%; height: 300vh; transition: transform 0.8s cubic-bezier(0.15, 0, 0.15, 1); }
+        /* 4. 短腰濕滑感：精確的物理曲線 */
+        .main-container { 
+            width: 100%; height: 300vh; 
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); 
+            will-change: transform;
+        }
         .page { width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 100px; }
 
-        /* 3. 標題與標籤 (賈伯斯美學) */
+        /* 標題與標籤樣式 (鎖定) */
         h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; }
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 85%; margin-top: 50px; }
         .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; }
         .pill-tag.active { background: #000; color: #fff; }
         .pill-tag.inactive { background: #f2f2f7; color: #8e8e93; }
 
-        /* 4. 輸入框與確認鈕 */
+        /* 輸入框 */
         .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #000; padding: 5px; }
         .input-box { background: transparent; border: none; width: 220px; font-size: 18px; text-align: center; outline: none; }
         .confirm-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* 5. 抽屜魔法 (Drawer) */
-        #drawer { position: fixed; bottom: -100%; left: 0; width: 100%; height: 45%; background: #fff; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); border-top-left-radius: 30px; border-top-right-radius: 30px; transition: bottom 0.5s cubic-bezier(0.15, 0, 0.15, 1); z-index: 2000; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        /* 抽屜魔法 */
+        #drawer { position: fixed; bottom: -100%; left: 0; width: 100%; height: 45%; background: #fff; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); border-top-left-radius: 30px; border-top-right-radius: 30px; transition: bottom 0.5s cubic-bezier(0.23, 1, 0.32, 1); z-index: 2000; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
         #drawer.open { bottom: 0; }
         .drawer-bar { width: 40px; height: 5px; background: #e5e5ea; border-radius: 10px; margin-bottom: 40px; }
 
-        /* 6. 透視列表 */
-        .log-list { width: 85%; margin-top: 30px; overflow-y: auto; height: 65vh; }
-        .log-item { border-left: 1px solid #000; padding: 0 0 20px 20px; position: relative; }
+        .log-list { width: 85%; margin-top: 30px; overflow-y: auto; height: 60vh; }
+        .log-item { border-left: 1px solid #000; padding: 0 0 20px 20px; position: relative; margin-bottom: 10px; }
         .log-item::before { content: ''; position: absolute; left: -5px; top: 0; width: 10px; height: 10px; background: #000; border-radius: 50%; }
     </style>
 </head>
 <body>
 
-<div class="dots-container">
-    <div class="dot active" id="dot0"></div>
-    <div class="dot" id="dot1"></div>
-    <div class="dot" id="dot2"></div>
-</div>
+<div id="splash"><h2>：（多久沒問問自己了呢）</h2></div>
 
-<div class="main-container" id="mainContainer">
-    <section class="page">
-        <h1>現在在幹嘛</h1>
-        <div id="shortCutArea" class="tag-container"></div>
-        <div class="input-section">
-            <input type="text" id="userInput" class="input-box" placeholder="輸入此時此刻...">
-            <button class="confirm-btn" onclick="saveLog()">↑</button>
-        </div>
-    </section>
+<div id="app-content">
+    <div class="dots-container">
+        <div class="dot active" id="dot0"></div>
+        <div class="dot" id="dot1"></div>
+        <div class="dot" id="dot2"></div>
+    </div>
 
-    <section class="page">
-        <h1>標籤</h1>
-        <div id="allTagsArea" class="tag-container"></div>
-        <div class="input-section" onclick="openDrawer()">
-            <div class="input-box" style="color: #8e8e93;">新增標籤...</div>
-            <button class="confirm-btn">＋</button>
-        </div>
-    </section>
+    <div class="main-container" id="mainContainer">
+        <section class="page">
+            <h1>現在在幹嘛</h1>
+            <div id="shortCutArea" class="tag-container"></div>
+            <div class="input-section">
+                <input type="text" id="userInput" class="input-box" placeholder="輸入此時此刻...">
+                <button class="confirm-btn" onclick="saveLog()">↑</button>
+            </div>
+        </section>
 
-    <section class="page">
-        <h1>透視</h1>
-        <div id="logList" class="log-list"></div>
-    </section>
+        <section class="page">
+            <h1>標籤</h1>
+            <div id="allTagsArea" class="tag-container"></div>
+            <div class="input-section" onclick="openDrawer()">
+                <div class="input-box" style="color: #8e8e93;">新增標籤...</div>
+                <button class="confirm-btn">＋</button>
+            </div>
+        </section>
+
+        <section class="page">
+            <h1>透視</h1>
+            <div id="logList" class="log-list"></div>
+        </section>
+    </div>
 </div>
 
 <div id="drawer">
@@ -101,8 +125,7 @@
     ];
 
     function render() {
-        const short = document.getElementById('shortCutArea');
-        const all = document.getElementById('allTagsArea');
+        const short = document.getElementById('shortCutArea'), all = document.getElementById('allTagsArea');
         short.innerHTML = ''; all.innerHTML = '';
         tags.forEach((tag, i) => {
             if (tag.selected) {
@@ -120,17 +143,14 @@
         localStorage.setItem('myPills', JSON.stringify(tags));
     }
 
-    // 抽屜魔法
     window.openDrawer = () => document.getElementById('drawer').classList.add('open');
     window.closeDrawer = () => document.getElementById('drawer').classList.remove('open');
     window.addNewTag = () => {
         const name = document.getElementById('newTagName').value;
         if(name) { tags.unshift({name, selected: false}); render(); }
-        closeDrawer();
-        document.getElementById('newTagName').value = '';
+        closeDrawer(); document.getElementById('newTagName').value = '';
     }
 
-    // 儲存與透視連動
     window.saveLog = async (val) => {
         const content = val || document.getElementById('userInput').value;
         if(!content) return;
@@ -149,12 +169,11 @@
         }).join('');
     }
 
-    // 滑動手感
     let startY = 0, currentPage = 0;
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         let dist = startY - e.changedTouches[0].clientY;
-        if (Math.abs(dist) > 60) {
+        if (Math.abs(dist) > 50) {
             currentPage = dist > 0 ? Math.min(currentPage+1, 2) : Math.max(currentPage-1, 0);
             document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
             [0,1,2].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
