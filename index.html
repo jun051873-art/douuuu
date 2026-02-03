@@ -1,134 +1,67 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>現在在幹嘛？ 1號 - 穩定版</title>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
-        
-        /* 左側導航小點 */
-        .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 5px; height: 5px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
-        .dot.active { background: #000; transform: scale(2); }
+<style>
+    /* 星系氣泡的呼吸美學 */
+    .bubble { 
+        position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+        text-align: center; transition: background 1s ease; font-size: 13px; font-weight: 500;
+        will-change: transform; /* 優化 iPhone 上的流暢度 */
+    }
 
-        /* 滑動容器 */
-        .main-container { width: 100%; height: 400vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 100px; box-sizing: border-box; background: #fff; }
-
-        h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; }
-
-        /* 第三頁：星系氣泡 (太陽系概念) */
-        .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 20px; }
-        .bubble { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: all 1s ease; font-size: 12px; font-weight: 600; }
-        
-        .insight-mini { width: 85%; margin-top: 20px; font-size: 13px; color: #8e8e93; line-height: 2; }
-        .insight-item { display: flex; justify-content: space-between; border-bottom: 0.5px solid #f2f2f7; padding: 5px 0; }
-
-        /* 第四頁：刻度尺美學 */
-        .ruler-container { width: 85%; margin-top: 40px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #d2d2d7; padding-left: 20px; }
-        .ruler-item { position: relative; padding-bottom: 30px; }
-        .ruler-item::before { content: ''; position: absolute; left: -21px; top: 0; width: 10px; height: 1px; background: #d2d2d7; }
-        .ruler-item.major-mark::before { width: 25px; height: 2px; background: #000; left: -21px; }
-        
-        .log-content { font-size: 18px; color: #1d1d1f; }
-        .log-meta { font-size: 11px; color: #a1a1a6; margin-top: 4px; }
-
-        /* 標籤樣式 */
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 85%; margin-top: 50px; }
-        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; cursor: pointer; transition: 0.3s; }
-        .pill-tag.active { background: #000; color: #fff; }
-
-        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #000; padding: 5px; }
-        .input-box { background: transparent; border: none; width: 220px; font-size: 18px; text-align: center; outline: none; }
-    </style>
-</head>
-<body>
-
-<div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div></div>
-
-<div class="main-container" id="mainContainer">
-    <section class="page"><h1>現在在幹嘛</h1><div id="shortCutArea" class="tag-container"></div><div class="input-section"><input type="text" id="userInput" class="input-box" placeholder="此刻的心情..."><button onclick="saveLog()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">↑</button></div></section>
-    <section class="page"><h1>標籤</h1><div id="allTagsArea" class="tag-container"></div><div class="input-section"><input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..."><button onclick="addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">＋</button></div></section>
-    <section class="page"><h1>透視</h1><div id="galaxyStage" class="galaxy-stage"></div><div id="insightArea" class="insight-mini"></div></section>
-    <section class="page"><h1>回憶</h1><div id="memoryArea" class="ruler-container"></div></section>
-</div>
+    /* 每個星系獨立的隨機漂浮動畫 */
+    @keyframes cosmicDrift {
+        0% { transform: translate(0, 0); }
+        33% { transform: translate(4px, -6px); }
+        66% { transform: translate(-3px, 5px); }
+        100% { transform: translate(0, 0); }
+    }
+</style>
 
 <script type="module">
-    // 確保頁面不白的關鍵：先載入標籤
-    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true }, { name: '💇 工作', selected: true }, { name: '📚 學習', selected: true }];
-    
-    function renderTags() {
-        const short = document.getElementById('shortCutArea'), all = document.getElementById('allTagsArea');
-        if(!short || !all) return;
-        short.innerHTML = ''; all.innerHTML = '';
-        tags.forEach((tag, i) => {
-            if (tag.selected) {
-                const b = document.createElement('button'); b.className = 'pill-tag active'; b.innerText = tag.name;
-                b.onclick = () => { document.getElementById('userInput').value = tag.name; };
-                short.appendChild(b);
-            }
-            const b2 = document.createElement('button'); b2.className = tag.selected ? 'pill-tag active' : 'pill-tag inactive';
-            b2.innerText = tag.name; b2.onclick = () => { tags[i].selected = !tags[i].selected; renderTags(); };
-            all.appendChild(b2);
-        });
-        localStorage.setItem('myPills', JSON.stringify(tags));
-    }
-    renderTags();
-
-    // 延後載入 Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d94" };
-    
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.saveLog = async () => {
-        const input = document.getElementById('userInput');
-        if(!input.value) return;
-        await addDoc(collection(db, "daily_logs"), { action: input.value, timestamp: serverTimestamp() });
-        input.value = '';
-    };
+    // ... 前段 Firebase 邏輯維持鎖定 ...
 
     window.loadGalaxy = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs")));
         const counts = {};
         snap.forEach(doc => { const a = doc.data().action; counts[a] = (counts[a] || 0) + 1; });
+        
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const stage = document.getElementById('galaxyStage');
         stage.innerHTML = '';
-        
+
         sorted.forEach(([name, count], i) => {
-            const b = document.createElement('div'); b.className = 'bubble';
-            const size = (i === 0) ? 120 : Math.max(60, 100 - (i * 12));
-            b.style.width = size+'px'; b.style.height = size+'px';
-            b.style.background = (i === 0) ? '#000' : `rgba(0,0,0,${0.1 - (i*0.01)})`;
-            b.style.color = (i === 0) ? '#fff' : '#000'; b.innerText = name;
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            const isSun = i === 0;
+            const size = isSun ? 120 : Math.max(65, 105 - (i * 12));
             
-            if(i === 0) { b.style.zIndex = 10; b.style.left = '50%'; b.style.top = '50%'; b.style.transform = 'translate(-50%,-50%)'; }
-            else {
-                const angle = (i * (360 / (sorted.length - 1))) * (Math.PI / 180);
-                b.style.left = `calc(50% + ${Math.cos(angle) * 130}px - ${size/2}px)`;
-                b.style.top = `calc(50% + ${Math.sin(angle) * 130}px - ${size/2}px)`;
+            b.style.width = size + 'px'; b.style.height = size + 'px';
+            b.style.background = isSun ? '#000' : `rgba(0,0,0,${0.08 - (i * 0.01)})`;
+            b.style.color = isSun ? '#fff' : '#000';
+            
+            // 賦予隨機的動畫節奏 (讓漂浮不重疊、不規律)
+            const duration = 5 + Math.random() * 5; // 5-10秒不等
+            const delay = Math.random() * -5;
+            b.style.animation = `cosmicDrift ${duration}s infinite ease-in-out ${delay}s`;
+
+            if(isSun) {
+                b.style.zIndex = 10;
+                b.style.left = '50%'; b.style.top = '50%';
+                b.style.marginLeft = `-${size/2}px`; b.style.marginTop = `-${size/2}px`;
+            } else {
+                // 加入位置的不規則偏移量
+                const randomOffset = (Math.random() - 0.5) * 40; 
+                const angle = (i * (360 / (sorted.length - 1)) + randomOffset) * (Math.PI / 180);
+                const radius = 135;
+                b.style.left = `calc(50% + ${Math.cos(angle) * radius}px - ${size/2}px)`;
+                b.style.top = `calc(50% + ${Math.sin(angle) * radius}px - ${size/2}px)`;
             }
+            b.innerText = name;
             stage.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<div class="insight-item">本月重心 <span style="color:#000;font-weight:600">${sorted[0] ? sorted[0][0] : '--'}</span></div>`;
-    };
-
-    let startY = 0, currentPage = 0;
-    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-    window.addEventListener('touchend', e => {
-        let dist = startY - e.changedTouches[0].clientY;
-        if (Math.abs(dist) > 50) {
-            currentPage = dist > 0 ? Math.min(currentPage + 1, 3) : Math.max(currentPage - 1, 0);
-            document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
-            [0,1,2,3].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
-            if(currentPage === 2) window.loadGalaxy();
-        }
-    });
+        
+        // 文字微縮排版：縮小並讓位給星系
+        document.getElementById('insightArea').innerHTML = sorted[0] ? `
+            <div class="insight-item">本月重心 <span style="color:#000;font-weight:600">${sorted[0][0]}</span></div>
+            <div class="insight-item">瞬間邂逅 <span style="color:#000;font-weight:600">${snap.size} 次</span></div>
+        ` : '';
+    }
 </script>
-</body>
-</html>
