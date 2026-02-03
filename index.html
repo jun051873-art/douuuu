@@ -3,46 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>現在在幹嘛？ 1號 - 純淨版</title>
+    <title>現在在幹嘛？ 1號 - 靈魂修復版</title>
     <style>
-        /* 核心：每一頁都是絕對封閉的時空 */
+        /* 核心美學：黑白、呼吸感、物理隔絕 */
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        /* 1. 啟動儀式 */
+        /* 啟動儀式 (Splash) */
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; display: flex; align-items: center; justify-content: center; animation: splashFade 3.5s forwards; }
         #splash h2 { font-size: 20px; font-weight: 300; letter-spacing: 2px; color: #1d1d1f; animation: textFlow 3s ease-in-out forwards; }
         @keyframes textFlow { 0% { opacity: 0; transform: translateY(10px); } 40% { opacity: 1; transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
         @keyframes splashFade { 0%, 90% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
-        /* 2. 左側圓點 */
+        #app-content { opacity: 0; animation: contentShow 0.5s forwards; animation-delay: 3.3s; height: 100%; width: 100%; }
+        @keyframes contentShow { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 左側導航點 */
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 6px; height: 6px; background: #d2d2d7; border-radius: 50%; transition: 0.3s; }
         .dot.active { background: #000; transform: scale(1.6); }
 
-        /* 3. 容器：強制裁切溢出內容 (解決你說的殘留問題) */
-        .main-container { width: 100%; height: 400vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        /* 關鍵：解決殘留問題的物理容器 */
+        .main-view { width: 100%; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        .main-container { width: 100%; height: 400vh; transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; will-change: transform; }
+        
+        /* 每一頁都強行隔離，解決上一頁字體溢出的 Bug */
         .page { 
             width: 100%; height: 100vh; 
+            flex-shrink: 0; 
             position: relative; 
             display: flex; flex-direction: column; align-items: center; 
             padding-top: 100px; 
-            overflow: hidden; /* 強制裁切，防止內容跑到下一頁 */
             box-sizing: border-box;
+            background: #fff;
         }
 
-        /* 4. 排版鎖定 */
         h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; }
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 85%; margin-top: 50px; }
         .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; }
         .pill-tag.active { background: #000; color: #fff; }
         .pill-tag.inactive { background: #f2f2f7; color: #8e8e93; }
 
-        /* 5. 輸入框：底部對齊優化 */
+        /* 輸入框位置優化 */
         .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #000; padding: 5px; background: #fff; }
         .input-box { background: transparent; border: none; width: 220px; font-size: 18px; text-align: center; outline: none; }
         .confirm-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .list-view { width: 85%; margin-top: 40px; overflow-y: auto; height: 55vh; }
+        .list-view { width: 85%; margin-top: 40px; overflow-y: auto; height: 50vh; }
     </style>
 </head>
 <body>
@@ -57,40 +63,85 @@
         <div id="dot3" class="dot"></div>
     </div>
 
-    <div class="main-container" id="mainContainer">
-        <section class="page">
-            <h1>現在在幹嘛</h1>
-            <div id="shortCutArea" class="tag-container"></div>
-            <div class="input-section">
-                <input type="text" id="userInput" class="input-box" placeholder="輸入此時此刻...">
-                <button class="confirm-btn" onclick="saveLog()">↑</button>
-            </div>
-        </section>
+    <div class="main-view">
+        <div class="main-container" id="mainContainer">
+            <section class="page">
+                <h1>現在在幹嘛</h1>
+                <div id="shortCutArea" class="tag-container"></div>
+                <div class="input-section">
+                    <input type="text" id="userInput" class="input-box" placeholder="輸入此時此刻...">
+                    <button class="confirm-btn" onclick="saveLog()">↑</button>
+                </div>
+            </section>
 
-        <section class="page">
-            <h1>標籤</h1>
-            <div id="allTagsArea" class="tag-container"></div>
-            <div class="input-section">
-                <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤...">
-                <button class="confirm-btn" onclick="addNewTag()">＋</button>
-            </div>
-        </section>
+            <section class="page">
+                <h1>標籤</h1>
+                <div id="allTagsArea" class="tag-container"></div>
+                <div class="input-section">
+                    <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤...">
+                    <button class="confirm-btn" onclick="addNewTag()">＋</button>
+                </div>
+            </section>
 
-        <section class="page">
-            <h1>透視</h1>
-            <div id="statsArea" class="list-view"></div>
-        </section>
+            <section class="page">
+                <h1>透視</h1>
+                <div id="statsArea" class="list-view"></div>
+            </section>
 
-        <section class="page">
-            <h1>回憶</h1>
-            <div id="memoryArea" class="list-view"></div>
-        </section>
+            <section class="page">
+                <h1>回憶</h1>
+                <div id="memoryArea" class="list-view"></div>
+            </section>
+        </div>
     </div>
 </div>
 
-<script type="module">
-    // ... (維持之前的 render 與滑動邏輯) ...
-    // 這次特別加強了每一頁的 overflow: hidden 控制
+<script>
+    // 重新接上滑動神經與渲染邏輯
+    let tags = JSON.parse(localStorage.getItem('myPills')) || [
+        { name: '☕ 休息', selected: true },
+        { name: '💇 工作', selected: true },
+        { name: '📚 學習', selected: true }
+    ];
+
+    function render() {
+        const short = document.getElementById('shortCutArea'), all = document.getElementById('allTagsArea');
+        if(!short || !all) return;
+        short.innerHTML = ''; all.innerHTML = '';
+        tags.forEach((tag, i) => {
+            if (tag.selected) {
+                const b = document.createElement('button');
+                b.className = 'pill-tag active'; b.innerText = tag.name;
+                short.appendChild(b);
+            }
+            const b2 = document.createElement('button');
+            b2.className = tag.selected ? 'pill-tag active' : 'pill-tag inactive';
+            b2.innerText = tag.name; b2.onclick = () => { tags[i].selected = !tags[i].selected; render(); };
+            all.appendChild(b2);
+        });
+        localStorage.setItem('myPills', JSON.stringify(tags));
+    }
+
+    window.addNewTag = () => {
+        const input = document.getElementById('newTagInput');
+        if(input.value) { tags.unshift({name: input.value, selected: false}); render(); input.value = ''; }
+    }
+
+    // 濕滑感回歸邏輯
+    let startY = 0, currentPage = 0;
+    const container = document.getElementById('mainContainer');
+    
+    window.addEventListener('touchstart', e => startY = e.touches[0].clientY, {passive: false});
+    window.addEventListener('touchend', e => {
+        let dist = startY - e.changedTouches[0].clientY;
+        if (Math.abs(dist) > 60) {
+            currentPage = dist > 0 ? Math.min(currentPage + 1, 3) : Math.max(currentPage - 1, 0);
+            container.style.transform = `translateY(-${currentPage * 100}vh)`;
+            [0,1,2,3].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
+        }
+    });
+
+    render();
 </script>
 </body>
 </html>
