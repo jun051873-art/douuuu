@@ -3,36 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>時空回路 - 蜂巢復活版</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <title>現在在幹嘛</title>
     <style>
-        body { background-color: #ffffff; font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; touch-action: none; }
-        .ios-title { position: absolute; top: 40px; left: 30px; font-size: 38px; font-weight: 800; z-index: 100; cursor: pointer; color: #1d1d1f; letter-spacing: -1.5px; }
-        .bubble-node { position: absolute; border-radius: 50%; background: #f5f5f7; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1d1d1f; box-shadow: 0 5px 15px rgba(0,0,0,0.05); pointer-events: none; border: 1px solid #e5e5e7; text-align: center; }
-
-        .core-input { 
-            width: 140px; height: 140px; background: #1d1d1f; color: #fff; border-radius: 50%; 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            border: 4px solid #fff; box-shadow: 0 0 50px rgba(0,0,0,0.15); pointer-events: auto;
+        /* 賈伯斯美學：極度黑白、極度留白 */
+        body { background-color: #ffffff; color: #000; font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* 啟動特效：文字緩緩浮現又消失 */
+        #splash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center;
+            animation: fadeOut 4s forwards; pointer-events: none;
         }
-        input { width: 85%; background: transparent; border: none; color: white; text-align: center; font-size: 16px; outline: none; }
-        .add-btn { background: none; border: none; color: #0071e3; font-weight: 800; font-size: 32px; cursor: pointer; margin-top: 5px; }
-        #status { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 14px; color: #86868b; z-index: 100; }
+        #splash h2 { font-size: 20px; font-weight: 300; letter-spacing: 2px; color: #1d1d1f; animation: textFade 3s ease-in-out; }
+
+        @keyframes textFade { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes fadeOut { 0%, 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+        /* 大氣標題 */
+        .header { margin-top: 80px; text-align: center; width: 100%; }
+        .header h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; cursor: pointer; }
+
+        /* 藥丸標籤容器 */
+        .tag-container { 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; 
+            max-width: 90%; margin-top: 60px; padding: 20px;
+        }
+
+        /* 藥丸標籤：固定排版，大氣黑白 */
+        .pill-tag {
+            background: #000; color: #fff; padding: 12px 28px; border-radius: 40px;
+            font-size: 17px; font-weight: 500; cursor: pointer; transition: transform 0.2s;
+        }
+        .pill-tag:active { transform: scale(0.95); opacity: 0.8; }
+
+        /* 中間下方的對話框 */
+        .input-section {
+            position: absolute; bottom: 80px; width: 100%; text-align: center;
+        }
+        .input-box {
+            background: transparent; border: none; border-bottom: 2px solid #000;
+            width: 250px; padding: 10px; font-size: 18px; text-align: center; outline: none;
+            font-weight: 300;
+        }
     </style>
 </head>
 <body>
 
-<h1 class="ios-title" onclick="location.href='view.html'">時空回路 〉</h1>
+<div id="splash"><h2>：（多久沒問問自己了呢）</h2></div>
 
-<div id="world-container" style="width: 100vw; height: 100vh;">
-    <div class="core-input" onpointerdown="event.stopPropagation();">
-        <input type="text" id="customInput" placeholder="想什麼？" onpointerdown="event.stopPropagation();">
-        <button class="add-btn" onclick="addNewBubble(); event.stopPropagation();">＋</button>
-    </div>
+<div class="header">
+    <h1 onclick="location.href='view.html'">現在在幹嘛</h1>
 </div>
 
-<p id="status"></p>
+<div class="tag-container" id="tagContainer">
+    </div>
+
+<div class="input-section">
+    <input type="text" id="userInput" class="input-box" placeholder="輸入此時此刻..." onkeydown="if(event.key==='Enter') saveEntry()">
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -50,106 +78,35 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const { Engine, Runner, Bodies, Composite, Mouse, MouseConstraint, Vector } = Matter;
-    const engine = Engine.create();
-    engine.gravity.y = 0;
+    // 預設標籤
+    const tags = ['☕ 休息', '💇 工作', '📚 學習', '🔋 能量補給', '🧘 冥想', '🎨 創作'];
+    const container = document.getElementById('tagContainer');
 
-    const container = document.getElementById('world-container');
-    // 強化：如果讀取失敗，強制使用預設標籤
-    let tags;
-    try {
-        tags = JSON.parse(localStorage.getItem('userTags')) || ['💼 工作', '🚽 稍息', '🌧️ 情緒', '🍱 能量'];
-    } catch(e) {
-        tags = ['💼 工作', '🚽 稍息', '🌧️ 情緒', '🍱 能量'];
-    }
-
-    let bubbleBodies = [];
-
-    function createBubble(text) {
-        const radius = text.length * 8 + 40;
-        const body = Bodies.circle(window.innerWidth/2 + (Math.random()-0.5)*200, window.innerHeight/2 + (Math.random()-0.5)*200, radius, {
-            restitution: 0.7, frictionAir: 0.06, label: text
-        });
-        const el = document.createElement('div');
-        el.className = 'bubble-node';
-        el.innerText = text;
-        el.style.width = radius * 2 + 'px';
-        el.style.height = radius * 2 + 'px';
-        container.appendChild(el);
-        body.element = el;
-        return body;
-    }
-
-    const mouse = Mouse.create(container);
-    // 修正觸控神經
-    mouse.element.removeEventListener("touchstart", mouse.touchstart);
-    mouse.element.removeEventListener("touchmove", mouse.touchmove);
-    mouse.element.removeEventListener("touchend", mouse.touchend);
-
-    const mouseConstraint = MouseConstraint.create(engine, {
-        mouse: mouse,
-        constraint: { stiffness: 0.15, render: { visible: false } }
-    });
-    Composite.add(engine.world, mouseConstraint);
-
-    let dragStart = null;
-    let moved = false;
-    Matter.Events.on(mouseConstraint, 'mousedown', (e) => {
-        dragStart = { x: e.mouse.position.x, y: e.mouse.position.y };
-        moved = false;
-    });
-    Matter.Events.on(mouseConstraint, 'mousemove', () => { if (dragStart) moved = true; });
-    Matter.Events.on(mouseConstraint, 'mouseup', (e) => {
-        if (!moved && mouseConstraint.body) {
-            const label = mouseConstraint.body.label;
-            if (label && label !== 'Rectangle Body') saveActivity(label);
-        }
-        dragStart = null;
+    // 生成藥丸標籤
+    tags.forEach(text => {
+        const div = document.createElement('div');
+        div.className = 'pill-tag';
+        div.innerText = text;
+        div.onclick = () => saveEntry(text);
+        container.appendChild(div);
     });
 
-    async function saveActivity(actionName) {
-        const status = document.getElementById('status');
-        status.innerText = `🌠 紀錄中：${actionName}...`;
-        navigator.geolocation.getCurrentPosition(async (pos) => {
+    async function saveEntry(action) {
+        const input = document.getElementById('userInput');
+        const finalAction = action || input.value;
+        if (!finalAction) return;
+
+        try {
             await addDoc(collection(db, "daily_logs"), {
-                action: actionName,
-                timestamp: serverTimestamp(),
-                location: { lat: pos.coords.latitude, lon: pos.coords.longitude }
+                action: finalAction,
+                timestamp: serverTimestamp()
             });
-            status.innerText = "✨ 紀錄成功";
-        }, () => {
-            addDoc(collection(db, "daily_logs"), { action: actionName, timestamp: serverTimestamp() });
-            status.innerText = "✅ 已紀錄 (無座標)";
-        });
-    }
-
-    window.addNewBubble = () => {
-        const input = document.getElementById('customInput');
-        if (input.value.trim()) {
-            const val = input.value.trim();
-            tags.push(val);
-            localStorage.setItem('userTags', JSON.stringify(tags));
-            const b = createBubble(val);
-            bubbleBodies.push(b);
-            Composite.add(engine.world, b);
             input.value = '';
+            alert("已為你收藏。");
+        } catch (e) {
+            console.error("Error: ", e);
         }
-    };
-
-    function update() {
-        const center = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-        bubbleBodies.forEach(body => {
-            const force = Vector.mult(Vector.normalise(Vector.sub(center, body.position)), 0.0004 * body.mass);
-            Matter.Body.applyForce(body, body.position, force);
-            body.element.style.transform = `translate(${body.position.x - body.circleRadius}px, ${body.position.y - body.circleRadius}px)`;
-        });
-        requestAnimationFrame(update);
     }
-
-    bubbleBodies = tags.map(createBubble);
-    Composite.add(engine.world, bubbleBodies);
-    Runner.run(Runner.create(), engine);
-    update();
 </script>
 </body>
 </html>
