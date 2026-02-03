@@ -5,46 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>現在在幹嘛</title>
     <style>
-        /* 賈伯斯美學：極度黑白、極度留白 */
+        /* 核心美學：黑白、純粹、零負擔 */
         body { background-color: #ffffff; color: #000; font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 啟動特效：文字緩緩浮現又消失 */
+        /* 啟動儀式：修復閃爍問題，確保只出現一次 */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center;
-            animation: fadeOut 4s forwards; pointer-events: none;
+            animation: finalFadeOut 1s ease-in forwards; 
+            animation-delay: 3s; /* 讓文字留存一會兒 */
+            pointer-events: none;
         }
-        #splash h2 { font-size: 20px; font-weight: 300; letter-spacing: 2px; color: #1d1d1f; animation: textFade 3s ease-in-out; }
+        #splash h2 { 
+            font-size: 20px; font-weight: 300; letter-spacing: 2px; color: #1d1d1f; 
+            animation: textFlow 3s ease-in-out forwards;
+        }
 
-        @keyframes textFade { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
-        @keyframes fadeOut { 0%, 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+        /* 文字浮現又消失的律動 */
+        @keyframes textFlow { 0% { opacity: 0; transform: translateY(5px); } 30% { opacity: 1; transform: translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; } }
+        /* 整個幕布徹底消失，永不重現 */
+        @keyframes finalFadeOut { 0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
-        /* 大氣標題 */
+        /* 大氣標題：鎖定位置 */
         .header { margin-top: 80px; text-align: center; width: 100%; }
-        .header h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; cursor: pointer; }
+        .header h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; cursor: pointer; color: #000; }
 
-        /* 藥丸標籤容器 */
+        /* 藥丸標籤：安靜且整齊 */
         .tag-container { 
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; 
             max-width: 90%; margin-top: 60px; padding: 20px;
         }
-
-        /* 藥丸標籤：固定排版，大氣黑白 */
         .pill-tag {
-            background: #000; color: #fff; padding: 12px 28px; border-radius: 40px;
-            font-size: 17px; font-weight: 500; cursor: pointer; transition: transform 0.2s;
+            background: #000; color: #fff; padding: 14px 32px; border-radius: 50px;
+            font-size: 17px; font-weight: 500; cursor: pointer; border: none;
+            transition: opacity 0.2s;
         }
-        .pill-tag:active { transform: scale(0.95); opacity: 0.8; }
+        .pill-tag:active { opacity: 0.7; transform: scale(0.98); }
 
-        /* 中間下方的對話框 */
-        .input-section {
-            position: absolute; bottom: 80px; width: 100%; text-align: center;
-        }
+        /* 中間下方的對話框：極度簡約 */
+        .input-section { position: absolute; bottom: 80px; width: 100%; text-align: center; }
         .input-box {
-            background: transparent; border: none; border-bottom: 2px solid #000;
-            width: 250px; padding: 10px; font-size: 18px; text-align: center; outline: none;
-            font-weight: 300;
+            background: transparent; border: none; border-bottom: 1px solid #000;
+            width: 240px; padding: 12px; font-size: 18px; text-align: center; outline: none;
+            font-weight: 300; transition: width 0.3s;
         }
+        .input-box:focus { width: 280px; }
     </style>
 </head>
 <body>
@@ -59,10 +64,11 @@
     </div>
 
 <div class="input-section">
-    <input type="text" id="userInput" class="input-box" placeholder="輸入此時此刻..." onkeydown="if(event.key==='Enter') saveEntry()">
+    <input type="text" id="userInput" class="input-box" placeholder="輸入此刻的心情..." onkeydown="if(event.key==='Enter') saveEntry()">
 </div>
 
 <script type="module">
+    // Firebase 設定 (維持不變)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -78,13 +84,12 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 預設標籤
+    // 你的標籤：固定排版，不再亂跑
     const tags = ['☕ 休息', '💇 工作', '📚 學習', '🔋 能量補給', '🧘 冥想', '🎨 創作'];
     const container = document.getElementById('tagContainer');
 
-    // 生成藥丸標籤
     tags.forEach(text => {
-        const div = document.createElement('div');
+        const div = document.createElement('button');
         div.className = 'pill-tag';
         div.innerText = text;
         div.onclick = () => saveEntry(text);
@@ -102,7 +107,10 @@
                 timestamp: serverTimestamp()
             });
             input.value = '';
-            alert("已為你收藏。");
+            // 輕聲提示
+            const originalPlaceholder = input.placeholder;
+            input.placeholder = "已為你收藏。";
+            setTimeout(() => { input.placeholder = originalPlaceholder; }, 2000);
         } catch (e) {
             console.error("Error: ", e);
         }
