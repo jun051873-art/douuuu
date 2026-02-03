@@ -7,39 +7,46 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        /* 啟動儀式：徹底解決重疊影 */
+        /* 啟動儀式：極簡問候 */
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; display: flex; align-items: center; justify-content: center; animation: splashFade 3.5s forwards; }
         #splash h2 { font-size: 20px; font-weight: 300; letter-spacing: 2px; color: #1d1d1f; animation: textFade 3s ease-in-out forwards; }
         @keyframes textFade { 0% { opacity: 0; } 40% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
         @keyframes splashFade { 0% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
-        /* 主畫面：在啟動儀式後才浮現 */
+        /* 主畫面：絲滑出現 */
         #app-content { opacity: 0; animation: contentShow 0.5s forwards; animation-delay: 3.3s; }
         @keyframes contentShow { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 左側換頁小點 */
+        /* 左側導航點：賈伯斯式的安靜存在 */
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 6px; height: 6px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(1.5); }
 
-        .main-container { width: 100%; height: 200vh; transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+        /* 滑動容器：調教過的柔順感曲線 */
+        .main-container { width: 100%; height: 300vh; transition: transform 0.8s cubic-bezier(0.15, 0, 0.15, 1); }
         .page { width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; align-items: center; }
 
-        /* 第一、二頁共通標題樣式 */
+        /* 統一標題樣式 */
         .header { margin-top: 100px; text-align: center; }
         .header h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; }
-        .header h2 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; }
 
-        /* 標籤容器樣式統一 */
+        /* 藥丸標籤樣式 */
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 85%; margin-top: 50px; }
         .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; }
         .pill-tag.active { background: #000; color: #fff; }
         .pill-tag.inactive { background: #e5e5ea; color: #8e8e93; }
 
-        /* 輸入框部分 */
-        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #000; padding: 5px; }
+        /* 輸入與確認 */
+        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #000; padding: 5px; }
         .input-box { background: transparent; border: none; width: 220px; font-size: 18px; text-align: center; outline: none; }
-        .confirm-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .confirm-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+        /* 第三頁：珍藏列表 */
+        .log-list { width: 85%; margin-top: 40px; overflow-y: auto; height: 60vh; }
+        .log-item { border-left: 1px solid #000; padding-left: 20px; margin-bottom: 25px; position: relative; }
+        .log-item::before { content: ''; position: absolute; left: -5px; top: 0; width: 10px; height: 10px; background: #000; border-radius: 50%; }
+        .log-text { font-size: 18px; font-weight: 500; }
+        .log-time { font-size: 12px; color: #86868b; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -50,12 +57,13 @@
     <div class="dots-container">
         <div class="dot active" id="dot0"></div>
         <div class="dot" id="dot1"></div>
+        <div class="dot" id="dot2"></div>
     </div>
 
     <div class="main-container" id="mainContainer">
         <section class="page page-1">
             <div class="header"><h1>現在在幹嘛</h1></div>
-            <div class="tag-container" id="shortCutContainer"></div>
+            <div id="shortCutContainer" class="tag-container"></div>
             <div class="input-section">
                 <input type="text" id="userInput" class="input-box" placeholder="輸入此時此刻...">
                 <button class="confirm-btn" onclick="saveLog()">↑</button>
@@ -63,25 +71,43 @@
         </section>
 
         <section class="page page-2">
-            <div class="header"><h2>標籤</h2></div>
-            <div class="tag-container" id="allTagsContainer"></div>
+            <div class="header"><h1>標籤</h1></div>
+            <div id="allTagsContainer" class="tag-container"></div>
             <div class="input-section">
                 <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤內容...">
                 <button class="confirm-btn" onclick="addNewTag()">↑</button>
             </div>
         </section>
+
+        <section class="page page-3">
+            <div class="header"><h1>珍藏</h1></div>
+            <div id="logList" class="log-list"></div>
+        </section>
     </div>
 </div>
 
 <script type="module">
-    // 預設標籤庫
-    let tags = [
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv",
+        authDomain: "now-doing.firebaseapp.com",
+        projectId: "now-doing",
+        storageBucket: "now-doing.firebasestorage.app",
+        messagingSenderId: "234295652644",
+        appId: "1:234295652644:web:c9b3c37de32d94"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let tags = JSON.parse(localStorage.getItem('myPills')) || [
         { name: '☕ 休息', selected: true },
         { name: '💇 工作', selected: true },
         { name: '📚 學習', selected: true },
-        { name: '🔋 能量補給', selected: true },
-        { name: '🧘 冥想', selected: true },
-        { name: '🎨 創作', selected: false }
+        { name: '🔋 能量', selected: true },
+        { name: '🧘 冥想', selected: true }
     ];
 
     function render() {
@@ -91,7 +117,6 @@
         allArea.innerHTML = '';
 
         tags.forEach((tag, index) => {
-            // 第一頁：僅顯示勾選的
             if (tag.selected) {
                 const btn = document.createElement('button');
                 btn.className = 'pill-tag active';
@@ -99,21 +124,18 @@
                 btn.onclick = () => saveLog(tag.name);
                 shortCutArea.appendChild(btn);
             }
-
-            // 第二頁：顯示全部，點擊切換深淺色
             const editBtn = document.createElement('button');
             editBtn.className = tag.selected ? 'pill-tag active' : 'pill-tag inactive';
             editBtn.innerText = tag.name;
             editBtn.onclick = () => toggleTag(index);
             allArea.appendChild(editBtn);
         });
+        localStorage.setItem('myPills', JSON.stringify(tags));
     }
 
     function toggleTag(index) {
-        const selectedCount = tags.filter(t => t.selected).length;
-        if (!tags[index].selected && selectedCount >= 5) {
-            return; // 限制 5 個快捷
-        }
+        const count = tags.filter(t => t.selected).length;
+        if (!tags[index].selected && count >= 5) return;
         tags[index].selected = !tags[index].selected;
         render();
     }
@@ -127,28 +149,44 @@
         }
     }
 
-    function saveLog(val) {
+    async function saveLog(val) {
         const content = val || document.getElementById('userInput').value;
-        if (content) alert("已收藏瞬間：" + content);
+        if (!content) return;
+        await addDoc(collection(db, "daily_logs"), { action: content, timestamp: serverTimestamp() });
         document.getElementById('userInput').value = '';
+        loadLogs(); // 即時刷新第三頁
     }
 
-    // 滑動邏輯
+    async function loadLogs() {
+        const q = query(collection(db, "daily_logs"), orderBy("timestamp", "desc"));
+        const snap = await getDocs(q);
+        const list = document.getElementById('logList');
+        list.innerHTML = snap.docs.map(doc => {
+            const data = doc.data();
+            const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : "...";
+            return `<div class="log-item"><div class="log-text">${data.action}</div><div class="log-time">${date}</div></div>`;
+        }).join('');
+    }
+
+    // 滑動體感：優化過的曲線與換頁邏輯
     let startY = 0;
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         let endY = e.changedTouches[0].clientY;
-        const container = document.getElementById('mainContainer');
-        if (startY - endY > 70) { 
-            container.style.transform = 'translateY(-100vh)';
-            document.getElementById('dot0').classList.remove('active');
-            document.getElementById('dot1').classList.add('active');
-        } else if (endY - startY > 70) {
-            container.style.transform = 'translateY(0)';
-            document.getElementById('dot0').classList.add('active');
-            document.getElementById('dot1').classList.remove('active');
+        const dist = startY - endY;
+        if (Math.abs(dist) > 70) {
+            let next = dist > 0 ? Math.min(currentPage + 1, 2) : Math.max(currentPage - 1, 0);
+            goToPage(next);
         }
     });
+
+    let currentPage = 0;
+    function goToPage(p) {
+        currentPage = p;
+        document.getElementById('mainContainer').style.transform = `translateY(-${p * 100}vh)`;
+        [0, 1, 2].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === p));
+        if (p === 2) loadLogs();
+    }
 
     render();
 </script>
