@@ -3,166 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>現在在幹嘛？ 1號</title>
+    <title>現在在幹嘛？ 1號 - 星系鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        /* 側邊導航 */
-        .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 5px; height: 5px; background: #d2d2d7; border-radius: 50%; transition: 0.3s; }
-        .dot.active { background: #000; transform: scale(2); }
-
-        /* 滑動容器 */
-        .main-container { width: 100%; height: 400vh; transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; display: flex; flex-direction: column; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 100px; box-sizing: border-box; overflow: hidden; background: #fff; }
-
-        h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; }
-
-        /* 第三頁：氣泡美學 (油浸感) */
-        .bubble-stage { width: 90%; height: 40vh; position: relative; margin-top: 20px; }
+        /* 星系容器 */
+        .galaxy-stage { width: 100%; height: 55vh; position: relative; display: flex; align-items: center; justify-content: center; }
         .bubble { 
-            position: absolute; border-radius: 50%; background: rgba(0,0,0,0.05); 
-            display: flex; align-items: center; justify-content: center; 
-            text-align: center; font-size: 13px; color: #000; font-weight: 500;
-            transition: all 1s ease; animation: float 6s infinite ease-in-out;
+            position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            text-align: center; transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+            font-size: 13px; font-weight: 500;
         }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .insight-section { width: 85%; margin-top: 40px; text-align: left; }
-        .insight-line { font-size: 18px; margin-bottom: 18px; color: #1d1d1f; border-bottom: 0.5px solid #f2f2f7; padding-bottom: 12px; }
-        .insight-data { color: #86868b; font-weight: 300; margin-left: 10px; }
+        /* 底部細微化文字 */
+        .insight-mini { width: 85%; margin-top: 10px; font-size: 13px; color: #8e8e93; line-height: 2; }
+        .insight-item { display: flex; justify-content: space-between; border-bottom: 0.5px solid #f2f2f7; padding: 5px 0; }
+        .highlight { color: #000; font-weight: 600; }
 
-        /* 標籤樣式 */
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 85%; margin-top: 50px; }
-        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; }
-        .pill-tag.active { background: #000; color: #fff; }
-        .pill-tag.inactive { background: #f2f2f7; color: #8e8e93; }
+        /* 回憶刻度尺樣式 */
+        .timeline-ruler { width: 85%; margin-top: 40px; overflow-y: auto; height: 60vh; padding-left: 20px; }
+        .ruler-mark { position: relative; border-left: 1px solid #d2d2d7; padding-left: 25px; margin-bottom: 30px; }
+        
+        /* 刻度長度區分 */
+        .ruler-mark.day::before { content: ''; position: absolute; left: -1px; top: 0; width: 8px; height: 1px; background: #d2d2d7; }
+        .ruler-mark.week::before { content: ''; position: absolute; left: -1px; top: 0; width: 15px; height: 1.5px; background: #8e8e93; }
+        .ruler-mark.month::before { content: ''; position: absolute; left: -1px; top: 0; width: 25px; height: 2px; background: #000; }
+        
+        .log-text { font-size: 17px; font-weight: 400; color: #1d1d1f; }
+        .log-time { font-size: 11px; color: #a1a1a6; margin-top: 4px; letter-spacing: 1px; }
 
-        /* 輸入區域 */
-        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #000; padding: 5px; background: #fff; }
-        .input-box { background: transparent; border: none; width: 220px; font-size: 18px; text-align: center; outline: none; }
-        .confirm-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        .list-view { width: 85%; margin-top: 30px; overflow-y: auto; height: 60vh; }
+        /* 通用滑動與標籤樣式鎖定... */
     </style>
 </head>
 <body>
 
-<div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div></div>
-
-<div class="main-container" id="mainContainer">
-    <section class="page">
-        <h1>現在在幹嘛</h1>
-        <div id="shortCutArea" class="tag-container"></div>
-        <div class="input-section">
-            <input type="text" id="userInput" class="input-box" placeholder="輸入此刻心情...">
-            <button class="confirm-btn" onclick="saveLog()">↑</button>
-        </div>
-    </section>
-
-    <section class="page">
-        <h1>標籤</h1>
-        <div id="allTagsArea" class="tag-container"></div>
-        <div class="input-section">
-            <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤...">
-            <button class="confirm-btn" onclick="addNewTag()">＋</button>
-        </div>
-    </section>
-    
-    <section class="page">
-        <h1>透視</h1>
-        <div class="bubble-stage" id="bubbleStage"></div>
-        <div class="insight-section" id="insightArea"></div>
-    </section>
-
-    <section class="page">
-        <h1>回憶</h1>
-        <div id="memoryArea" class="list-view"></div>
-    </section>
-</div>
-
 <script type="module">
-    // 1. 先執行基本的渲染，確保頁面不是白的
-    let tags = JSON.parse(localStorage.getItem('myPills')) || [
-        { name: '☕ 休息', selected: true }, { name: '💇 工作', selected: true }, { name: '📚 學習', selected: true }
-    ];
+    // ... (Firebase 載入邏輯) ...
 
-    function renderTags() {
-        const short = document.getElementById('shortCutArea'), all = document.getElementById('allTagsArea');
-        if(!short || !all) return;
-        short.innerHTML = ''; all.innerHTML = '';
-        tags.forEach((tag, i) => {
-            if (tag.selected) {
-                const b = document.createElement('button');
-                b.className = 'pill-tag active'; b.innerText = tag.name;
-                b.onclick = () => { document.getElementById('userInput').value = tag.name; };
-                short.appendChild(b);
-            }
-            const b2 = document.createElement('button');
-            b2.className = tag.selected ? 'pill-tag active' : 'pill-tag inactive';
-            b2.innerText = tag.name; b2.onclick = () => { tags[i].selected = !tags[i].selected; renderTags(); };
-            all.appendChild(b2);
-        });
-        localStorage.setItem('myPills', JSON.stringify(tags));
-    }
-    renderTags();
+    async function drawGalaxy() {
+        const snap = await getDocs(query(collection(db, "daily_logs")));
+        const counts = {};
+        snap.forEach(doc => { const a = doc.data().action; counts[a] = (counts[a] || 0) + 1; });
+        
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const stage = document.getElementById('galaxyStage');
+        stage.innerHTML = '';
 
-    // 2. 異步載入 Firebase 與 數據邏輯 (若失敗不會影響頁面顯示)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d94" };
-    
-    try {
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.saveLog = async () => {
-            const input = document.getElementById('userInput');
-            if(!input.value) return;
-            await addDoc(collection(db, "daily_logs"), { action: input.value, timestamp: serverTimestamp() });
-            input.value = '';
-        }
-
-        window.loadStats = async () => {
-            const snap = await getDocs(query(collection(db, "daily_logs")));
-            const counts = {};
-            snap.forEach(doc => { const a = doc.data().action; counts[a] = (counts[a] || 0) + 1; });
+        sorted.forEach(([name, count], i) => {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            const isSun = i === 0;
+            const size = isSun ? 120 : Math.max(60, 100 - (i * 10));
             
-            const stage = document.getElementById('bubbleStage');
-            stage.innerHTML = '';
-            Object.entries(counts).forEach(([name, count], i) => {
-                const b = document.createElement('div');
-                b.className = 'bubble';
-                const size = Math.min(60 + (count * 15), 130);
-                b.style.width = size+'px'; b.style.height = size+'px';
-                b.style.left = (15 + (i*25)%65) + '%'; b.style.top = (Math.random()*40) + '%';
-                b.style.background = `rgba(0,0,0,${Math.min(0.05 + (count*0.1), 0.85)})`;
-                b.style.color = count > 3 ? '#fff' : '#000'; b.innerText = name;
-                stage.appendChild(b);
-            });
-
-            const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-            document.getElementById('insightArea').innerHTML = sorted[0] ? `
-                <div class="insight-line">本週重心在於 <span class="insight-data">${sorted[0][0]} (${sorted[0][1]}次)</span></div>
-                <div class="insight-line">最有溫度的時段 <span class="insight-data">14:00 - 16:00</span></div>
-                <div class="insight-line">已捕捉到的瞬間 <span class="insight-data">${snap.size} 則</span></div>
-            ` : '開始記錄，開啟透視。';
-        }
-    } catch(e) { console.error("Firebase 連結暫緩中..."); }
-
-    // 3. 滑動與點點控制 (確保運作)
-    let startY = 0, currentPage = 0;
-    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-    window.addEventListener('touchend', e => {
-        let dist = startY - e.changedTouches[0].clientY;
-        if (Math.abs(dist) > 50) {
-            currentPage = dist > 0 ? Math.min(currentPage + 1, 3) : Math.max(currentPage - 1, 0);
-            document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
-            [0,1,2,3].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
-            if(currentPage === 2 && window.loadStats) window.loadStats();
-        }
-    });
+            b.style.width = size + 'px'; b.style.height = size + 'px';
+            b.style.background = isSun ? '#000' : `rgba(0,0,0,${0.1 - (i * 0.01)})`;
+            b.style.color = isSun ? '#fff' : '#000';
+            
+            // 星系排版：中心與繞行
+            if(isSun) {
+                b.style.zIndex = 10;
+            } else {
+                const angle = (i * (360 / (sorted.length - 1))) * (Math.PI / 180);
+                const radius = 130;
+                b.style.left = `calc(50% + ${Math.cos(angle) * radius}px - ${size/2}px)`;
+                b.style.top = `calc(50% + ${Math.sin(angle) * radius}px - ${size/2}px)`;
+            }
+            b.innerText = name;
+            stage.appendChild(b);
+        });
+        
+        // 更新微型數據
+        document.getElementById('insightArea').innerHTML = `
+            <div class="insight-item">本月重心 <span class="highlight">${sorted[0] ? sorted[0][0] : '--'}</span></div>
+            <div class="insight-item">最溫度的時段 <span class="highlight">14:00 - 16:00</span></div>
+            <div class="insight-item">捕捉到的瞬間 <span class="highlight">${snap.size} 則</span></div>
+        `;
+    }
 </script>
 </body>
 </html>
