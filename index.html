@@ -9,29 +9,29 @@
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 4px; height: 4px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.5); }
-        .main-container { width: 100%; height: 400vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; display: flex; flex-direction: column; }
+        .main-container { width: 100%; height: 400vh; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; display: flex; flex-direction: column; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 100px; box-sizing: border-box; background: #fff; }
-        h1 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; margin: 0; pointer-events: none; }
+        h1 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; margin: 0; }
 
-        /* 透視：宇宙星系 */
-        .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; overflow: visible; }
+        /* 透視：回歸穩定靜態排列 */
+        .galaxy-stage { width: 90%; margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; overflow-y: auto; }
         .bubble { 
-            position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; 
-            font-size: 13px; font-weight: 500; transition: transform 0.5s;
-            animation: cosmicDrift var(--d) infinite ease-in-out var(--delay);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            width: 80px; height: 80px; border-radius: 50%; background: #f2f2f7; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; font-size: 12px; font-weight: 500; padding: 5px;
+            border: 1px solid #e5e5ea;
         }
-        @keyframes cosmicDrift { 0%, 100% { margin: 0; } 33% { margin: 5px -5px; } 66% { margin: -5px 5px; } }
+        .bubble.top { background: #000; color: #fff; width: 100px; height: 100px; font-size: 14px; }
 
         /* 回憶：尺標 */
         .ruler-container { width: 85%; margin-top: 40px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #000; padding-left: 20px; }
-        .ruler-item { position: relative; padding-bottom: 35px; }
+        .ruler-item { position: relative; padding-bottom: 30px; }
         .ruler-item::before { content: ''; position: absolute; left: -21.5px; top: 8px; width: 12px; height: 1.5px; background: #000; }
-        .time-tag { font-size: 10px; font-weight: 700; color: #a1a1a6; display: block; margin-bottom: 5px; letter-spacing: 1px; }
-        .log-content { font-size: 17px; color: #1d1d1f; line-height: 1.5; }
+        .time-tag { font-size: 10px; font-weight: 700; color: #a1a1a6; display: block; margin-bottom: 4px; letter-spacing: 1px; }
+        .log-content { font-size: 17px; color: #1d1d1f; line-height: 1.4; }
 
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 90%; margin-top: 50px; }
-        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .pill-tag { padding: 12px 26px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .pill-tag.active { background: #000; color: #fff; }
         .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 10px; border-bottom: 1.5px solid #000; padding: 5px; background: #fff; }
         .input-box { background: transparent; border: none; width: 220px; font-size: 18px; text-align: center; outline: none; }
@@ -42,8 +42,15 @@
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page"><h1>現在在幹嘛</h1><div id="shortCutArea" class="tag-container"></div><div class="input-section"><input type="text" id="userInput" class="input-box" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">↑</button></div></section>
-    <section class="page"><h1>我的標籤</h1><div id="allTagsArea" class="tag-container"></div><div class="input-section"><input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">＋</button></div></section>
+    <section class="page">
+        <h1>現在在幹嘛</h1>
+        <div id="shortCutArea" class="tag-container"></div>
+        <div class="input-section">
+            <input type="text" id="userInput" class="input-box" placeholder="此刻心情...">
+            <button onclick="window.directSave('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">↑</button>
+        </div>
+    </section>
+    <section class="page"><h1>我的標籤</h1><div id="allTagsArea" class="tag-container"></div></section>
     <section class="page"><h1>透視</h1><div id="galaxyStage" class="galaxy-stage"></div></section>
     <section class="page"><h1>回憶</h1><div id="memoryArea" class="ruler-container"></div></section>
 </div>
@@ -74,8 +81,7 @@
             b.innerText = t.name;
             b.onclick = () => {
                 if(s.contains(b)) {
-                    document.getElementById('userInput').value = t.name;
-                    window.saveAction('tag', t.name);
+                    window.directSave('tag', t.name); // 標籤直接儲存
                 } else {
                     myTags[i].selected = !myTags[i].selected;
                     window.renderTags();
@@ -87,19 +93,16 @@
         localStorage.setItem('myPills', JSON.stringify(myTags));
     };
 
-    window.saveAction = async (type, val) => {
+    window.directSave = async (type, val) => {
         const text = val || document.getElementById('userInput').value;
         if(!text) return;
         try {
             await addDoc(collection(db, "daily_logs"), { action: text, type: type, timestamp: serverTimestamp() });
             document.getElementById('userInput').value = '';
-            alert('已邂逅');
-        } catch (e) { console.error(e); }
-    };
-
-    window.addNewTag = () => {
-        const input = document.getElementById('newTagInput');
-        if(input.value) { myTags.unshift({name:input.value, selected:true}); window.renderTags(); input.value = ''; }
+            alert('已邂逅：' + text);
+            if(currentPage === 2) window.loadGalaxy();
+            if(currentPage === 3) window.loadMemories();
+        } catch (e) { alert('儲存失敗'); }
     };
 
     window.loadGalaxy = async () => {
@@ -109,17 +112,9 @@
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const stage = document.getElementById('galaxyStage'); stage.innerHTML = '';
         sorted.forEach(([name, count], i) => {
-            const b = document.createElement('div'); b.className = 'bubble';
-            const size = i === 0 ? 110 : Math.max(68, 100 - (i * 8));
-            b.style.width = size+'px'; b.style.height = size+'px';
-            b.style.background = i === 0 ? '#000' : `rgba(0,0,0,${0.08 - (i*0.01)})`;
-            b.style.color = i === 0 ? '#fff' : '#000'; b.innerText = name;
-            b.style.setProperty('--d', (6 + Math.random() * 4) + 's');
-            b.style.setProperty('--delay', (Math.random() * -5) + 's');
-            const angle = (i * 137.5) * (Math.PI / 180);
-            const dist = i === 0 ? 0 : 130 + (i * 2);
-            b.style.left = `calc(50% + ${Math.cos(angle) * dist}px - ${size/2}px)`;
-            b.style.top = `calc(50% + ${Math.sin(angle) * dist}px - ${size/2}px)`;
+            const b = document.createElement('div');
+            b.className = i === 0 ? 'bubble top' : 'bubble';
+            b.innerHTML = `<div>${name}</div><div style="font-size:10px;opacity:0.6">${count}次</div>`;
             stage.appendChild(b);
         });
     };
