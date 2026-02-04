@@ -7,7 +7,7 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        /* 側邊換頁小點 */
+        /* 側邊換頁點 */
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 5px; height: 5px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2); }
@@ -18,24 +18,23 @@
 
         h1 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin: 0; }
 
-        /* 透視頁：星系漂浮美學 */
-        .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 20px; }
+        /* 透視：宇宙星系美學 */
+        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 20px; }
         .bubble { 
             position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
             text-align: center; transition: background 1s ease; font-size: 13px; font-weight: 500;
-            animation: cosmicDrift var(--duration) infinite ease-in-out var(--delay);
+            animation: cosmicDrift var(--d) infinite ease-in-out var(--delay);
         }
         @keyframes cosmicDrift {
-            0% { transform: translate(0, 0); }
-            33% { transform: translate(6px, -8px); }
-            66% { transform: translate(-4px, 6px); }
-            100% { transform: translate(0, 0); }
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(5px, -7px); }
+            66% { transform: translate(-4px, 5px); }
         }
 
-        .insight-mini { width: 85%; margin-top: 20px; font-size: 13px; color: #8e8e93; line-height: 2.2; }
+        .insight-mini { width: 85%; margin-top: 15px; font-size: 13px; color: #8e8e93; line-height: 2.2; }
         .insight-item { display: flex; justify-content: space-between; border-bottom: 0.5px solid #f2f2f7; padding: 4px 0; }
 
-        /* 回憶頁：尺規刻度美學 */
+        /* 回憶：尺規刻度美學 */
         .ruler-container { width: 85%; margin-top: 40px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #d2d2d7; padding-left: 20px; }
         .ruler-mark { position: relative; padding-bottom: 30px; }
         .ruler-mark::before { content: ''; position: absolute; left: -21px; top: 0; width: 10px; height: 1px; background: #d2d2d7; }
@@ -65,45 +64,45 @@
 </div>
 
 <script type="module">
-    // 預載標籤：確保頁面絕不全白
+    // --- 1. 優先渲染 (防止空白) ---
     let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true }, { name: '💇 工作', selected: true }, { name: '📚 學習', selected: true }];
     function renderTags() {
-        const short = document.getElementById('shortCutArea'), all = document.getElementById('allTagsArea');
-        if(!short || !all) return;
-        short.innerHTML = ''; all.innerHTML = '';
-        tags.forEach((tag, i) => {
-            if (tag.selected) {
-                const b = document.createElement('button'); b.className = 'pill-tag active'; b.innerText = tag.name;
-                b.onclick = () => { document.getElementById('userInput').value = tag.name; };
-                short.appendChild(b);
-            }
-            const b2 = document.createElement('button'); b2.className = tag.selected ? 'pill-tag active' : 'pill-tag inactive';
-            b2.innerText = tag.name; b2.onclick = () => { tags[i].selected = !tags[i].selected; renderTags(); };
-            all.appendChild(b2);
+        const s = document.getElementById('shortCutArea'), a = document.getElementById('allTagsArea');
+        if(!s || !a) return;
+        s.innerHTML = ''; a.innerHTML = '';
+        tags.forEach((t, i) => {
+            const b = document.createElement('button');
+            b.className = t.selected ? 'pill-tag active' : 'pill-tag inactive';
+            b.innerText = t.name;
+            b.onclick = () => { 
+                if(s.contains(b)) document.getElementById('userInput').value = t.name;
+                else { tags[i].selected = !tags[i].selected; renderTags(); }
+            };
+            if(t.selected) s.appendChild(b.cloneNode(true));
+            a.appendChild(b);
         });
         localStorage.setItem('myPills', JSON.stringify(tags));
     }
     renderTags();
 
-    // Firebase 異步模組化載入
+    // --- 2. 數據與星系載入 ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d94" };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const config = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d94" };
+    const db = getFirestore(initializeApp(config));
 
     window.saveLog = async () => {
-        const input = document.getElementById('userInput');
-        if(!input.value) return;
-        await addDoc(collection(db, "daily_logs"), { action: input.value, timestamp: serverTimestamp() });
-        input.value = '';
+        const val = document.getElementById('userInput').value;
+        if(!val) return;
+        await addDoc(collection(db, "daily_logs"), { action: val, timestamp: serverTimestamp() });
+        document.getElementById('userInput').value = '';
     };
 
     window.loadGalaxy = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs")));
         const counts = {};
-        snap.forEach(doc => { const a = doc.data().action; counts[a] = (counts[a] || 0) + 1; });
+        snap.forEach(d => { const a = d.data().action; counts[a] = (counts[a] || 0) + 1; });
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const stage = document.getElementById('galaxyStage');
         stage.innerHTML = '';
@@ -112,23 +111,24 @@
             const b = document.createElement('div'); b.className = 'bubble';
             const isSun = i === 0;
             const size = isSun ? 120 : Math.max(65, 100 - (i * 12));
-            b.style.setProperty('--duration', (6 + Math.random() * 6) + 's');
+            b.style.setProperty('--d', (6 + Math.random() * 4) + 's');
             b.style.setProperty('--delay', (Math.random() * -5) + 's');
             b.style.width = size+'px'; b.style.height = size+'px';
             b.style.background = isSun ? '#000' : `rgba(0,0,0,${0.08 - (i*0.01)})`;
             b.style.color = isSun ? '#fff' : '#000'; b.innerText = name;
             
-            if(isSun) { b.style.zIndex = 10; b.style.left = '50%'; b.style.top = '50%'; b.style.transform = 'translate(-50%,-50%)'; }
+            if(isSun) { b.style.left = '50%'; b.style.top = '50%'; b.style.transform = 'translate(-50%,-50%)'; b.style.zIndex = 10; }
             else {
-                const angle = (i * (360 / (sorted.length - 1)) + (Math.random()-0.5)*40) * (Math.PI / 180);
+                const angle = (i * (360 / (sorted.length - 1)) + (Math.random()-0.5)*30) * (Math.PI / 180);
                 b.style.left = `calc(50% + ${Math.cos(angle) * 135}px - ${size/2}px)`;
                 b.style.top = `calc(50% + ${Math.sin(angle) * 135}px - ${size/2}px)`;
             }
             stage.appendChild(b);
         });
         document.getElementById('insightArea').innerHTML = sorted[0] ? `<div class="insight-item">本月重心 <span style="color:#000;font-weight:600">${sorted[0][0]}</span></div>` : '';
-    }
+    };
 
+    // --- 3. 滑動控制 ---
     let startY = 0, currentPage = 0;
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
@@ -137,7 +137,7 @@
             currentPage = dist > 0 ? Math.min(currentPage + 1, 3) : Math.max(currentPage - 1, 0);
             document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
             [0,1,2,3].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
-            if(currentPage === 2 && window.loadGalaxy) window.loadGalaxy();
+            if(currentPage === 2) window.loadGalaxy();
         }
     });
 </script>
