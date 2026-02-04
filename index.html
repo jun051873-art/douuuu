@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>在幹嘛 1 號 - 重生版</title>
+    <title>在幹嘛 1 號 - 潔淨版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         
@@ -14,33 +14,26 @@
         @keyframes textFlow { 0% { opacity: 0; filter: blur(5px); } 40% { opacity: 1; filter: blur(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
         @keyframes splashFade { 0%, 90% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
-        /* 導航小點 */
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 4px; height: 4px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.5); }
 
-        /* 滑動容器 (僅兩頁) */
         .main-container { width: 100%; height: 200vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 120px; box-sizing: border-box; background: #fff; }
-        
         h1 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 40px; }
 
-        /* 藥丸標籤美學 */
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 90%; }
-        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; color: #1d1d1f; cursor: pointer; transition: 0.3s; -webkit-tap-highlight-color: transparent; }
+        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; color: #1d1d1f; cursor: pointer; transition: 0.3s; -webkit-tap-highlight-color: transparent; position: relative; }
         .pill-tag.active { background: #000; color: #fff; }
 
-        /* 底盤輸入區 */
-        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; gap: 12px; border-bottom: 1.5px solid #000; padding: 8px; background: #fff; }
-        .input-box { background: transparent; border: none; width: 200px; font-size: 18px; text-align: center; outline: none; font-weight: 300; }
-        .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .send-btn:active { transform: scale(0.9); }
+        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; gap: 12px; border-bottom: 1.5px solid #000; padding: 8px; }
+        .input-box { background: transparent; border: none; width: 200px; font-size: 18px; text-align: center; outline: none; }
+        .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
 <div id="splash"><h2>：（多久沒問問自己了呢）</h2></div>
-
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
@@ -55,6 +48,7 @@
 
     <section class="page">
         <h1>我的標籤</h1>
+        <div style="font-size: 12px; color: #a1a1a6; margin-bottom: 20px;">短按切換顯示 / 長按刪除</div>
         <div id="allTagsArea" class="tag-container"></div>
         <div class="input-section">
             <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..." autocomplete="off">
@@ -67,7 +61,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 鎖定 Firebase Config
     const firebaseConfig = { 
         apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", 
         authDomain: "now-doing.firebaseapp.com", 
@@ -78,21 +71,30 @@
     };
     const db = getFirestore(initializeApp(firebaseConfig));
 
-    // 本地儲存標籤
     let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true }, { name: '💇 工作', selected: true }];
 
     function render() {
         const s = document.getElementById('shortCutArea'), a = document.getElementById('allTagsArea');
         if(!s || !a) return;
         s.innerHTML = ''; a.innerHTML = '';
+        
         tags.forEach((t, i) => {
             const b = document.createElement('button');
             b.className = t.selected ? 'pill-tag active' : 'pill-tag';
             b.innerText = t.name;
+
+            // 長按刪除邏輯
+            let timer;
+            b.ontouchstart = () => { timer = setTimeout(() => { if(confirm('確定要刪除「' + t.name + '」嗎？')) { tags.splice(i, 1); render(); } }, 800); };
+            b.ontouchend = () => clearTimeout(timer);
+            b.onmousedown = () => { timer = setTimeout(() => { if(confirm('確定要刪除「' + t.name + '」嗎？')) { tags.splice(i, 1); render(); } }, 800); };
+            b.onmouseup = () => clearTimeout(timer);
+
             b.onclick = () => {
                 if(s.contains(b)) window.saveAction('tag', t.name);
                 else { tags[i].selected = !tags[i].selected; render(); }
             };
+
             if(t.selected) s.appendChild(b.cloneNode(true));
             a.appendChild(b);
         });
@@ -115,7 +117,6 @@
         if(input.value) { tags.unshift({ name: input.value, selected: true }); render(); input.value = ''; }
     };
 
-    // 滑動邏輯 (僅兩頁)
     let startY = 0, currentPage = 0;
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
