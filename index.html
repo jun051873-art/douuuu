@@ -3,43 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>專屬1號 - 穩定版</title>
+    <title>專屬1號 - 功能修復</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; color: #1d1d1f; }
-        
-        /* 左側導航點：左邊樣板核心 */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         .dots-container { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 6px; height: 6px; background: #d2d2d7; border-radius: 50%; transition: 0.3s; }
         .dot.active { background: #000; transform: scale(1.5); }
-
-        /* 滑動容器 */
-        .main-container { width: 100%; height: 400vh; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; }
-        .page { width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; padding: 80px 40px 0 60px; box-sizing: border-box; background: #fff; }
-
-        h1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; text-align: left; }
-        
-        /* 標籤設計：回歸藥丸感 */
+        .main-container { width: 100%; height: 400vh; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
+        .page { width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; padding: 80px 40px 0 60px; box-sizing: border-box; }
+        h1 { font-size: 32px; font-weight: 800; margin-bottom: 20px; text-align: left; }
         .tag-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-        .pill-tag { padding: 10px 20px; border-radius: 20px; font-size: 15px; border: 1px solid #f2f2f7; background: #f5f5f7; color: #1d1d1f; cursor: pointer; transition: 0.2s; }
+        .pill-tag { padding: 10px 20px; border-radius: 20px; font-size: 15px; border: 1px solid #f2f2f7; background: #f5f5f7; cursor: pointer; }
         .pill-tag.active { background: #000; color: #fff; border-color: #000; }
-
-        /* 輸入區域：極簡底線 */
-        .input-section { position: absolute; bottom: 60px; left: 60px; right: 40px; display: flex; align-items: center; border-bottom: 1px solid #000; padding: 5px 0; gap: 10px; }
-        .input-box { border: none; flex: 1; font-size: 17px; outline: none; background: transparent; font-weight: 300; }
-        .btn-circle { background: #000; color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-        /* 回憶：尺規刻度樣式 */
-        .memory-area { overflow-y: auto; height: 65vh; border-left: 1px solid #d2d2d7; padding-left: 20px; margin-top: 20px; }
+        .input-section { position: absolute; bottom: 60px; left: 60px; right: 40px; display: flex; align-items: center; border-bottom: 1px solid #000; padding: 5px 0; }
+        .input-box { border: none; flex: 1; font-size: 17px; outline: none; background: transparent; }
+        .btn-circle { background: #000; color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+        
+        /* 尺規刻度樣式 */
+        .memory-area { overflow-y: auto; height: 65vh; border-left: 1px solid #000; padding-left: 20px; margin-top: 20px; }
         .memory-item { position: relative; padding-bottom: 30px; text-align: left; }
-        .memory-item::before { content: ''; position: absolute; left: -21px; top: 10px; width: 10px; height: 1px; background: #000; }
-        .time-label { font-size: 10px; color: #86868b; font-weight: 600; margin-bottom: 5px; display: block; }
-        .content-label { font-size: 16px; line-height: 1.5; }
-
-        /* 透視：靜態清單 (不再漂浮，回歸穩定) */
-        .stat-list { width: 100%; margin-top: 20px; }
-        .stat-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f2f2f7; font-size: 16px; }
+        .memory-item::before { content: ''; position: absolute; left: -21px; top: 10px; width: 12px; height: 1.5px; background: #000; }
+        .time-label { font-size: 10px; color: #86868b; font-weight: 700; display: block; margin-bottom: 4px; }
+        
+        .stat-item { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f2f2f7; }
     </style>
 </head>
 <body>
@@ -61,18 +49,11 @@
                 <button class="btn-circle" onclick="addTag()">＋</button>
             </div>
         </section>
-        <section class="page">
-            <h1>透視</h1>
-            <div id="statArea" class="stat-list"></div>
-        </section>
-        <section class="page">
-            <h1>回憶</h1>
-            <div id="memoryArea" class="memory-area"></div>
-        </section>
+        <section class="page"><h1>透視</h1><div id="statArea" style="width:100%; margin-top:20px;"></div></section>
+        <section class="page"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
     </div>
 
     <script>
-        // Firebase Config
         var config = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d94" };
         firebase.initializeApp(config);
         var db = firebase.firestore();
@@ -86,7 +67,10 @@
                 var b = document.createElement('button');
                 b.className = t.selected ? 'pill-tag active' : 'pill-tag';
                 b.innerText = t.name;
-                b.onclick = function() { if(s.contains(b)) saveData('tag', t.name); else { tags[i].selected = !tags[i].selected; render(); } };
+                b.onclick = function() { 
+                    if(s.contains(this)) { saveData('tag', t.name); } 
+                    else { tags[i].selected = !tags[i].selected; render(); } 
+                };
                 if(t.selected) s.appendChild(b.cloneNode(true));
                 a.appendChild(b);
             });
@@ -102,11 +86,11 @@
             var text = val || document.getElementById('userInput').value;
             if(!text) return;
             db.collection("daily_logs").add({ action: text, type: type, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
-            .then(function() { document.getElementById('userInput').value = ''; alert('已紀錄'); });
+            .then(function() { document.getElementById('userInput').value = ''; alert('紀錄成功'); });
         };
 
-        window.loadPages = function(page) {
-            if(page === 2) {
+        window.loadData = function(page) {
+            if(page === 2) { // 透視
                 db.collection("daily_logs").where("type","==","tag").get().then(function(snap) {
                     var counts = {}; snap.forEach(function(d) { var a = d.data().action; counts[a] = (counts[a] || 0) + 1; });
                     var sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
@@ -116,8 +100,8 @@
                     });
                 });
             }
-            if(page === 3) {
-                db.collection("daily_logs").where("type","==","input").orderBy("timestamp","desc").limit(20).get().then(function(snap) {
+            if(page === 3) { // 回憶
+                db.collection("daily_logs").where("type","==","input").orderBy("timestamp","desc").limit(30).get().then(function(snap) {
                     var area = document.getElementById('memoryArea'); area.innerHTML = '';
                     var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
                     snap.forEach(function(d) {
@@ -138,7 +122,7 @@
                 cur = dist > 0 ? Math.min(cur+1, 3) : Math.max(cur-1, 0);
                 document.getElementById('mainContainer').style.transform = 'translateY(-'+(cur*100)+'vh)';
                 for(var i=0; i<4; i++) document.getElementById('dot'+i).classList.toggle('active', i === cur);
-                loadPages(cur);
+                loadData(cur);
             }
         });
         render();
