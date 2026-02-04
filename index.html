@@ -6,29 +6,36 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>在幹嘛 1 號 - 潔淨版</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, "Helvetica Neue", sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
         /* 啟動標語 */
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; display: flex; align-items: center; justify-content: center; animation: splashFade 3s forwards; }
-        #splash h2 { font-size: 18px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 2.5s ease-in-out forwards; }
+        #splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 2.5s ease-in-out forwards; }
         @keyframes textFlow { 0% { opacity: 0; filter: blur(5px); } 40% { opacity: 1; filter: blur(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
         @keyframes splashFade { 0%, 90% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 4px; height: 4px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
+        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.5); }
 
         .main-container { width: 100%; height: 200vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 120px; box-sizing: border-box; background: #fff; }
-        h1 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 40px; }
+        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 15vh; box-sizing: border-box; background: #fff; }
+        
+        /* 極簡標題 */
+        h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin: 0; color: #1d1d1f; }
+        .sub-title { font-size: 12px; color: #a1a1a6; margin-top: 8px; letter-spacing: 1px; }
 
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 90%; }
-        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; color: #1d1d1f; cursor: pointer; transition: 0.3s; -webkit-tap-highlight-color: transparent; position: relative; }
-        .pill-tag.active { background: #000; color: #fff; }
+        /* 藥丸標籤美學 - 第一頁：實心直覺 */
+        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 85%; margin-top: 80px; } /* 增加 margin-top 拉開距離 */
+        .pill-tag { padding: 10px 24px; border-radius: 40px; font-size: 15px; border: none; background: #000; color: #fff; cursor: pointer; transition: 0.3s; -webkit-tap-highlight-color: transparent; }
+        
+        /* 第二頁：線框輕盈 */
+        .manage-tag { padding: 9px 23px; border-radius: 40px; font-size: 14px; border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; cursor: pointer; transition: 0.2s; }
+        .manage-tag.selected { background: #f2f2f7; border-color: #f2f2f7; font-weight: 600; }
 
-        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; gap: 12px; border-bottom: 1.5px solid #000; padding: 8px; }
-        .input-box { background: transparent; border: none; width: 200px; font-size: 18px; text-align: center; outline: none; }
-        .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 8px; }
+        .input-box { background: transparent; border: none; width: 200px; font-size: 17px; text-align: center; outline: none; font-weight: 300; color: #1d1d1f; }
+        .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -47,9 +54,9 @@
     </section>
 
     <section class="page">
-        <h1>我的標籤</h1>
-        <div style="font-size: 12px; color: #a1a1a6; margin-bottom: 20px;">短按切換顯示 / 長按刪除</div>
-        <div id="allTagsArea" class="tag-container"></div>
+        <h1>標籤清單</h1>
+        <div class="sub-title">短按切換 / 長按移除</div>
+        <div id="allTagsArea" class="tag-container" style="margin-top: 40px;"></div>
         <div class="input-section">
             <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..." autocomplete="off">
             <button class="send-btn" onclick="window.addNewTag()">＋</button>
@@ -79,24 +86,28 @@
         s.innerHTML = ''; a.innerHTML = '';
         
         tags.forEach((t, i) => {
-            const b = document.createElement('button');
-            b.className = t.selected ? 'pill-tag active' : 'pill-tag';
-            b.innerText = t.name;
+            // 第一頁標籤：黑底白字，純粹直覺
+            if(t.selected) {
+                const b1 = document.createElement('button');
+                b1.className = 'pill-tag';
+                b1.innerText = t.name;
+                b1.onclick = () => window.saveAction('tag', t.name);
+                s.appendChild(b1);
+            }
 
-            // 長按刪除邏輯
+            // 第二頁標籤：細線框，輕盈管理
+            const b2 = document.createElement('button');
+            b2.className = t.selected ? 'manage-tag selected' : 'manage-tag';
+            b2.innerText = t.name;
+
             let timer;
-            b.ontouchstart = () => { timer = setTimeout(() => { if(confirm('確定要刪除「' + t.name + '」嗎？')) { tags.splice(i, 1); render(); } }, 800); };
-            b.ontouchend = () => clearTimeout(timer);
-            b.onmousedown = () => { timer = setTimeout(() => { if(confirm('確定要刪除「' + t.name + '」嗎？')) { tags.splice(i, 1); render(); } }, 800); };
-            b.onmouseup = () => clearTimeout(timer);
-
-            b.onclick = () => {
-                if(s.contains(b)) window.saveAction('tag', t.name);
-                else { tags[i].selected = !tags[i].selected; render(); }
-            };
-
-            if(t.selected) s.appendChild(b.cloneNode(true));
-            a.appendChild(b);
+            b2.ontouchstart = () => timer = setTimeout(() => { if(confirm('刪除標籤？')) { tags.splice(i, 1); render(); } }, 800);
+            b2.ontouchend = () => clearTimeout(timer);
+            b2.onmousedown = () => timer = setTimeout(() => { if(confirm('刪除標籤？')) { tags.splice(i, 1); render(); } }, 800);
+            b2.onmouseup = () => clearTimeout(timer);
+            b2.onclick = () => { tags[i].selected = !tags[i].selected; render(); };
+            
+            a.appendChild(b2);
         });
         localStorage.setItem('myPills', JSON.stringify(tags));
     }
