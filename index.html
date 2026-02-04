@@ -3,38 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>現在在幹嘛？ 1號 - 靈魂回歸</title>
+    <title>現在在幹嘛？ 1號</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 4px; height: 4px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.5); }
-        .main-container { width: 100%; height: 400vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
+        .main-container { width: 100%; height: 400vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; display: flex; flex-direction: column; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 100px; box-sizing: border-box; background: #fff; }
-        
-        /* 尺規刻度美學 */
+        h1 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; margin: 0; }
+
+        /* 透視：宇宙漂浮感 */
+        .galaxy-stage { width: 100%; height: 45vh; position: relative; margin-top: 20px; }
+        .bubble { 
+            position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; 
+            font-size: 13px; font-weight: 500; transition: 1s ease;
+            animation: cosmicDrift var(--d) infinite ease-in-out var(--delay);
+        }
+        @keyframes cosmicDrift { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(6px, -8px); } 66% { transform: translate(-4px, 5px); } }
+
+        /* 回憶：尺標與刻度 */
         .ruler-container { width: 85%; margin-top: 40px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #000; padding-left: 20px; }
-        .ruler-item { position: relative; padding-bottom: 30px; border-left: none; }
+        .ruler-item { position: relative; padding-bottom: 35px; }
         .ruler-item::before { content: ''; position: absolute; left: -21.5px; top: 8px; width: 12px; height: 1px; background: #000; }
-        
-        /* 標籤樣式 */
+        .time-tag { font-size: 10px; font-weight: 700; color: #a1a1a6; display: block; margin-bottom: 5px; letter-spacing: 1px; }
+
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 90%; margin-top: 50px; }
-        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; cursor: pointer; }
+        .pill-tag { padding: 12px 28px; border-radius: 40px; font-size: 16px; border: none; background: #f2f2f7; cursor: pointer; transition: 0.3s; }
         .pill-tag.active { background: #000; color: #fff; }
+        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 10px; border-bottom: 1.5px solid #000; padding: 5px; }
+        .input-box { border: none; width: 220px; font-size: 18px; text-align: center; outline: none; background: transparent; }
     </style>
 </head>
 <body>
+
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div></div>
+
 <div class="main-container" id="mainContainer">
-    <section class="page"><h1>現在在幹嘛</h1><div id="shortCutArea" class="tag-container"></div></section>
-    <section class="page"><h1>標籤</h1><div id="allTagsArea" class="tag-container"></div></section>
-    <section class="page"><h1>透視</h1><div id="galaxyStage" style="height:45vh;width:100%;position:relative;"></div></section>
-    <section class="page"><h1>回憶</h1><div id="memoryArea" class="ruler-container"></div></section>
+    <section class="page">
+        <h1>現在在幹嘛</h1>
+        <div id="shortCutArea" class="tag-container"></div>
+        <div class="input-section">
+            <input type="text" id="userInput" class="input-box" placeholder="此刻的心情...">
+            <button onclick="handleAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">↑</button>
+        </div>
+    </section>
+
+    <section class="page">
+        <h1>我的標籤</h1>
+        <div id="allTagsArea" class="tag-container"></div>
+        <div class="input-section">
+            <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤...">
+            <button onclick="addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">＋</button>
+        </div>
+    </section>
+
+    <section class="page">
+        <h1>透視</h1>
+        <div id="galaxyStage" class="galaxy-stage"></div>
+    </section>
+
+    <section class="page">
+        <h1>回憶</h1>
+        <div id="memoryArea" class="ruler-container"></div>
+    </section>
 </div>
+
 <script>
-    // 優先渲染標籤，防止空白
-    let myTags = JSON.parse(localStorage.getItem('myPills')) || [{name:'☕ 休息',selected:true},{name:'💇 工作',selected:true}];
-    document.getElementById('shortCutArea').innerHTML = myTags.filter(t=>t.selected).map(t=>`<button class="pill-tag active">${t.name}</button>`).join('');
+    // Firebase 初始化 (鎖定配置)
+    var firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIv", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d94" };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+
+    // 優先渲染標籤
+    var myTags = JSON.parse(localStorage.getItem('myPills')) || [{name:'☕ 休息',selected:true},{name:'💇 工作',selected:true},{name:'📚 學習',selected:true}];
+    
+    function render() {
+        var s = document.getElementById('shortCutArea'), a = document.getElementById('allTagsArea');
+        if(!s || !a) return; s.innerHTML = ''; a.innerHTML = '';
+        myTags.forEach(function(t, i) {
+            var b = document.createElement('button');
+            b.className = t.selected ? 'pill-tag active' : 'pill-tag';
+            b.innerText = t.name;
+            b.onclick = function() { if(s.contains(b)) handleAction('tag', t.name); else { myTags[i].selected = !myTags[i].selected; render(); } };
+            if(t.selected) s.appendChild(b.cloneNode(true));
+            a.appendChild(b);
+        });
+        localStorage.setItem('myPills', JSON.stringify(myTags));
+    }
+    render();
+
+    window.addNewTag = function() {
+        var val = document.getElementById('newTagInput').value;
+        if(val) { myTags.unshift({name:val, selected:true}); render(); document.getElementById('newTagInput').value=''; }
+    };
+
+    window.handleAction = function(type, val) {
+        var text = val || document.getElementById('userInput').value;
+        if(!text) return;
+        db.collection("daily_logs").add({ action: text, type: type, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
+        .then(function() { document.getElementById('userInput').value = ''; alert('已邂逅'); });
+    };
+
+    window.loadGalaxy = function() {
+        db.collection("daily_logs").get().then(function(snap) {
+            var counts = {};
+            snap.forEach(function(d) { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+            var sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+            var stage = document.getElementById('galaxyStage'); stage.innerHTML = '';
+            sorted.forEach(function(item, i) {
+                var b = document.createElement('div'); b.className = 'bubble';
+                var size = i === 0 ? 110 : Math.max(65, 100 - (i*10));
+                b.style.width = size+'px'; b.style.height = size+'px';
+                b.style.background = i === 0 ? '#000' : 'rgba(0,0,0,0.08)';
+                b.style.color = i === 0 ? '#fff' : '#000'; b.innerText = item[0];
+                b.style.setProperty('--d', (5+Math.random()*5)+'s');
+                b.style.setProperty('--delay', (Math.random()*-5)+'s');
+                var angle = (i * 137.5) * (Math.PI / 180);
+                var dist = i === 0 ? 0 : 135;
+                b.style.left = 'calc(50% + '+(Math.cos(angle)*dist)+'px - '+(size/2)+'px)';
+                b.style.top = 'calc(50% + '+(Math.sin(angle)*dist)+'px - '+(size/2)+'px)';
+                stage.appendChild(b);
+            });
+        });
+    };
+
+    window.loadMemories = function() {
+        db.collection("daily_logs").where("type","==","input").orderBy("timestamp","desc").get().then(function(snap) {
+            var area = document.getElementById('memoryArea'); area.innerHTML = '';
+            var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+            snap.forEach(function(d) {
+                var data = d.data();
+                var date = data.timestamp ? data.timestamp.toDate() : new Date();
+                var item = document.createElement('div'); item.className = 'ruler-item';
+                item.innerHTML = '<span class="time-tag">'+date.getHours()+':'+String(date.getMinutes()).padStart(2,'0')+' · '+days[date.getDay()]+'</span><div class="log-content">'+data.action+'</div>';
+                area.appendChild(item);
+            });
+        });
+    };
+
+    var startY = 0, currentPage = 0;
+    window.addEventListener('touchstart', function(e) { startY = e.touches[0].clientY; });
+    window.addEventListener('touchend', function(e) {
+        var dist = startY - e.changedTouches[0].clientY;
+        if (Math.abs(dist) > 50) {
+            currentPage = dist > 0 ? Math.min(currentPage + 1, 3) : Math.max(currentPage - 1, 0);
+            document.getElementById('mainContainer').style.transform = 'translateY(-'+(currentPage*100)+'vh)';
+            for(var i=0; i<4; i++) document.getElementById('dot'+i).classList.toggle('active', i === currentPage);
+            if(currentPage === 2) loadGalaxy(); if(currentPage === 3) loadMemories();
+        }
+    });
 </script>
 </body>
 </html>
