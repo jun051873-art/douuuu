@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>在幹嘛 1 號 - 潔淨版</title>
+    <title>在幹嘛 1 號 - 透視版</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, "Helvetica Neue", sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
         /* 啟動標語 */
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; display: flex; align-items: center; justify-content: center; animation: splashFade 3s forwards; }
@@ -18,30 +18,33 @@
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.5); }
 
-        .main-container { width: 100%; height: 200vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
+        .main-container { width: 100%; height: 300vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 15vh; box-sizing: border-box; background: #fff; }
         
-        /* 極簡標題 */
         h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin: 0; color: #1d1d1f; }
-        .sub-title { font-size: 12px; color: #a1a1a6; margin-top: 8px; letter-spacing: 1px; }
+        .sub-title { font-size: 11px; color: #a1a1a6; margin-top: 8px; letter-spacing: 1px; }
 
-        /* 藥丸標籤美學 - 第一頁：實心直覺 */
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 85%; margin-top: 80px; } /* 增加 margin-top 拉開距離 */
-        .pill-tag { padding: 10px 24px; border-radius: 40px; font-size: 15px; border: none; background: #000; color: #fff; cursor: pointer; transition: 0.3s; -webkit-tap-highlight-color: transparent; }
+        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 85%; margin-top: 80px; }
         
-        /* 第二頁：線框輕盈 */
-        .manage-tag { padding: 9px 23px; border-radius: 40px; font-size: 14px; border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; cursor: pointer; transition: 0.2s; }
+        /* 頁面 1：實心標籤 */
+        .pill-tag { padding: 12px 26px; border-radius: 40px; font-size: 15px; border: none; background: #000; color: #fff; cursor: pointer; transition: 0.3s; }
+        
+        /* 頁面 2：管理標籤 (細線) */
+        .manage-tag { padding: 9px 23px; border-radius: 40px; font-size: 14px; border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; cursor: pointer; }
         .manage-tag.selected { background: #f2f2f7; border-color: #f2f2f7; font-weight: 600; }
 
-        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 8px; }
-        .input-box { background: transparent; border: none; width: 200px; font-size: 17px; text-align: center; outline: none; font-weight: 300; color: #1d1d1f; }
-        .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        /* 頁面 3：透視標籤 (動態深淺) */
+        .insight-tag { padding: 10px 24px; border-radius: 40px; display: flex; align-items: center; gap: 8px; transition: 0.5s; }
+
+        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 8px; }
+        .input-box { background: transparent; border: none; width: 200px; font-size: 17px; text-align: center; outline: none; font-weight: 300; }
+        .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="splash"><h2>：（多久沒問問自己了呢）</h2></div>
-<div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div></div>
+<div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
     <section class="page">
@@ -54,19 +57,25 @@
     </section>
 
     <section class="page">
-        <h1>標籤清單</h1>
-        <div class="sub-title">短按切換 / 長按移除</div>
+        <h1>標籤</h1>
+        <div class="sub-title">長按移除標籤</div>
         <div id="allTagsArea" class="tag-container" style="margin-top: 40px;"></div>
         <div class="input-section">
             <input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..." autocomplete="off">
             <button class="send-btn" onclick="window.addNewTag()">＋</button>
         </div>
     </section>
+
+    <section class="page">
+        <h1>透視</h1>
+        <div class="sub-title">看見生活的重心</div>
+        <div id="insightArea" class="tag-container" style="margin-top: 50px;"></div>
+    </section>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", 
@@ -86,27 +95,18 @@
         s.innerHTML = ''; a.innerHTML = '';
         
         tags.forEach((t, i) => {
-            // 第一頁標籤：黑底白字，純粹直覺
             if(t.selected) {
-                const b1 = document.createElement('button');
-                b1.className = 'pill-tag';
-                b1.innerText = t.name;
+                const b1 = document.createElement('button'); b1.className = 'pill-tag'; b1.innerText = t.name;
                 b1.onclick = () => window.saveAction('tag', t.name);
                 s.appendChild(b1);
             }
-
-            // 第二頁標籤：細線框，輕盈管理
             const b2 = document.createElement('button');
             b2.className = t.selected ? 'manage-tag selected' : 'manage-tag';
             b2.innerText = t.name;
-
             let timer;
-            b2.ontouchstart = () => timer = setTimeout(() => { if(confirm('刪除標籤？')) { tags.splice(i, 1); render(); } }, 800);
+            b2.ontouchstart = () => timer = setTimeout(() => { if(confirm('刪除？')) { tags.splice(i, 1); render(); } }, 800);
             b2.ontouchend = () => clearTimeout(timer);
-            b2.onmousedown = () => timer = setTimeout(() => { if(confirm('刪除標籤？')) { tags.splice(i, 1); render(); } }, 800);
-            b2.onmouseup = () => clearTimeout(timer);
             b2.onclick = () => { tags[i].selected = !tags[i].selected; render(); };
-            
             a.appendChild(b2);
         });
         localStorage.setItem('myPills', JSON.stringify(tags));
@@ -128,14 +128,36 @@
         if(input.value) { tags.unshift({ name: input.value, selected: true }); render(); input.value = ''; }
     };
 
+    window.loadInsight = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs")));
+        const counts = {};
+        snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const area = document.getElementById('insightArea'); area.innerHTML = '';
+        const max = sorted[0] ? sorted[0][1] : 1;
+
+        sorted.forEach(([name, count]) => {
+            const div = document.createElement('div');
+            div.className = 'insight-tag';
+            // 根據次數計算視覺比例
+            const ratio = count / max;
+            div.style.background = `rgba(0,0,0,${0.05 + (ratio * 0.9)})`;
+            div.style.color = ratio > 0.5 ? '#fff' : '#000';
+            div.style.transform = `scale(${0.9 + (ratio * 0.2)})`;
+            div.innerHTML = `<span>${name}</span><span style="font-size:10px; opacity:0.6">${count}</span>`;
+            area.appendChild(div);
+        });
+    };
+
     let startY = 0, currentPage = 0;
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         let dist = startY - e.changedTouches[0].clientY;
         if (Math.abs(dist) > 50) {
-            currentPage = dist > 0 ? Math.min(currentPage + 1, 1) : Math.max(currentPage - 1, 0);
+            currentPage = dist > 0 ? Math.min(currentPage + 1, 2) : Math.max(currentPage - 1, 0);
             document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
-            [0,1].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
+            [0,1,2].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
+            if(currentPage === 2) window.loadInsight();
         }
     });
 </script>
