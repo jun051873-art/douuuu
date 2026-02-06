@@ -1,179 +1,36 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>在幹嘛 1 號 - 詩人版</title>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        
-        /* 標語層 */
-        .page-splash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
-        .page-splash.active { opacity: 1; pointer-events: all; }
-        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; opacity: 0; transform: translateY(10px); }
-        .page-splash.active h2 { animation: textFlow 2s ease-in-out forwards; }
-        @keyframes textFlow { 0% { opacity: 0; filter: blur(5px); transform: translateY(10px); } 40% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
-
-        /* 導航點 */
-        .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
-        .dot.active { background: #000; transform: scale(2.5); }
-
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 12vh; box-sizing: border-box; background: #fff; transition: opacity 0.8s; }
-        .page.loading { opacity: 0; }
-        
-        h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin: 0; color: #1d1d1f; }
-        .sub-title { font-size: 11px; color: #a1a1a6; margin-top: 8px; letter-spacing: 1px; }
-
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 85%; margin-top: 60px; }
-        .pill-tag { padding: 12px 26px; border-radius: 40px; font-size: 15px; border: none; background: #000; color: #fff; }
-        .manage-tag { padding: 9px 23px; border-radius: 40px; font-size: 14px; border: 1px solid #d2d2d7; background: transparent; }
-        .manage-tag.selected { background: #f2f2f7; border-color: #f2f2f7; font-weight: 600; }
-
-        /* 設置清單風格 */
-        .edit-list { width: 80%; margin-top: 40px; display: flex; flex-direction: column; gap: 20px; }
-        .edit-item { border-bottom: 0.5px solid #eee; padding-bottom: 10px; }
-        .edit-label { font-size: 10px; color: #a1a1a6; display: block; margin-bottom: 5px; }
-        .edit-input { border: none; width: 100%; font-size: 16px; outline: none; font-weight: 300; }
-
-        .memory-area { width: 85%; margin-top: 40px; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 20px; }
-        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 8px; }
-        .input-box { background: transparent; border: none; width: 200px; font-size: 17px; text-align: center; outline: none; }
-        .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-<div id="splashLayer" class="page-splash active"><h2 id="splashText">：（多久沒問問自己了呢）</h2></div>
-<div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
-
-<div class="main-container" id="mainContainer">
-    <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="shortCutArea" class="tag-container"></div><div class="input-section"><input type="text" id="userInput" class="input-box" placeholder="此刻心情..." autocomplete="off"><button class="send-btn" onclick="window.saveAction('input')">↑</button></div></section>
-    <section class="page" id="p1"><h1>標籤</h1><div class="sub-title">長按移除標籤</div><div id="allTagsArea" class="tag-container" style="margin-top: 40px;"></div><div class="input-section"><input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..." autocomplete="off"><button class="send-btn" onclick="window.addNewTag()">＋</button></div></section>
-    <section class="page" id="p2"><h1>透視</h1><div id="insightArea" class="tag-container" style="margin-top: 50px;"></div></section>
-    <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page" id="p4">
-        <h1>標語</h1>
-        <div class="edit-list" id="quoteEditor"></div>
-        <div style="font-size: 11px; color: #a1a1a6; margin-top: 20px;">修改後自動儲存</div>
-    </section>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = { 
-        apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", 
-        authDomain: "now-doing.firebaseapp.com", 
-        projectId: "now-doing", 
-        storageBucket: "now-doing.firebasestorage.app", 
-        messagingSenderId: "234295652644", 
-        appId: "1:234295652644:web:c9b3c37de32d9448d443b1" 
-    };
-    const db = getFirestore(initializeApp(firebaseConfig));
-
-    // 標語管理系統
-    let defaultQuotes = [":（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
-    let quotes = JSON.parse(localStorage.getItem('myQuotes')) || defaultQuotes;
-
-    function initQuoteEditor() {
-        const area = document.getElementById('quoteEditor'); area.innerHTML = '';
-        quotes.forEach((q, i) => {
-            const div = document.createElement('div'); div.className = 'edit-item';
-            div.innerHTML = `<span class="edit-label">頁面 ${i+1} 標語</span><input type="text" class="edit-input" value="${q}" onchange="window.updateQuote(${i}, this.value)">`;
-            area.appendChild(div);
-        });
-    }
-    window.updateQuote = (i, val) => { quotes[i] = val; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
-
-    function showSplash(pageIndex) {
-        const layer = document.getElementById('splashLayer'), text = document.getElementById('splashText'), target = document.getElementById(`p${pageIndex}`);
-        text.innerText = quotes[pageIndex];
-        layer.classList.add('active'); target.classList.add('loading');
-        setTimeout(() => { layer.classList.remove('active'); target.classList.remove('loading'); }, 2200);
-    }
-    setTimeout(() => { document.getElementById('splashLayer').classList.remove('active'); }, 2500);
-
-    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true }, { name: '💇 工作', selected: true }];
-    function render() {
-        const s = document.getElementById('shortCutArea'), a = document.getElementById('allTagsArea');
-        s.innerHTML = ''; a.innerHTML = '';
-        tags.forEach((t, i) => {
-            if(t.selected) {
-                const b1 = document.createElement('button'); b1.className = 'pill-tag'; b1.innerText = t.name;
-                b1.onclick = () => window.saveAction('tag', t.name); s.appendChild(b1);
-            }
-            const b2 = document.createElement('button'); b2.className = t.selected ? 'manage-tag selected' : 'manage-tag';
-            b2.innerText = t.name;
-            let timer; b2.ontouchstart = () => timer = setTimeout(() => { if(confirm('刪除？')) { tags.splice(i, 1); render(); } }, 800);
-            b2.ontouchend = () => clearTimeout(timer); b2.onclick = () => { tags[i].selected = !tags[i].selected; render(); }; a.appendChild(b2);
-        });
-        localStorage.setItem('myPills', JSON.stringify(tags));
-    }
-    render(); initQuoteEditor();
-
-    window.saveAction = async (type, val) => {
-        const text = val || document.getElementById('userInput').value;
-        if(!text) return;
-        await addDoc(collection(db, "daily_logs"), { action: text, type: type, timestamp: serverTimestamp() });
-        document.getElementById('userInput').value = ''; alert('紀錄成功');
-    };
-
-    window.addNewTag = () => {
-        const input = document.getElementById('newTagInput');
-        if(input.value) { tags.unshift({ name: input.value, selected: true }); render(); input.value = ''; }
-    };
-
-    window.loadInsight = async () => {
-        const snap = await getDocs(query(collection(db, "daily_logs")));
-        const counts = {};
-        snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
-        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-        const area = document.getElementById('insightArea'); area.innerHTML = '';
-        const max = sorted[0] ? sorted[0][1] : 1;
-        sorted.forEach(([name, count]) => {
-            const div = document.createElement('button'); div.className = 'pill-tag';
-            const ratio = count / max;
-            div.style.background = `rgba(0,0,0,${0.1 + (ratio * 0.9)})`;
-            div.style.color = ratio > 0.4 ? '#fff' : '#000';
-            div.innerHTML = `${name} <span style="font-size:10px; opacity:0.6">${count}</span>`;
-            area.appendChild(div);
-        });
-    };
-
-    window.loadMemories = async () => {
+window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        const area = document.getElementById('memoryArea'); 
+        area.innerHTML = '';
+        
+        const weeks = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+        let lastDateStr = ""; // 用來記錄上一條資料的日期
+
         snap.forEach(d => {
-            if(d.data().type === 'input') {
-                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
-                const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<span style="font-size:10px; color:#a1a1a6;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="font-size:17px; font-weight:300;">${d.data().action}</div>`;
+            const data = d.data();
+            if(data.type === 'input') {
+                const date = data.timestamp ? data.timestamp.toDate() : new Date();
+                
+                // 格式化日期：例如 "2月6日 週五"
+                const dateStr = `${date.getMonth() + 1}月${date.getDate()}日 ${weeks[date.getDay()]}`;
+                const timeStr = `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+                // 如果日期變了，就插入一個精美的日期標頭
+                if (dateStr !== lastDateStr) {
+                    const dateHeader = document.createElement('div');
+                    dateHeader.style.cssText = "font-size: 11px; color: #000; font-weight: 700; margin: 20px 0 15px -21.5px; background: #fff; display: inline-block; padding-right: 10px;";
+                    dateHeader.innerText = dateStr;
+                    area.appendChild(dateHeader);
+                    lastDateStr = dateStr;
+                }
+
+                const div = document.createElement('div'); 
+                div.className = 'memory-item';
+                div.innerHTML = `
+                    <span class="time-label">${timeStr}</span>
+                    <div style="font-size:17px; font-weight:300; color:#1d1d1f; line-height:1.6;">${data.action}</div>
+                `;
                 area.appendChild(div);
             }
         });
     };
-
-    let startY = 0, currentPage = 0;
-    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-    window.addEventListener('touchend', e => {
-        let dist = startY - e.changedTouches[0].clientY;
-        if (Math.abs(dist) > 50) {
-            const old = currentPage;
-            currentPage = dist > 0 ? Math.min(currentPage + 1, 4) : Math.max(currentPage - 1, 0);
-            if (old !== currentPage) {
-                showSplash(currentPage);
-                setTimeout(() => {
-                    document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
-                    [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
-                    if(currentPage === 2) window.loadInsight(); if(currentPage === 3) window.loadMemories();
-                }, 1000);
-            }
-        }
-    });
-</script>
-</body>
-</html>
