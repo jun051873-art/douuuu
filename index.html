@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>在幹嘛 1 號 - 透視版</title>
+    <title>在幹嘛 1 號 - 完整版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
@@ -18,7 +18,7 @@
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.5); }
 
-        .main-container { width: 100%; height: 300vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
+        .main-container { width: 100%; height: 400vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 15vh; box-sizing: border-box; background: #fff; }
         
         h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin: 0; color: #1d1d1f; }
@@ -26,25 +26,27 @@
 
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 85%; margin-top: 80px; }
         
-        /* 頁面 1：實心標籤 */
-        .pill-tag { padding: 12px 26px; border-radius: 40px; font-size: 15px; border: none; background: #000; color: #fff; cursor: pointer; transition: 0.3s; }
-        
-        /* 頁面 2：管理標籤 (細線) */
-        .manage-tag { padding: 9px 23px; border-radius: 40px; font-size: 14px; border: 1px solid #d2d2d7; background: transparent; color: #1d1d1f; cursor: pointer; }
+        /* 標籤美學分流 */
+        .pill-tag { padding: 12px 26px; border-radius: 40px; font-size: 15px; border: none; background: #000; color: #fff; cursor: pointer; }
+        .manage-tag { padding: 9px 23px; border-radius: 40px; font-size: 14px; border: 1px solid #d2d2d7; background: transparent; }
         .manage-tag.selected { background: #f2f2f7; border-color: #f2f2f7; font-weight: 600; }
 
-        /* 頁面 3：透視標籤 (動態深淺) */
-        .insight-tag { padding: 10px 24px; border-radius: 40px; display: flex; align-items: center; gap: 8px; transition: 0.5s; }
+        /* 回憶尺標美學 */
+        .memory-area { width: 85%; margin-top: 50px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #000; padding-left: 20px; }
+        .memory-item { position: relative; padding-bottom: 35px; }
+        .memory-item::before { content: ''; position: absolute; left: -21.5px; top: 8px; width: 12px; height: 1.5px; background: #000; }
+        .time-label { font-size: 10px; font-weight: 700; color: #a1a1a6; display: block; margin-bottom: 5px; }
+        .text-content { font-size: 17px; color: #1d1d1f; line-height: 1.5; font-weight: 300; }
 
         .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 8px; }
-        .input-box { background: transparent; border: none; width: 200px; font-size: 17px; text-align: center; outline: none; font-weight: 300; }
+        .input-box { background: transparent; border: none; width: 200px; font-size: 17px; text-align: center; outline: none; }
         .send-btn { background: #000; color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="splash"><h2>：（多久沒問問自己了呢）</h2></div>
-<div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div></div>
+<div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
     <section class="page">
@@ -68,14 +70,18 @@
 
     <section class="page">
         <h1>透視</h1>
-        <div class="sub-title">看見生活的重心</div>
         <div id="insightArea" class="tag-container" style="margin-top: 50px;"></div>
+    </section>
+
+    <section class="page">
+        <h1>回憶</h1>
+        <div id="memoryArea" class="memory-area"></div>
     </section>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", 
@@ -93,7 +99,6 @@
         const s = document.getElementById('shortCutArea'), a = document.getElementById('allTagsArea');
         if(!s || !a) return;
         s.innerHTML = ''; a.innerHTML = '';
-        
         tags.forEach((t, i) => {
             if(t.selected) {
                 const b1 = document.createElement('button'); b1.className = 'pill-tag'; b1.innerText = t.name;
@@ -135,17 +140,29 @@
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const area = document.getElementById('insightArea'); area.innerHTML = '';
         const max = sorted[0] ? sorted[0][1] : 1;
-
         sorted.forEach(([name, count]) => {
-            const div = document.createElement('div');
-            div.className = 'insight-tag';
-            // 根據次數計算視覺比例
+            const div = document.createElement('button'); div.className = 'pill-tag';
             const ratio = count / max;
-            div.style.background = `rgba(0,0,0,${0.05 + (ratio * 0.9)})`;
-            div.style.color = ratio > 0.5 ? '#fff' : '#000';
+            div.style.background = `rgba(0,0,0,${0.1 + (ratio * 0.9)})`;
+            div.style.color = ratio > 0.4 ? '#fff' : '#000';
             div.style.transform = `scale(${0.9 + (ratio * 0.2)})`;
-            div.innerHTML = `<span>${name}</span><span style="font-size:10px; opacity:0.6">${count}</span>`;
+            div.innerHTML = `${name} <span style="font-size:10px; opacity:0.6">${count}</span>`;
             area.appendChild(div);
+        });
+    };
+
+    window.loadMemories = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+        snap.forEach(d => {
+            const data = d.data();
+            if(data.type === 'input') {
+                const date = data.timestamp ? data.timestamp.toDate() : new Date();
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.innerHTML = `<span class="time-label">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${days[date.getDay()]}</span><div class="text-content">${data.action}</div>`;
+                area.appendChild(div);
+            }
         });
     };
 
@@ -154,10 +171,11 @@
     window.addEventListener('touchend', e => {
         let dist = startY - e.changedTouches[0].clientY;
         if (Math.abs(dist) > 50) {
-            currentPage = dist > 0 ? Math.min(currentPage + 1, 2) : Math.max(currentPage - 1, 0);
+            currentPage = dist > 0 ? Math.min(currentPage + 1, 3) : Math.max(currentPage - 1, 0);
             document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
-            [0,1,2].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
+            [0,1,2,3].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
             if(currentPage === 2) window.loadInsight();
+            if(currentPage === 3) window.loadMemories();
         }
     });
 </script>
