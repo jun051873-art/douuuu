@@ -3,34 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 最終約定版</title>
+    <title>在幹嘛 1 號 - 螺旋約定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 靈魂標語 */
-        .page-splash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
+        /* 標語 Splash */
+        .page-splash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
         .page-splash.active { opacity: 1; pointer-events: all; }
         .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 2.5s ease-in-out forwards; }
         @keyframes textFlow { 0% { opacity: 0; filter: blur(5px); transform: translateY(10px); } 40% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 抖動模式 */
-        @keyframes jiggle { 0% { transform: rotate(-1deg); } 50% { transform: rotate(1.5deg); } 100% { transform: rotate(-1deg); } }
-        .jiggling { animation: jiggle 0.2s infinite !important; }
-
         .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; overflow: hidden; padding-top: 10vh; box-sizing: border-box; }
+        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; overflow: hidden; }
         
-        /* 球體 */
+        /* 螺旋球體美學 */
+        .galaxy-stage { width: 100%; height: 60vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 20px; }
         .sphere { 
             position: absolute; border-radius: 50%; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; text-align: center; 
-            transition: transform 0.3s, background 0.5s; cursor: grab; z-index: 10;
+            transition: 1s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: breathe 5s infinite ease-in-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
-        .sphere:active { cursor: grabbing; }
-        .floating { animation: drift 6s infinite ease-in-out; }
-        @keyframes drift { 0%, 100% { margin: 0; } 50% { margin-top: -8px; margin-left: 5px; } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
-        .input-section { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; border-bottom: 1px solid #eee; padding: 5px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); z-index: 100; }
+        /* 回憶與編輯 */
+        .memory-area { width: 85%; margin-top: 30px; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 20px; margin-left: 10px; }
+        .memory-item { position: relative; padding-bottom: 30px; }
+        .memory-item::before { content: ''; position: absolute; left: -21.5px; top: 8px; width: 12px; height: 1.5px; background: #000; }
+        .edit-list { width: 85%; margin-top: 30px; }
+        .edit-item { border-bottom: 0.5px solid #eee; padding: 12px 0; }
+        .edit-input { border: none; width: 100%; font-size: 16px; outline: none; font-weight: 300; }
+
+        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; border-bottom: 1.5px solid #eee; padding: 8px; background: #fff; z-index: 100; }
         .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.5); }
@@ -42,11 +47,11 @@
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page" id="p0"><h1 style="text-align:center">現在在幹嘛</h1><div id="stage0" style="width:100%;height:60vh;position:relative"></div><div class="input-section"><input type="text" id="userInput" style="border:none;text-align:center;outline:none;font-size:17px;width:200px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:35px;height:35px">↑</button></div></section>
-    <section class="page" id="p1"><h1 style="text-align:center">標籤</h1><div id="stage1" style="width:100%;height:60vh;position:relative"></div></section>
-    <section class="page" id="p2"><h1 style="text-align:center">透視</h1><div id="stage2" style="width:100%;height:60vh;position:relative"></div></section>
-    <section class="page" id="p3"><h1 style="text-align:center;margin-bottom:30px">回憶</h1><div id="memoryArea" style="width:85%;margin:auto;border-left:1.5px solid #000;padding-left:20px;height:60vh;overflow-y:auto"></div></section>
-    <section class="page" id="p4"><h1 style="text-align:center">標語</h1><div id="quoteEditor" style="width:85%;margin:auto;margin-top:40px"></div></section>
+    <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" class="galaxy-stage"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:200px;text-align:center;outline:none;font-size:17px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:35px;height:35px;cursor:pointer">↑</button></div></section>
+    <section class="page" id="p1"><h1>標籤</h1><div class="sub-title">長按移除標籤</div><div id="stage1" class="galaxy-stage"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:200px;text-align:center;outline:none;font-size:17px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:35px;height:35px;cursor:pointer">＋</button></div></section>
+    <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightDetail" style="font-size:12px;color:#8e8e93;line-height:2"></div></section>
+    <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
+    <section class="page" id="p4"><h1>標語</h1><div id="quoteEditor" class="edit-list"></div></section>
 </div>
 
 <script type="module">
@@ -57,52 +62,94 @@
     const db = getFirestore(initializeApp(firebaseConfig));
 
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || [":（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
-    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0, x: 50, y: 30 }, { name: '💇 工作', selected: true, count: 0, x: 30, y: 50 }];
-    let isEditing = false;
+    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
 
-    function render() {
-        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
-        s0.innerHTML = ''; s1.innerHTML = '';
-        const max = Math.max(...tags.map(t => t.count)) || 1;
-
-        tags.forEach((t, i) => {
-            const ratio = t.count / max;
-            const size = 65 + (ratio * 65);
-            const sphere = document.createElement('div');
-            sphere.className = 'sphere' + (isEditing ? ' jiggling' : ' floating');
-            sphere.style.cssText = `width:${size}px; height:${size}px; left:${t.x}%; top:${t.y}%; background:${i===0?'#000':(ratio>0.5?'#444':'#ddd')}; color:${i===0||ratio>0.5?'#fff':'#000'};`;
-            sphere.innerHTML = `<span style="font-size:14px;font-weight:600">${t.name}</span>`;
-
-            // 拖曳邏輯
-            let sx, sy, ox, oy;
-            sphere.onmousedown = sphere.ontouchstart = (e) => {
-                const touch = e.touches ? e.touches[0] : e;
-                sx = touch.clientX; sy = touch.clientY; ox = t.x; oy = t.y;
-                let pTimer = setTimeout(() => { isEditing = true; render(); }, 1200);
-                document.onmousemove = document.ontouchmove = (me) => {
-                    clearTimeout(pTimer); if(!isEditing) return;
-                    const mt = me.touches ? me.touches[0] : me;
-                    t.x = ox + (mt.clientX - sx) / window.innerWidth * 100;
-                    t.y = oy + (mt.clientY - sy) / window.innerHeight * 100;
-                    sphere.style.left = t.x + '%'; sphere.style.top = t.y + '%';
-                };
-                document.onmouseup = document.ontouchend = () => {
-                    clearTimeout(pTimer); document.onmousemove = document.ontouchmove = null;
-                    localStorage.setItem('myPills', JSON.stringify(tags));
-                    if(!isEditing && s0.contains(sphere)) { t.count++; window.saveAction('tag', t.name); render(); }
-                };
-            };
-            if(t.selected) s0.appendChild(sphere);
-            s1.appendChild(sphere.cloneNode(true));
-        });
+    function getSpiralStyle(index, total, ratio) {
+        const angle = index * (360 / Math.min(total, 8)) * (Math.PI / 180);
+        const radius = 50 + (index * 25); // 螺旋向外
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        const size = 60 + (ratio * 50);
+        const color = ratio > 0.7 ? '#000' : (ratio > 0.4 ? '#666' : '#ddd');
+        return `width:${size}px; height:${size}px; left:calc(50% + ${x}px - ${size/2}px); top:calc(50% + ${y}px - ${size/2}px); background:${color}; color:${ratio>0.4?'#fff':'#000'}; z-index:${index};`;
     }
 
-    // 滑動與標語邏輯
+    window.renderAll = () => {
+        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
+        const max = tags[0]?.count || 1;
+        s0.innerHTML = ''; s1.innerHTML = '';
+        
+        tags.forEach((t, i) => {
+            const ratio = (t.count || 0) / max;
+            const style = getSpiralStyle(i, tags.length, ratio);
+            
+            if(t.selected) {
+                const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = style;
+                b.innerHTML = `<span>${t.name}</span>`;
+                b.onclick = () => { t.count++; window.saveAction('tag', t.name); window.renderAll(); };
+                s0.appendChild(b);
+            }
+            const b2 = document.createElement('div'); b2.className = 'sphere'; b2.style.cssText = style;
+            if(!t.selected) b2.style.background = 'transparent'; if(!t.selected) b2.style.border = '1px solid #ddd';
+            b2.innerHTML = `<span>${t.name}</span>`;
+            let timer; b2.ontouchstart = () => timer = setTimeout(() => { if(confirm('刪？')) { tags.splice(i,1); window.renderAll(); }}, 800);
+            b2.ontouchend = () => clearTimeout(timer);
+            b2.onclick = () => { t.selected = !t.selected; window.renderAll(); };
+            s1.appendChild(b2);
+        });
+        localStorage.setItem('myPills', JSON.stringify(tags));
+    };
+
+    window.loadInsight = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs")));
+        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        const max = sorted[0]?.[1] || 1;
+        sorted.forEach(([name, count], i) => {
+            const b = document.createElement('div'); b.className = 'sphere';
+            b.style.cssText = getSpiralStyle(i, sorted.length, count/max);
+            b.innerHTML = `<span>${name}</span><span style="font-size:9px;opacity:0.5">${count}</span>`;
+            s2.appendChild(b);
+        });
+    };
+
+    window.loadMemories = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        const weeks = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+        let lastDate = "";
+        snap.forEach(d => {
+            if(d.data().type === 'input') {
+                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日 ${weeks[date.getDay()]}`;
+                if(dStr !== lastDate) {
+                    const h = document.createElement('div'); h.style.cssText = "font-size:11px;font-weight:700;margin:20px 0 10px -21.5px;background:#fff;padding-right:10px;display:inline-block";
+                    h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+                }
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6;display:block;margin-bottom:5px">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="font-size:17px;font-weight:300">${d.data().action}</div>`;
+                area.appendChild(div);
+            }
+        });
+    };
+
+    window.updateQuote = (i, v) => { quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
+    const initEditor = () => {
+        const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
+        quotes.forEach((q, i) => {
+            const d = document.createElement('div'); d.className = 'edit-item';
+            d.innerHTML = `<span style="font-size:10px;color:#a1a1a6">頁面 ${i+1}</span><input class="edit-input" value="${q}" onchange="window.updateQuote(${i}, this.value)">`;
+            ed.appendChild(d);
+        });
+    };
+
     let startY = 0, cur = 0;
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         let dist = startY - e.changedTouches[0].clientY;
-        if (Math.abs(dist) > 50 && !isEditing) {
+        if (Math.abs(dist) > 50) {
             const old = cur; cur = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
             if (old !== cur) {
                 const layer = document.getElementById('splashLayer'); document.getElementById('splashText').innerText = quotes[cur];
@@ -111,16 +158,14 @@
                     layer.classList.remove('active');
                     document.getElementById('mainContainer').style.transform = `translateY(-${cur * 100}vh)`;
                     [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === cur));
-                    if(cur === 2) loadInsight(); if(cur === 3) loadMemories();
+                    if(cur === 2) window.loadInsight(); if(cur === 3) window.loadMemories();
                 }, 1000);
             }
         }
     });
-
-    window.saveAction = async (t, v) => { /* Firebase 邏輯 */ };
-    window.addEventListener('click', (e) => { if(e.target.tagName === 'SECTION') { isEditing = false; render(); } });
-    render();
-    // ... 其他 loadInsight, loadMemories 同前
+    window.saveAction = async (t, v) => { const text = v || document.getElementById('userInput').value; if(!text) return; await addDoc(collection(db, "daily_logs"), { action: text, type: t, timestamp: serverTimestamp() }); document.getElementById('userInput').value = ''; };
+    window.addNewTag = () => { const i = document.getElementById('newTagInput'); if(i.value) { tags.unshift({ name: i.value, selected: true, count: 0 }); window.renderAll(); i.value = ''; }};
+    window.renderAll(); initEditor();
 </script>
 </body>
 </html>
