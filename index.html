@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 柔和版</title>
+    <title>在幹嘛 1 號 - 靈魂極致版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 靈魂標語 Splash */
+        /* 標語層 Splash - 靈魂的核心 */
         .page-splash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.8s ease-in-out; }
         .page-splash.active { opacity: 1; pointer-events: all; }
         .page-splash h2 { font-size: 15px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 3s ease-in-out forwards; }
@@ -72,6 +72,7 @@
         return `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${bg}; color:${i===0||ratio>0.3?'#fff':'#000'}; z-index:${100-i}; --d:${6+i}s; --x:${(i%2==0?4:-4)}px; --y:${(i%3==0?3:-3)}px;`;
     }
 
+    // 修復：確保渲染與動畫能同步執行
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
         tags.sort((a,b) => (b.count || 0) - (a.count || 0));
@@ -153,9 +154,8 @@
     window.updateQuote = (i, v) => { quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
     const initEditor = () => { const ed = document.getElementById('quoteEditor'); ed.innerHTML = ''; quotes.forEach((q, i) => { const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee;padding:12px 0"; d.innerHTML = `<span style="font-size:10px;color:#a1a1a6">頁面 ${i+1}</span><input style="border:none;width:100%;font-size:16px;outline:none" value="${q}" onchange="window.updateQuote(${i}, this.value)">`; ed.appendChild(d); }); };
     
-    // 關鍵修復：初始化即刻載入
-    window.renderAll(); 
-    initEditor();
+    // 初始化時立刻執行標籤渲染與標語設定
+    window.onload = () => { window.renderAll(); initEditor(); };
 </script>
 </body>
 </html>
