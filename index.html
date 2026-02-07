@@ -8,7 +8,7 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 頁面標語 (Splash) */
+        /* 標語層 Splash */
         .page-splash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
         .page-splash.active { opacity: 1; pointer-events: all; }
         .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; opacity: 0; transform: translateY(10px); }
@@ -29,16 +29,14 @@
 
         .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 85%; margin-top: 70px; }
         
-        /* 第一頁標籤：實心 */
+        /* 頁面標籤美學 */
         .pill-tag { padding: 12px 26px; border-radius: 40px; font-size: 15px; border: none; background: #000; color: #fff; cursor: pointer; transition: 0.3s; }
-        
-        /* 第二頁標籤：細邊框 */
         .manage-tag { padding: 9px 23px; border-radius: 40px; font-size: 14px; border: 1px solid #d2d2d7; background: transparent; cursor: pointer; }
         .manage-tag.selected { background: #f2f2f7; border-color: #f2f2f7; font-weight: 600; }
 
-        /* 第三頁：透視星系 */
-        .galaxy-pill { border-radius: 40px; display: flex; align-items: center; justify-content: center; transition: 1s cubic-bezier(0.23, 1, 0.32, 1); font-weight: 600; }
-        .insight-text { width: 80%; margin-top: 30px; font-size: 12px; color: #8e8e93; line-height: 2.2; border-top: 0.5px solid #f2f2f7; padding-top: 20px; }
+        /* 第三頁：圓形星系 */
+        .galaxy-stage { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .galaxy-circle { border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: 1.5s cubic-bezier(0.23, 1, 0.32, 1); flex-shrink: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 
         /* 第四頁：尺標回憶 */
         .memory-area { width: 85%; margin-top: 30px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #000; padding-left: 20px; margin-left: 10px; }
@@ -63,7 +61,7 @@
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="shortCutArea" class="tag-container"></div><div class="input-section"><input type="text" id="userInput" class="input-box" placeholder="此刻心情..." autocomplete="off"><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">↑</button></div></section>
     <section class="page" id="p1"><h1>標籤</h1><div class="sub-title">長按移除標籤</div><div id="allTagsArea" class="tag-container" style="margin-top: 40px;"></div><div class="input-section"><input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..." autocomplete="off"><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">＋</button></div></section>
-    <section class="page" id="p2"><h1>透視</h1><div id="insightArea" class="tag-container" style="margin-top: 40px;"></div><div id="insightDetail" class="insight-text"></div></section>
+    <section class="page" id="p2"><h1>透視</h1><div id="insightArea" class="galaxy-stage" style="margin-top: 40px;"></div><div id="insightDetail" style="width:80%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2;"></div></section>
     <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
     <section class="page" id="p4"><h1>標語</h1><div class="edit-list" id="quoteEditor"></div></section>
 </div>
@@ -129,14 +127,16 @@
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const area = document.getElementById('insightArea'); area.innerHTML = '';
         const max = sorted[0] ? sorted[0][1] : 1;
-        sorted.forEach(([name, count]) => {
-            const div = document.createElement('div'); div.className = 'galaxy-pill';
+
+        sorted.forEach(([name, count], i) => {
+            const circle = document.createElement('div'); circle.className = 'galaxy-circle';
             const ratio = count / max;
-            div.style.cssText = `padding: ${10 + (ratio * 10)}px ${20 + (ratio * 15)}px; background: rgba(0,0,0,${0.1 + (ratio * 0.9)}); color: ${ratio > 0.4 ? '#fff' : '#000'}; transform: scale(${0.9 + (ratio * 0.2)}); margin: 5px; font-size: ${14 + (ratio * 4)}px;`;
-            div.innerHTML = `${name} <span style="font-size:10px; opacity:0.5; margin-left:5px;">${count}</span>`;
-            area.appendChild(div);
+            const size = 60 + (ratio * 80);
+            circle.style.cssText = `width:${size}px; height:${size}px; background:${i===0?'#000':`rgba(0,0,0,${0.05+(ratio*0.8)})`}; color:${i===0||ratio>0.5?'#fff':'#000'}; margin:10px;`;
+            circle.innerHTML = `<span style="font-size:${12+(ratio*4)}px; font-weight:600;">${name}</span><span style="font-size:9px; opacity:0.5;">${count}</span>`;
+            area.appendChild(circle);
         });
-        document.getElementById('insightDetail').innerHTML = `本月重心：${sorted[0] ? sorted[0][0] : '邂逅中'}<br>瞬間紀錄：${snap.size} 則<br>最常問自己的時刻：14:00 - 16:00`;
+        document.getElementById('insightDetail').innerHTML = `本月重心：${sorted[0] ? sorted[0][0] : '--'}<br>瞬間紀錄：${snap.size} 則<br>最常問自己的時刻：14:00 - 16:00`;
     };
 
     window.loadMemories = async () => {
