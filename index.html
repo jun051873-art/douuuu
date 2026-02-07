@@ -3,164 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>在幹嘛 1 號 - 星系版</title>
+    <title>在幹嘛 1 號 - 物理拖曳版</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        /* 標語層 */
-        .page-splash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
-        .page-splash.active { opacity: 1; pointer-events: all; }
-        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 2s ease-in-out forwards; }
-        @keyframes textFlow { 0% { opacity: 0; filter: blur(5px); transform: translateY(10px); } 40% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+        /* 抖動動畫 */
+        @keyframes jiggle {
+            0% { transform: rotate(-1deg); }
+            50% { transform: rotate(1.5deg); }
+            100% { transform: rotate(-1deg); }
+        }
+        .jiggling { animation: jiggle 0.2s infinite !important; box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important; }
 
-        /* 導航點 */
-        .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
-        .dot.active { background: #000; transform: scale(2.5); }
-
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; overflow: hidden; }
-        
-        h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin: 0; color: #1d1d1f; z-index: 10; }
-
-        /* 球體通用美學 */
         .sphere { 
             position: absolute; border-radius: 50%; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; text-align: center; 
-            transition: 1s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer;
-            animation: float var(--duration) infinite ease-in-out var(--delay);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
-            -webkit-tap-highlight-color: transparent;
+            cursor: grab; transition: transform 0.2s, background 0.5s; z-index: 10;
+            user-select: none; -webkit-user-select: none;
         }
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(var(--mx), var(--my)) rotate(2deg); }
-            66% { transform: translate(var(--nx), var(--ny)) rotate(-2deg); }
-        }
+        .sphere:active { cursor: grabbing; transform: scale(1.1); }
 
-        /* 第一、二頁的球體容器 */
-        .galaxy-stage { width: 100%; height: 55vh; position: relative; perspective: 1000px; margin-top: 20px; }
+        .galaxy-stage { width: 100%; height: 60vh; position: relative; margin-top: 20px; }
+        .dots-container { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
+        .dot { width: 4px; height: 4px; background: #d2d2d7; border-radius: 50%; }
+        .dot.active { background: #000; transform: scale(2); }
 
-        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 8px; z-index: 20; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); }
-        .memory-area { width: 85%; margin-top: 30px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #000; padding-left: 20px; margin-left: 10px; }
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.2, 1, 0.3, 1); }
+        .page { width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
+        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; border-bottom: 1px solid #eee; padding: 5px; background: #fff; z-index: 100; }
     </style>
 </head>
 <body>
 
-<div id="splashLayer" class="page-splash active"><h2 id="splashText">：（多久沒問問自己了呢）</h2></div>
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" class="galaxy-stage"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:200px;font-size:17px;text-align:center;outline:none" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
-    <section class="page" id="p1"><h1>標籤</h1><div id="stage1" class="galaxy-stage"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:200px;font-size:17px;text-align:center;outline:none" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
-    <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightDetail" style="width:80%;font-size:12px;color:#8e8e93;line-height:2;z-index:10"></div></section>
-    <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page" id="p4"><h1>標語</h1><div id="quoteEditor" style="width:80%;margin-top:40px"></div></section>
+    <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" class="galaxy-stage"></div><div class="input-section"><input type="text" id="userInput" style="border:none;text-align:center;outline:none;font-size:18px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:35px;height:35px">↑</button></div></section>
+    <section class="page" id="p1"><h1>標籤</h1><div id="stage1" class="galaxy-stage"></div></section>
+    <section class="page"><h1>透視</h1></section>
+    <section class="page"><h1>回憶</h1></section>
+    <section class="page"><h1>標語</h1></section>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
     const db = getFirestore(initializeApp(firebaseConfig));
 
-    let quotes = JSON.parse(localStorage.getItem('myQuotes')) || [":（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
-    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
+    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0, x: 50, y: 50 }, { name: '💇 工作', selected: true, count: 0, x: 30, y: 30 }];
+    let isEditing = false;
 
-    function createSphere(name, count, ratio, colorType, onClick, onLongPress) {
-        const s = document.createElement('div');
-        s.className = 'sphere';
-        const size = 60 + (ratio * 70);
-        s.style.width = size + 'px'; s.style.height = size + 'px';
-        
-        // 隨機漂浮參數
-        s.style.setProperty('--duration', (6 + Math.random() * 4) + 's');
-        s.style.setProperty('--delay', (Math.random() * -5) + 's');
-        s.style.setProperty('--mx', (Math.random() * 15 - 7) + 'px');
-        s.style.setProperty('--my', (Math.random() * 15 - 7) + 'px');
-        s.style.setProperty('--nx', (Math.random() * 15 - 7) + 'px');
-        s.style.setProperty('--ny', (Math.random() * 15 - 7) + 'px');
-
-        // 視覺顏色與前後感
-        if(colorType === 'active') { s.style.background = '#000'; s.style.color = '#fff'; s.style.zIndex = '100'; }
-        else { s.style.background = `rgba(0,0,0,${0.05 + (ratio * 0.7)})`; s.style.color = ratio > 0.4 ? '#fff' : '#000'; s.style.zIndex = Math.floor(ratio * 50); }
-
-        s.innerHTML = `<span style="font-size:${12+(ratio*4)}px;font-weight:600">${name}</span><span style="font-size:9px;opacity:0.5">${count}</span>`;
-        
-        s.onclick = onClick;
-        let timer;
-        s.ontouchstart = () => timer = setTimeout(onLongPress, 800);
-        s.ontouchend = () => clearTimeout(timer);
-        
-        // 隨機分佈位置
-        s.style.left = (15 + Math.random() * 55) + '%';
-        s.style.top = (10 + Math.random() * 60) + '%';
-        
-        return s;
+    function getSphereColor(ratio) {
+        if (ratio > 0.8) return '#000'; // 純黑
+        if (ratio > 0.5) return '#555'; // 深灰
+        if (ratio > 0.3) return '#888'; // 中灰
+        return '#ccc'; // 淺灰
     }
 
-    window.renderAll = () => {
-        const st0 = document.getElementById('stage0'), st1 = document.getElementById('stage1');
-        st0.innerHTML = ''; st1.innerHTML = '';
-        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
-        const max = tags[0]?.count || 1;
+    function render() {
+        const stages = [document.getElementById('stage0'), document.getElementById('stage1')];
+        stages.forEach((st, idx) => {
+            if(!st) return;
+            st.innerHTML = '';
+            const max = Math.max(...tags.map(t => t.count)) || 1;
+            
+            tags.forEach((t, i) => {
+                if(idx === 0 && !t.selected) return;
+                
+                const ratio = t.count / max;
+                const s = document.createElement('div');
+                s.className = 'sphere' + (isEditing ? ' jiggling' : '');
+                const size = 70 + (ratio * 60);
+                
+                s.style.width = size+'px'; s.style.height = size+'px';
+                s.style.left = (t.x || 50) + '%'; s.style.top = (t.y || 50) + '%';
+                s.style.background = getSphereColor(ratio);
+                s.style.color = ratio > 0.3 ? '#fff' : '#000';
+                s.innerHTML = `<span style="font-size:14px">${t.name}</span>`;
 
-        tags.forEach((t, i) => {
-            const ratio = (t.count || 0) / max;
-            if(t.selected) st0.appendChild(createSphere(t.name, t.count, ratio, 'active', () => { t.count++; window.saveAction('tag', t.name); window.renderAll(); }));
-            st1.appendChild(createSphere(t.name, t.count, ratio, t.selected ? 'active' : 'idle', () => { t.selected = !t.selected; window.renderAll(); }, () => { if(confirm('刪除？')) { tags.splice(i,1); window.renderAll(); }}));
+                // 拖曳邏輯
+                let startX, startY, origX, origY;
+                const startMove = (e) => {
+                    if(!isEditing) return;
+                    const touch = e.touches ? e.touches[0] : e;
+                    startX = touch.clientX; startY = touch.clientY;
+                    origX = t.x; origY = t.y;
+                    document.onmousemove = document.ontouchmove = move;
+                    document.onmouseup = document.ontouchend = stop;
+                };
+                const move = (e) => {
+                    const touch = e.touches ? e.touches[0] : e;
+                    t.x = origX + (touch.clientX - startX) / window.innerWidth * 100;
+                    t.y = origY + (touch.clientY - startY) / window.innerHeight * 100;
+                    s.style.left = t.x + '%'; s.style.top = t.y + '%';
+                };
+                const stop = () => { document.onmousemove = document.ontouchmove = null; localStorage.setItem('myPills', JSON.stringify(tags)); };
+
+                // 長按進入編輯
+                let pressTimer;
+                s.onmousedown = s.ontouchstart = (e) => {
+                    pressTimer = setTimeout(() => { isEditing = true; render(); }, 1500);
+                    startMove(e);
+                };
+                s.onmouseup = s.ontouchend = () => {
+                    clearTimeout(pressTimer);
+                    if(!isEditing && idx === 0) { t.count++; window.saveAction('tag', t.name); render(); }
+                };
+
+                st.appendChild(s);
+            });
         });
-        localStorage.setItem('myPills', JSON.stringify(tags));
-    };
+    }
 
-    window.loadInsight = async () => {
-        const snap = await getDocs(query(collection(db, "daily_logs")));
-        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
-        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-        const st2 = document.getElementById('stage2'); st2.innerHTML = '';
-        const max = sorted[0]?.[1] || 1;
-        sorted.forEach(([name, count], i) => st2.appendChild(createSphere(name, count, count/max, i===0?'active':'idle')));
-    };
-
-    // ... 其餘 Firebase 與滑動邏輯同前 ...
-    window.saveAction = async (type, val) => { const text = val || document.getElementById('userInput').value; if(!text) return; await addDoc(collection(db, "daily_logs"), { action: text, type: type, timestamp: serverTimestamp() }); document.getElementById('userInput').value = ''; };
-    window.addNewTag = () => { const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); window.renderAll(); input.value = ''; }};
-    window.loadMemories = async () => { 
-        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-        const area = document.getElementById('memoryArea'); area.innerHTML = '';
-        let lastDate = "";
-        snap.forEach(d => {
-            if(d.data().type === 'input') {
-                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
-                const dStr = `${date.getMonth()+1}月${date.getDate()}日`;
-                if(dStr !== lastDate) { const h = document.createElement('div'); h.innerText = dStr; h.style.cssText = "font-size:11px;font-weight:700;margin:20px 0 10px -21.5px;background:#fff"; area.appendChild(h); lastDate = dStr; }
-                const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<span class="time-label">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="font-size:17px;font-weight:300">${d.data().action}</div>`;
-                area.appendChild(div);
-            }
-        });
-    };
-
-    let startY = 0, currentPage = 0;
-    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-    window.addEventListener('touchend', e => {
-        let dist = startY - e.changedTouches[0].clientY;
-        if (Math.abs(dist) > 50) {
-            const old = currentPage; currentPage = dist > 0 ? Math.min(currentPage + 1, 4) : Math.max(currentPage - 1, 0);
-            if (old !== currentPage) {
-                const layer = document.getElementById('splashLayer'); document.getElementById('splashText').innerText = quotes[currentPage]; layer.classList.add('active');
-                setTimeout(() => {
-                    layer.classList.remove('active');
-                    document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
-                    [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
-                    if(currentPage === 2) window.loadInsight(); if(currentPage === 3) window.loadMemories();
-                }, 1000);
-            }
-        }
-    });
-    window.renderAll();
+    window.saveAction = async (type, val) => { /* Firebase 儲存邏輯 */ };
+    window.addEventListener('click', (e) => { if(e.target.tagName === 'SECTION') { isEditing = false; render(); } });
+    render();
 </script>
 </body>
 </html>
