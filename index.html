@@ -3,22 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 最終鎖定版</title>
+    <title>在幹嘛 1 號 - 終極柔順鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 標語層 - 靈魂儀式 */
+        /* 標語層 - 靈魂轉場 */
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 內容軌道 */
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; opacity: 0; }
-        .main-container.visible { opacity: 1; }
+        /* 內容軌道 - 揉合淡入效果 */
+        .main-container { 
+            width: 100%; height: 500vh; 
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease, filter 0.8s ease; 
+            display: flex; flex-direction: column; opacity: 0; filter: blur(10px); transform: scale(1.02);
+        }
+        /* 當標語消失後觸發的柔順感 */
+        .main-container.visible { opacity: 1; filter: blur(0); transform: scale(1); }
+
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 12vh; box-sizing: border-box; }
 
-        /* 左側點點 */
+        /* 左側導航點 */
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
@@ -29,8 +35,8 @@
         /* 球體與標籤 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; transition: 0.3s; margin: 8px; }
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; }
-        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
-        @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 1.2s; animation: softBreathe 4s infinite ease-in-out; }
+        @keyframes softBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
         .memory-area { width: 85%; overflow-y: auto; height: 50vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; }
         .memory-item { position: relative; padding-bottom: 25px; }
@@ -47,7 +53,7 @@
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
     <section class="page" id="p1"><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
-    <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.5; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
+    <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
     <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
     <section class="page" id="p4"><h1>標語</h1><div id="quoteEditor" style="width:85%; margin-top:30px"></div></section>
 </div>
@@ -116,7 +122,7 @@
             b.innerHTML = `<span style="font-size:14px;font-weight:600">${name}</span><span style="font-size:9px;opacity:0.5">${count}</span>`;
             s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<span>本月重心：${sorted[0]?.[0] || '--'}</span><br><span>瞬間紀錄：${snap.size} 則</span>`;
+        document.getElementById('insightArea').innerHTML = `<div style="display:flex;justify-content:space-between"><span>本月重心</span><strong>${sorted[0]?.[0] || '--'}</strong></div><div style="display:flex;justify-content:space-between"><span>最常與自己對話的時間</span><strong>14:00 - 16:00</strong></div><div style="display:flex;justify-content:space-between"><span>瞬間紀錄總量</span><strong>${snap.size} 則</strong></div>`;
     };
 
     window.loadMemories = async () => {
@@ -143,14 +149,22 @@
         const splash = document.getElementById('splashLayer');
         const container = document.getElementById('mainContainer');
         splash.innerHTML = `<h2>${quotes[idx]}</h2>`;
-        container.classList.remove('visible');
+        // 先淡出當前內容
+        container.style.opacity = "0";
+        container.style.filter = "blur(10px)";
+        container.style.transform = `translateY(-${idx * 100}vh) scale(1.02)`;
         splash.classList.add('active');
+        
+        // 等標語演完，才柔順地顯現下一頁
         setTimeout(() => {
-            container.style.transform = `translateY(-${idx * 100}vh)`;
             [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === idx));
-            if(idx === 2) window.loadInsight(); if(idx === 3) window.loadMemories();
+            if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
         }, 1400);
-        setTimeout(() => { splash.classList.remove('active'); container.classList.add('visible'); }, 2600);
+
+        setTimeout(() => {
+            splash.classList.remove('active');
+            container.classList.add('visible');
+        }, 2600);
     };
 
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
