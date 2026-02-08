@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 靈魂喚醒版</title>
+    <title>在幹嘛 1 號 - 最終魂魄鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 標語層 - 靈魂轉場 */
+        /* 標語層 - 絕對儀式感 */
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
-        @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 內容軌道 - 強制喚醒機制 */
+        /* 內容容器 - 柔順喚醒機制 */
         .main-container { 
             width: 100%; height: 500vh; 
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease; 
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease-in-out; 
             display: flex; flex-direction: column; opacity: 0; will-change: transform, opacity;
         }
         .main-container.visible { opacity: 1; }
 
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 12vh; box-sizing: border-box; }
 
-        /* 點點與提示 */
+        /* 左側導航點 */
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
-        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.6s; z-index: 9000; pointer-events: none; }
 
-        /* 球體與標籤 */
+        /* 走心的提示 */
+        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.5s; z-index: 9000; pointer-events: none; }
+
+        /* 幾何美學 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; transition: 0.3s; margin: 8px; }
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
         @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        .memory-area { width: 85%; overflow-y: auto; height: 50vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; }
+        .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; }
         .memory-item { position: relative; padding-bottom: 25px; }
         .memory-item::before { content: ''; position: absolute; left: -19.5px; top: 9px; width: 10px; height: 1.2px; background: #000; }
         .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 100; }
@@ -56,7 +58,6 @@
 </div>
 
 <script type="module">
-    // ... Firebase 初始配置 ...
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -66,33 +67,118 @@
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || [":（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
     let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
 
-    // 關鍵喚醒邏輯
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.style.opacity = 1;
+        setTimeout(() => t.style.opacity = 0, 2000);
+    }
+
+    window.renderAll = () => {
+        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
+        const max = tags[0]?.count || 1;
+        s0.innerHTML = ''; s1.innerHTML = '';
+        tags.forEach((t, i) => {
+            if(t.selected) {
+                const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
+                b.onclick = () => { t.count++; window.saveAction('tag', t.name); window.renderAll(); };
+                s0.appendChild(b);
+            }
+            const b2 = document.createElement('button'); b2.style.cssText = "width:75px;height:75px;border-radius:18px;border:1px solid #d2d2d7;margin:8px;background:transparent;";
+            if(t.selected) b2.style.background = "#000", b2.style.color = "#fff";
+            b2.innerHTML = `<span>${t.name}</span><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
+            b2.onclick = () => { t.selected = !t.selected; window.renderAll(); };
+            s1.appendChild(b2);
+        });
+        localStorage.setItem('myPills', JSON.stringify(tags));
+    };
+
+    window.saveAction = async (t, v) => {
+        const val = t === 'input' ? document.getElementById('userInput').value : v;
+        if(!val) return;
+        await addDoc(collection(db, "daily_logs"), { action: val, type: t, timestamp: serverTimestamp() });
+        showToast(t === 'tag' ? `已記錄「${val}」` : '已為你珍藏這一刻');
+        if(t === 'input') document.getElementById('userInput').value = '';
+        window.renderAll();
+    };
+
+    window.addNewTag = () => {
+        const input = document.getElementById('newTagInput');
+        if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); window.renderAll(); input.value = ''; }
+    };
+
+    window.loadInsight = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs")));
+        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        const max = sorted[0]?.[1] || 1;
+        sorted.forEach(([name, count], i) => {
+            const ratio = count / max; const size = 60 + (ratio * 65);
+            const angle = i * 137.5 * (Math.PI / 180); const radius = 35 + (i * 30);
+            const b = document.createElement('div'); b.className = 'sphere';
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
+            b.innerHTML = `<span style="font-size:14px;font-weight:600">${name}</span><span style="font-size:9px;opacity:0.5">${count}</span>`;
+            s2.appendChild(b);
+        });
+        document.getElementById('insightArea').innerHTML = `<span>本月重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span>`;
+    };
+
+    window.loadMemories = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        let lastDate = "";
+        snap.forEach(d => {
+            if(d.data().type === 'input') {
+                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日`;
+                if(dStr !== lastDate) {
+                    const h = document.createElement('div'); h.style.cssText = "font-size:11px;font-weight:700;margin:20px 0 10px -19.5px;background:#fff;padding-right:10px;display:inline-block";
+                    h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+                }
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6;display:block;margin-bottom:5px">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="font-size:16px;font-weight:300;color:#1d1d1f">${d.data().action}</div>`;
+                area.appendChild(div);
+            }
+        });
+    };
+
+    let cur = 0, startY = 0;
     const triggerSplash = (idx) => {
         const splash = document.getElementById('splashLayer');
         const container = document.getElementById('mainContainer');
         splash.innerHTML = `<h2>${quotes[idx]}</h2>`;
         
-        // 1. 標語浮現
+        // 1. 同步執行：舊內容立刻淡出，標語立刻浮現
+        container.classList.remove('visible');
         splash.classList.add('active');
         
-        // 2. 在標語還在演的時候，就先把頁面移到定位並準備喚醒
+        // 2. 在背景默默移動頁面
         setTimeout(() => {
-            document.getElementById('mainContainer').style.transform = `translateY(-${idx * 100}vh)`;
+            container.style.transform = `translateY(-${idx * 100}vh)`;
             [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === idx));
             if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
-            // 3. 提早開始淡入主頁面，解決空白感
-            container.classList.add('visible');
-        }, 1500);
+        }, 1400);
 
-        // 4. 最後標語隱去
-        setTimeout(() => { splash.classList.remove('active'); }, 2600);
+        // 3. 標語演完，內容柔順喚醒
+        setTimeout(() => { 
+            splash.classList.remove('active'); 
+            container.classList.add('visible'); 
+        }, 2600);
     };
 
-    // 其他功能鎖定...
-    window.renderAll = () => { /* 膠囊標籤渲染 */ };
-    window.saveAction = async (t, v) => { /* 走心 Toast 反饋 */ };
+    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+    window.addEventListener('touchend', e => {
+        let dist = startY - e.changedTouches[0].clientY;
+        if (Math.abs(dist) > 50) {
+            const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
+            if (next !== cur) { cur = next; triggerSplash(cur); }
+        }
+    });
+
     window.onload = () => { window.renderAll(); initEditor(); triggerSplash(0); };
-    // ... 保持之前鎖定的所有代碼邏輯 ...
+    window.updateQuote = (i,v) => { quotes[i]=v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
+    const initEditor = () => { const ed = document.getElementById('quoteEditor'); ed.innerHTML = ''; quotes.forEach((q, i) => { const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee;padding:12px 0"; d.innerHTML = `<span style="font-size:10px;color:#a1a1a6">頁面 ${i+1}</span><input style="border:none;width:100%;font-size:16px;outline:none" value="${q}" onchange="window.updateQuote(${i}, this.value)">`; ed.appendChild(d); }); };
 </script>
 </body>
 </html>
