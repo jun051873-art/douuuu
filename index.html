@@ -3,41 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 靈魂鎖定版</title>
+    <title>在幹嘛 1 號 - 左右軌道版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 標語層 - 每一頁進入前的洗禮 (速度調慢) */
-        .page-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: none; align-items: center; justify-content: center; opacity: 0; }
-        .page-splash.active { display: flex; animation: soulBreath 3s ease-in-out forwards; }
-        @keyframes soulBreath { 0% { opacity: 0; filter: blur(4px); } 25% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
-        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; }
+        /* 標語 - 始終優雅地浮在背景，隨滑動換字 */
+        #splashLayer { position: fixed; top: 18%; width: 100%; text-align: center; z-index: 5; pointer-events: none; }
+        #splashLayer h2 { font-size: 15px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; opacity: 0.35; transition: 0.6s; }
 
-        /* 走心的提示彈窗 */
-        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); z-index: 6000; pointer-events: none; }
+        /* 走心的提示 */
+        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.5s; z-index: 6000; pointer-events: none; }
 
-        /* 絲滑軌道 */
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; will-change: transform; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
+        /* 左右軌道滑動 - 類蘋果桌面曲線 */
+        .main-container { 
+            display: flex; width: 500vw; height: 100vh; 
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            will-change: transform;
+        }
+        .page { width: 100vw; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; background: #fff; }
 
-        /* 第一頁：💊 膠囊 */
+        /* 幾何美學 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; transition: 0.3s; margin: 8px; }
-
-        /* 第三頁：● 球體星系 (不重疊) */
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; }
-        .sphere { position: absolute; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1.2s cubic-bezier(0.23, 1, 0.32, 1); animation: breathe 4s infinite ease-in-out; }
-        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s cubic-bezier(0.23, 1, 0.32, 1); animation: breathe 4s infinite ease-in-out; }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* 導航點 - 移至底部更直觀 */
+        .dots-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 1000; }
+        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
+        .dot.active { background: #000; transform: scale(2.5); }
 
         .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 100; }
         .memory-area { width: 85%; margin-top: 20px; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; }
-        .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
-        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
-        .dot.active { background: #000; transform: scale(2.2); }
     </style>
 </head>
 <body>
 
-<div id="splashLayer" class="page-splash"><h2>：（多久沒問問自己了呢）</h2></div>
+<div id="splashLayer"><h2 id="splashText">：（多久沒問問自己了稱）</h2></div>
 <div id="toast">已為你珍藏這一刻</div>
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
@@ -71,6 +73,7 @@
         const max = tags[0]?.count || 1;
         s0.innerHTML = ''; s1.innerHTML = '';
         tags.forEach((t, i) => {
+            const ratio = t.count / max;
             if(t.selected) {
                 const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
                 b.onclick = () => { t.count++; window.saveAction('tag', t.name); window.renderAll(); };
@@ -89,52 +92,27 @@
         const val = t === 'input' ? document.getElementById('userInput').value : v;
         if(!val) return;
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, timestamp: serverTimestamp() });
-        showToast(t === 'tag' ? `已為你珍藏「${val}」` : '已為你珍藏這一刻');
+        showToast(t === 'tag' ? `已記錄「${val}」` : '已為你珍藏這一刻');
         if(t === 'input') document.getElementById('userInput').value = '';
     };
 
-    window.loadInsight = async () => {
-        const snap = await getDocs(query(collection(db, "daily_logs")));
-        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
-        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
-        const max = sorted[0]?.[1] || 1;
-        sorted.forEach(([name, count], i) => {
-            const ratio = count / max;
-            const size = 60 + (ratio * 65);
-            const angle = i * 137.5 * (Math.PI / 180);
-            const radius = 40 + (i * 35);
-            const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
-            b.innerHTML = `<span style="font-size:14px;font-weight:600">${name}</span><span style="font-size:9px;opacity:0.5">${count}</span>`;
-            s2.appendChild(b);
-        });
-        document.getElementById('insightArea').innerHTML = `<div style="display:flex;justify-content:space-between"><span>本月重心</span><strong>${sorted[0]?.[0] || '--'}</strong></div><div style="display:flex;justify-content:space-between"><span>最常問自己的時段</span><strong>14:00 - 16:00</strong></div><div style="display:flex;justify-content:space-between"><span>瞬間紀錄總量</span><strong>${snap.size} 則</strong></div>`;
-    };
-
-    let cur = 0, startY = 0;
-    const triggerSplash = (idx) => {
-        const splash = document.getElementById('splashLayer');
-        document.getElementById('splashText').innerText = quotes[idx];
-        splash.classList.add('active');
-        setTimeout(() => {
-            document.getElementById('mainContainer').style.transform = `translateY(-${idx * 100}vh)`;
-            [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === idx));
-            if(idx === 2) window.loadInsight(); if(idx === 3) loadMemories();
-        }, 1500); // 標語停留 1.5 秒，更溫柔
-        setTimeout(() => splash.classList.remove('active'), 2500);
-    };
-
-    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+    let startX = 0, cur = 0;
+    window.addEventListener('touchstart', e => startX = e.touches[0].clientX);
     window.addEventListener('touchend', e => {
-        let dist = startY - e.changedTouches[0].clientY;
+        let dist = startX - e.changedTouches[0].clientX;
         if (Math.abs(dist) > 50) {
             const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
-            if (next !== cur) { cur = next; triggerSplash(cur); }
+            if (next !== cur) {
+                cur = next;
+                document.getElementById('splashText').innerText = quotes[cur];
+                document.getElementById('mainContainer').style.transform = `translateX(-${cur * 100}vw)`;
+                [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === cur));
+                if(cur === 2) loadInsight(); if(cur === 3) loadMemories();
+            }
         }
     });
 
-    window.onload = () => { triggerSplash(0); window.renderAll(); initEditor(); };
+    window.onload = () => { window.renderAll(); initEditor(); };
     window.updateQuote = (i,v) => { quotes[i]=v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
     const initEditor = () => { const ed = document.getElementById('quoteEditor'); ed.innerHTML = ''; quotes.forEach((q, i) => { const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee;padding:12px 0"; d.innerHTML = `<span style="font-size:10px;color:#a1a1a6">頁面 ${i+1}</span><input style="border:none;width:100%;font-size:16px;outline:none" value="${q}" onchange="window.updateQuote(${i}, this.value)">`; ed.appendChild(d); }); };
 </script>
