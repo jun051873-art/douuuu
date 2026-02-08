@@ -3,30 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 靈魂穩定版</title>
+    <title>在幹嘛 1 號 - 最終靈魂版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 標語層 - 每一頁進入前的洗禮 */
-        .page-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.6s ease; }
+        /* 標語 Splash - 浮現又消失的靈魂 */
+        .page-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.8s; }
         .page-splash.active { opacity: 1; pointer-events: all; }
-        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 2.2s ease-in-out forwards; }
-        @keyframes textFlow { 0% { opacity: 0; filter: blur(4px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 2.5s ease-in-out forwards; }
+        @keyframes textFlow { 0% { opacity: 0; filter: blur(4px); transform: translateY(10px); } 35% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 絲滑軌道容器 */
+        /* 絲滑軌道 */
         .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; will-change: transform; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; background: #fff; }
 
-        /* 幾何形狀美學 */
+        /* 第一頁：💊 膠囊 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; transition: 0.3s; margin: 6px; }
+        /* 第二頁：▪️ 圓潤正方形 */
         .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #d2d2d7; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: 0.3s; margin: 8px; }
         .square-tag.selected { background: #000; color: #fff; border-color: #000; }
 
-        /* 透視球體與三問 */
-        .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; }
-        .sphere { position: absolute; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: 1s cubic-bezier(0.23, 1, 0.32, 1); animation: breathe 3s infinite ease-in-out; box-shadow: 0 10px 40px rgba(0,0,0,0.02); }
+        /* 第三頁：● 球體星系 */
+        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; }
+        .sphere { position: absolute; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: 1s cubic-bezier(0.23, 1, 0.32, 1); animation: breathe 3s infinite ease-in-out; }
         @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .insight-area { width: 82%; margin-top: 25px; font-size: 12px; color: #8e8e93; line-height: 2.8; border-top: 0.5px solid #f2f2f7; padding-top: 15px; }
+
+        .insight-area { width: 82%; margin-top: 20px; font-size: 12px; color: #8e8e93; line-height: 2.5; border-top: 0.5px solid #f2f2f7; padding-top: 15px; }
+        .memory-area { width: 85%; margin-top: 20px; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 20px; }
+        .memory-item { position: relative; padding-bottom: 25px; }
+        .memory-item::before { content: ''; position: absolute; left: -21.5px; top: 9px; width: 12px; height: 1.2px; background: #000; }
 
         .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 100; }
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
@@ -43,7 +48,7 @@
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
     <section class="page" id="p1"><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" class="insight-area"></div></section>
-    <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" style="width:85%; overflow-y:auto; height:55vh; border-left:1.2px solid #000; padding-left:18px; margin-top:20px"></div></section>
+    <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
     <section class="page" id="p4"><h1>標語</h1><div id="quoteEditor" style="width:85%; margin-top:30px"></div></section>
 </div>
 
@@ -76,6 +81,18 @@
         localStorage.setItem('myPills', JSON.stringify(tags));
     };
 
+    window.saveAction = async (t, v) => {
+        const val = t === 'input' ? document.getElementById('userInput').value : v;
+        if(!val) return;
+        await addDoc(collection(db, "daily_logs"), { action: val, type: t, timestamp: serverTimestamp() });
+        if(t === 'input') { document.getElementById('userInput').value = ''; alert('已紀錄回憶'); }
+    };
+
+    window.addNewTag = () => {
+        const i = document.getElementById('newTagInput');
+        if(i.value) { tags.unshift({ name: i.value, selected: true, count: 0 }); window.renderAll(); i.value = ''; }
+    };
+
     window.loadInsight = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs")));
         const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
@@ -85,14 +102,33 @@
         sorted.forEach(([name, count], i) => {
             const b = document.createElement('div'); b.className = 'sphere';
             const ratio = count / max;
-            const size = 60 + (ratio * 65);
+            const size = 60 + (ratio * 60);
             const angle = i * 137.5 * (Math.PI / 180);
-            const radius = 25 + (i * 28);
+            const radius = 40 + (i * 35); // 拉大半徑，減少重疊
             b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
             b.innerHTML = `<span style="font-size:14px;font-weight:600">${name}</span><span style="font-size:9px;opacity:0.5">${count}</span>`;
             s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<div style="display:flex;justify-content:space-between"><span>本月重心</span><strong>${sorted[0]?.[0] || '--'}</strong></div><div style="display:flex;justify-content:space-between"><span>溫度的時段</span><strong>14:00 - 16:00</strong></div><div style="display:flex;justify-content:space-between"><span>瞬間紀錄</span><strong>${snap.size} 則</strong></div>`;
+        document.getElementById('insightArea').innerHTML = `<div style="display:flex;justify-content:space-between"><span>本月重心</span><strong>${sorted[0]?.[0] || '--'}</strong></div><div style="display:flex;justify-content:space-between"><span>時段</span><strong>14:00 - 16:00</strong></div><div style="display:flex;justify-content:space-between"><span>紀錄</span><strong>${snap.size} 則</strong></div>`;
+    };
+
+    window.loadMemories = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        let lastDate = "";
+        snap.forEach(d => {
+            if(d.data().type === 'input') {
+                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日`;
+                if(dStr !== lastDate) {
+                    const h = document.createElement('div'); h.style.cssText = "font-size:11px;font-weight:700;margin:20px 0 10px -21.5px;background:#fff;padding-right:10px";
+                    h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+                }
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6;display:block;margin-bottom:5px">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="font-size:17px;font-weight:300">${d.data().action}</div>`;
+                area.appendChild(div);
+            }
+        });
     };
 
     let startY = 0, cur = 0;
@@ -104,7 +140,7 @@
             document.getElementById('mainContainer').style.transform = `translateY(-${idx * 100}vh)`;
             [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === idx));
             splash.classList.remove('active');
-            if(idx === 2) window.loadInsight();
+            if(idx === 2) window.loadInsight(); if(idx === 3) window.loadMemories();
         }, 1100);
     };
 
@@ -117,20 +153,8 @@
         }
     });
 
-    window.saveAction = async (t, v) => {
-        const val = v === 'input' ? document.getElementById('userInput').value : v;
-        if(!val) return;
-        await addDoc(collection(db, "daily_logs"), { action: val, type: t, timestamp: serverTimestamp() });
-        document.getElementById('userInput').value = '';
-    };
-
-    window.onload = () => { 
-        window.renderAll(); 
-        initEditor();
-        setTimeout(() => document.getElementById('splashLayer').classList.remove('active'), 2200);
-    };
-    
-    window.updateQuote = (i, v) => { quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
+    window.onload = () => { triggerSplash(0); window.renderAll(); initEditor(); };
+    window.updateQuote = (i,v) => { quotes[i]=v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
     const initEditor = () => { const ed = document.getElementById('quoteEditor'); ed.innerHTML = ''; quotes.forEach((q, i) => { const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee;padding:12px 0"; d.innerHTML = `<span style="font-size:10px;color:#a1a1a6">頁面 ${i+1}</span><input style="border:none;width:100%;font-size:16px;outline:none" value="${q}" onchange="window.updateQuote(${i}, this.value)">`; ed.appendChild(d); }); };
 </script>
 </body>
