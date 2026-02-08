@@ -3,77 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>在幹嘛 1 號 - 絲滑軌道版</title>
+    <title>在幹嘛 1 號 - 靈魂全修復</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 標語層 - 保持透明感，不遮擋滑動 */
-        .page-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
-        .page-splash.active { opacity: 1; pointer-events: all; }
-        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; animation: textFlow 2s ease-in-out forwards; }
-        @keyframes textFlow { 0% { opacity: 0; filter: blur(5px); transform: translateY(10px); } 40% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
-
-        /* 導航點 */
-        .dots-container { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
-        .dot.active { background: #000; transform: scale(2.5); }
+        /* 標語 Splash - 轉場靈魂 */
+        .page-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: none; align-items: center; justify-content: center; opacity: 0; }
+        .page-splash.active { display: flex; animation: soulFade 2.2s ease-in-out forwards; }
+        @keyframes soulFade { 0% { opacity: 0; filter: blur(4px); } 30% { opacity: 1; filter: blur(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; }
 
         /* 絲滑軌道容器 */
-        .main-container { 
-            width: 100%; height: 500vh; 
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* 類 iOS 減速曲線 */
-            display: flex; flex-direction: column; 
-            will-change: transform;
-        }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 12vh; box-sizing: border-box; background: #fff; }
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        h1 { font-size: 32px; font-weight: 700; letter-spacing: -1px; margin: 0; color: #1d1d1f; }
-        .sub-title { font-size: 11px; color: #a1a1a6; margin-top: 8px; letter-spacing: 1px; }
+        /* 第一頁：💊 膠囊 */
+        .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; transition: 0.3s; margin: 6px; }
 
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; max-width: 85%; margin-top: 60px; }
-        
-        /* 圓形標籤美學 */
-        .pill-tag { 
-            width: 80px; height: 80px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; text-align: center;
-            font-size: 14px; border: none; background: #000; color: #fff; cursor: pointer; 
-            transition: 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-            line-height: 1.2; padding: 10px; box-sizing: border-box;
-        }
-        .manage-tag { 
-            width: 70px; height: 70px; border-radius: 50%; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 13px; border: 1px solid #d2d2d7; background: transparent; cursor: pointer;
-            transition: 0.3s; padding: 5px;
-        }
-        .manage-tag.selected { background: #000; border-color: #000; color: #fff; font-weight: 600; }
+        /* 第二頁：▪️ 圓潤正方形 */
+        .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #d2d2d7; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: 0.3s; margin: 8px; }
+        .square-tag.selected { background: #000; color: #fff; border-color: #000; }
 
-        /* 第三頁：圓形星系 */
-        .galaxy-stage { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        .galaxy-circle { border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: 1.5s cubic-bezier(0.23, 1, 0.32, 1); flex-shrink: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        /* 第三頁：● 球體星系 */
+        .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 10px; }
+        .sphere { position: absolute; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: 1s cubic-bezier(0.23, 1, 0.32, 1); animation: breathe 3s infinite ease-in-out; box-shadow: 0 10px 40px rgba(0,0,0,0.02); }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
-        /* 第四頁：尺標回憶 */
-        .memory-area { width: 85%; margin-top: 30px; overflow-y: auto; height: 60vh; border-left: 1.5px solid #000; padding-left: 20px; margin-left: 10px; }
-        .memory-item { position: relative; padding-bottom: 35px; }
-        .memory-item::before { content: ''; position: absolute; left: -21.5px; top: 8px; width: 12px; height: 1.5px; background: #000; }
-        .time-label { font-size: 10px; font-weight: 700; color: #a1a1a6; display: block; margin-bottom: 5px; }
-
-        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 8px; background: #fff; z-index: 10; }
-        .input-box { background: transparent; border: none; width: 200px; font-size: 17px; text-align: center; outline: none; }
+        .insight-area { width: 82%; margin-top: 25px; font-size: 12px; color: #8e8e93; line-height: 2.8; border-top: 0.5px solid #f2f2f7; padding-top: 15px; }
+        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 100; }
+        .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
+        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
+        .dot.active { background: #000; transform: scale(2.2); }
     </style>
 </head>
 <body>
 
-<div id="splashLayer" class="page-splash"><h2 id="splashText">：（多久沒問問自己了呢）</h2></div>
+<div id="splashLayer" class="page-splash"><h2>：（多久沒問問自己了呢）</h2></div>
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="shortCutArea" class="tag-container"></div><div class="input-section"><input type="text" id="userInput" class="input-box" placeholder="此刻心情..." autocomplete="off"><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">↑</button></div></section>
-    <section class="page" id="p1"><h1>標籤</h1><div class="sub-title">長按移除標籤</div><div id="allTagsArea" class="tag-container" style="margin-top: 40px;"></div><div class="input-section"><input type="text" id="newTagInput" class="input-box" placeholder="新增標籤..." autocomplete="off"><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer">＋</button></div></section>
-    <section class="page" id="p2"><h1>透視</h1><div id="insightArea" class="galaxy-stage" style="margin-top: 40px;"></div><div id="insightDetail" style="width:80%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2;"></div></section>
-    <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page" id="p4"><h1>標語</h1><div class="edit-list" id="quoteEditor" style="width:80%; margin:auto; margin-top:40px;"></div></section>
+    <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
+    <section class="page" id="p1"><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
+    <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" class="insight-area"></div></section>
+    <section class="page" id="p3"><h1>回憶</h1><div id="memoryArea" style="width:85%; overflow-y:auto; height:55vh; border-left:1.5px solid #000; padding-left:18px; margin-top:20px"></div></section>
+    <section class="page" id="p4"><h1>標語</h1><div id="quoteEditor" style="width:85%; margin-top:30px"></div></section>
 </div>
 
 <script type="module">
@@ -86,114 +59,74 @@
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || [":（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
     let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
 
-    function showSplash(idx) {
-        const l = document.getElementById('splashLayer'), t = document.getElementById('splashText');
-        t.innerText = quotes[idx];
-        l.classList.add('active');
-        setTimeout(() => l.classList.remove('active'), 1800); // 縮短標語停留，讓滑動更利索
-    }
-
-    function render() {
-        const s = document.getElementById('shortCutArea'), a = document.getElementById('allTagsArea');
-        tags.sort((x, y) => (y.count || 0) - (x.count || 0));
-        const max = tags[0] ? tags[0].count : 1;
-        s.innerHTML = ''; a.innerHTML = '';
-        
+    window.renderAll = () => {
+        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
+        const max = tags[0]?.count || 1;
+        s0.innerHTML = ''; s1.innerHTML = '';
         tags.forEach((t, i) => {
-            const ratio = (t.count || 0) / max;
-            const size = 70 + (ratio * 40); // 點擊次數越多圓越大
-
             if(t.selected) {
-                const b = document.createElement('button'); b.className = 'pill-tag'; 
-                b.style.width = size + 'px'; b.style.height = size + 'px';
-                b.innerText = t.name;
-                b.onclick = () => { t.count = (t.count || 0) + 1; window.saveAction('tag', t.name); render(); };
-                s.appendChild(b);
+                const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
+                b.onclick = () => { t.count++; window.saveAction('tag', t.name); window.renderAll(); };
+                s0.appendChild(b);
             }
-            const b2 = document.createElement('button'); b2.className = t.selected ? 'manage-tag selected' : 'manage-tag';
-            b2.innerHTML = `<span>${t.name}</span><span style="font-size:9px; opacity:0.5;">${t.count || 0}</span>`;
-            let timer; b2.ontouchstart = () => timer = setTimeout(() => { if(confirm('刪除標籤？')) { tags.splice(i, 1); render(); } }, 800);
-            b2.ontouchend = () => clearTimeout(timer); b2.onclick = () => { tags[i].selected = !tags[i].selected; render(); };
-            a.appendChild(b2);
+            const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
+            b2.innerHTML = `<span>${t.name}</span><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
+            b2.onclick = () => { t.selected = !t.selected; window.renderAll(); };
+            s1.appendChild(b2);
         });
         localStorage.setItem('myPills', JSON.stringify(tags));
-    }
-
-    window.saveAction = async (type, val) => {
-        const text = val || document.getElementById('userInput').value;
-        if(!text) return;
-        await addDoc(collection(db, "daily_logs"), { action: text, type: type, timestamp: serverTimestamp() });
-        document.getElementById('userInput').value = '';
-        if(type === 'input') alert('紀錄成功');
-    };
-
-    window.addNewTag = () => {
-        const input = document.getElementById('newTagInput');
-        if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); render(); input.value = ''; }
     };
 
     window.loadInsight = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs")));
         const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-        const area = document.getElementById('insightArea'); area.innerHTML = '';
-        const max = sorted[0] ? sorted[0][1] : 1;
+        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        const max = sorted[0]?.[1] || 1;
         sorted.forEach(([name, count], i) => {
-            const circle = document.createElement('div'); circle.className = 'galaxy-circle';
+            const b = document.createElement('div'); b.className = 'sphere';
             const ratio = count / max;
-            const size = 60 + (ratio * 80);
-            circle.style.cssText = `width:${size}px; height:${size}px; background:${i===0?'#000':`rgba(0,0,0,${0.05+(ratio*0.8)})`}; color:${i===0||ratio>0.5?'#fff':'#000'}; margin:10px;`;
-            circle.innerHTML = `<span style="font-size:${12+(ratio*4)}px; font-weight:600;">${name}</span><span style="font-size:9px; opacity:0.5;">${count}</span>`;
-            area.appendChild(circle);
+            const size = 60 + (ratio * 65);
+            const angle = i * 137.5 * (Math.PI / 180);
+            const radius = 30 + (i * 25);
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
+            b.innerHTML = `<span style="font-size:14px;font-weight:600">${name}</span><span style="font-size:9px;opacity:0.5">${count}</span>`;
+            s2.appendChild(b);
         });
-        document.getElementById('insightDetail').innerHTML = `本月重心：${sorted[0] ? sorted[0][0] : '--'}<br>瞬間紀錄：${snap.size} 則<br>最常問自己的時刻：14:00 - 16:00`;
+        document.getElementById('insightArea').innerHTML = `<div style="display:flex;justify-content:space-between"><span>本月重心</span><strong>${sorted[0]?.[0] || '--'}</strong></div><div style="display:flex;justify-content:space-between"><span>溫度的時段</span><strong>14:00 - 16:00</strong></div><div style="display:flex;justify-content:space-between"><span>瞬間紀錄</span><strong>${snap.size} 則</strong></div>`;
     };
 
-    window.loadMemories = async () => {
-        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-        const area = document.getElementById('memoryArea'); area.innerHTML = '';
-        let lastDate = "";
-        snap.forEach(d => {
-            if(d.data().type === 'input') {
-                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
-                const dStr = `${date.getMonth() + 1}月${date.getDate()}日`;
-                if (dStr !== lastDate) {
-                    const h = document.createElement('div'); h.style.cssText = "font-size: 11px; font-weight: 700; margin: 20px 0 10px -21.5px; background: #fff; padding-right: 10px; display: inline-block;";
-                    h.innerText = dStr; area.appendChild(h); lastDate = dStr;
-                }
-                const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<span class="time-label">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="font-size:17px; font-weight:300;">${d.data().action}</div>`;
-                area.appendChild(div);
-            }
-        });
+    let startY = 0, cur = 0;
+    const triggerSplash = (idx) => {
+        const splash = document.getElementById('splashLayer');
+        document.getElementById('splashText').innerText = quotes[idx];
+        splash.classList.add('active');
+        setTimeout(() => {
+            document.getElementById('mainContainer').style.transform = `translateY(-${idx * 100}vh)`;
+            [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === idx));
+            splash.classList.remove('active');
+            if(idx === 2) window.loadInsight();
+        }, 1100);
     };
 
-    window.updateQuote = (i, v) => { quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
-    function initEditor() {
-        const area = document.getElementById('quoteEditor'); area.innerHTML = '';
-        quotes.forEach((q, i) => {
-            const div = document.createElement('div'); div.style.cssText = "border-bottom:0.5px solid #eee; padding:15px 0;";
-            div.innerHTML = `<span style="font-size:10px; color:#a1a1a6;">頁面 ${i+1}</span><input type="text" style="border:none; width:100%; font-size:16px; outline:none;" value="${q}" onchange="window.updateQuote(${i}, this.value)">`;
-            area.appendChild(div);
-        });
-    }
-
-    let startY = 0, currentPage = 0;
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         let dist = startY - e.changedTouches[0].clientY;
         if (Math.abs(dist) > 50) {
-            const old = currentPage;
-            currentPage = dist > 0 ? Math.min(currentPage + 1, 4) : Math.max(currentPage - 1, 0);
-            if (old !== currentPage) {
-                showSplash(currentPage);
-                document.getElementById('mainContainer').style.transform = `translateY(-${currentPage * 100}vh)`;
-                [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === currentPage));
-                if(currentPage === 2) window.loadInsight(); if(currentPage === 3) window.loadMemories();
-            }
+            const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
+            if (next !== cur) { cur = next; triggerSplash(cur); }
         }
     });
-    render(); initEditor();
+
+    window.saveAction = async (t, v) => {
+        const val = v === 'input' ? document.getElementById('userInput').value : v;
+        if(!val) return;
+        await addDoc(collection(db, "daily_logs"), { action: val, type: t, timestamp: serverTimestamp() });
+        document.getElementById('userInput').value = '';
+    };
+
+    window.onload = () => { triggerSplash(0); window.renderAll(); };
 </script>
 </body>
 </html>
