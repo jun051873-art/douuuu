@@ -3,45 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 職人鎖定版</title>
+    <title>在幹嘛 1 號 - 終極鎖定</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 標語儀式層 */
+        /* 標語儀式層 - 鎖定最上層 */
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
-        #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
-        @keyframes textBreath { 0% { opacity: 0; filter: blur(6px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
+        #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: soulBreath 2.8s ease-in-out forwards; }
+        @keyframes soulBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 內容容器 */
+        /* 內容軌道 - 柔順淡入 */
         .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        /* 上下熱區導航 (解決問題) */
-        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; cursor: pointer; }
+        /* 導航熱區 (解決換頁麻煩) */
+        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; }
         .nav-top { top: 0; }
         .nav-bottom { bottom: 0; }
 
-        /* 導航點 */
+        /* 左側點點 */
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
 
-        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9000; pointer-events: none; }
+        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.4s; z-index: 9000; pointer-events: none; }
 
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; }
         .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; }
         .memory-item { position: relative; padding-bottom: 25px; }
         .memory-item::before { content: ''; position: absolute; left: -19.5px; top: 9px; width: 10px; height: 1.2px; background: #000; }
         
-        .reset-btn { margin-top: 30px; padding: 10px 25px; border-radius: 20px; border: 1px solid #ff3b30; color: #ff3b30; font-size: 12px; cursor: pointer; background: #fff; }
+        .reset-btn { margin-top: 20px; padding: 8px 20px; border-radius: 20px; border: 0.5px solid #ff3b30; color: #ff3b30; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="splashLayer"></div>
-<div id="toast">已成功紀錄</div>
+<div id="toast">已成功記錄</div>
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
@@ -50,6 +50,22 @@
         <h1>現在在幹嘛</h1>
         <div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div>
         <div style="position:absolute; bottom:100px; border-bottom:0.5px solid #eee; padding:6px"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div>
+    </section>
+
+    <section class="page" id="p1">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>標籤</h1>
+        <div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div>
+        <div style="position:absolute; bottom:100px; border-bottom:0.5px solid #eee; padding:6px"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div>
+    </section>
+
+    <section class="page" id="p2">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>透視</h1>
+        <div id="stage2" style="width:100%; height:40vh; position:relative; display:flex; align-items:center; justify-content:center;"></div>
+        <div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div>
     </section>
 
     <section class="page" id="p3">
@@ -63,7 +79,7 @@
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
         <h1>標語</h1>
         <div id="quoteEditor" style="width:85%; margin-top:20px"></div>
-        <button class="reset-btn" onclick="resetData()">重置所有紀錄</button>
+        <div class="reset-btn" onclick="resetAllData()">重置所有數據</div>
     </section>
 </div>
 
@@ -77,15 +93,19 @@
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
     let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
 
-    // 天氣中文化映射
-    const weatherMap = { "Clear": "晴", "Clouds": "多雲", "Rain": "雨", "Drizzle": "陣雨", "Thunderstorm": "雷雨", "Snow": "雪", "Mist": "霧", "Smoke": "煙", "Haze": "霾", "Dust": "塵", "Fog": "霧", "Sand": "沙", "Ash": "灰", "Squall": "狂風", "Tornado": "龍捲風" };
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.style.opacity = 1;
+        setTimeout(() => t.style.opacity = 0, 1500);
+    }
 
     async function getWeather() {
         try {
-            const res = await fetch('https://api.openweathermap.org/data/2.5/weather?q=Taipei&appid=YOUR_API_KEY');
-            const data = await res.json();
-            return weatherMap[data.weather[0].main] || "陰";
-        } catch { return "晴"; } // 預設中文標註
+            const res = await fetch('https://wttr.in/?format=%c');
+            const text = await res.text();
+            const weatherMap = { "Clear": "晴", "Partly cloudy": "多雲", "Cloudy": "陰", "Overcast": "陰", "Mist": "霧", "Patchy rain nearby": "陣雨", "Rain": "雨" };
+            return text.trim() || "晴";
+        } catch { return "晴"; }
     }
 
     window.saveAction = async (t, v) => {
@@ -93,39 +113,113 @@
         if(!val) return;
         const weather = await getWeather();
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: weather, timestamp: serverTimestamp() });
-        const toast = document.getElementById('toast');
-        toast.innerText = `已紀錄瞬間：「${val}」`; toast.style.opacity = 1;
-        setTimeout(() => toast.style.opacity = 0, 1500);
+        showToast(t === 'tag' ? `已記錄瞬間「${val}」` : '已為你珍藏回憶');
         if(t === 'input') document.getElementById('userInput').value = '';
         render();
     };
 
-    window.loadMemories = async () => {
+    window.addNewTag = () => {
+        const input = document.getElementById('newTagInput');
+        if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); render(); input.value = ''; showToast('標籤已新增'); }
+    };
+
+    function render() {
+        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
+        s0.innerHTML = ''; s1.innerHTML = '';
+        tags.forEach((t) => {
+            if(t.selected) {
+                const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
+                b.onclick = () => { t.count++; window.saveAction('tag', t.name); render(); };
+                s0.appendChild(b);
+            }
+            const b2 = document.createElement('button'); b2.style.cssText = "width:75px;height:75px;border-radius:18px;border:1px solid #d2d2d7;margin:8px;background:"+(t.selected?"#000":"#fff");
+            b2.style.color = t.selected?"#fff":"#000";
+            b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
+            b2.onclick = () => { t.selected = !t.selected; render(); };
+            s1.appendChild(b2);
+        });
+        localStorage.setItem('myPills', JSON.stringify(tags));
+    }
+
+    async function loadInsight() {
+        const snap = await getDocs(collection(db, "daily_logs"));
+        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        sorted.forEach(([name, count], i) => {
+            if(i > 5) return;
+            const size = 65 + (count * 5); const angle = i * 60;
+            const b = document.createElement('div'); b.className = 'sphere';
+            b.style.cssText = `width:${size}px;height:${size}px;background:${i===0?'#000':'#f2f2f7'};color:${i===0?'#fff':'#000'};left:calc(50% - ${size/2}px);top:calc(50% - ${size/2}px);transform:rotate(${angle}deg) translate(80px) rotate(-${angle}deg); border-radius:50%;`;
+            b.innerHTML = `<span style="font-size:12px">${name}</span>`;
+            s2.appendChild(b);
+        });
+        document.getElementById('insightArea').innerHTML = `
+            <div style="display:flex;justify-content:space-between"><span>本月重心</span><strong>${sorted[0]?.[0] || '--'}</strong></div>
+            <div style="display:flex;justify-content:space-between"><span>最常問自己的時間</span><strong>14:00 - 16:00</strong></div>
+            <div style="display:flex;justify-content:space-between"><span>瞬間紀錄總量</span><strong>${snap.size} 則</strong></div>
+        `;
+    }
+
+    async function loadMemories() {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         const area = document.getElementById('memoryArea'); area.innerHTML = '';
         const weeks = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
         let lastDate = "";
         snap.forEach(d => {
-            const data = d.data();
-            const date = data.timestamp ? data.timestamp.toDate() : new Date();
-            const dStr = `${date.getMonth()+1}月${date.getDate()}日 ${weeks[date.getDay()]}`;
-            if(dStr !== lastDate) {
-                const h = document.createElement('div'); h.style.cssText = "font-size:11px;font-weight:700;margin:20px 0 10px -19.5px;background:#fff;padding-right:10px;display:inline-block";
-                h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+            if(d.data().type === 'input') {
+                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日 ${weeks[date.getDay()]}`;
+                if(dStr !== lastDate) {
+                    const h = document.createElement('div'); h.style.cssText = "font-size:11px;font-weight:700;margin:20px 0 10px -19.5px;background:#fff;padding-right:10px;display:inline-block";
+                    h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+                }
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><span style="font-size:10px;margin-left:8px;color:#666">${d.data().weather || ""}</span><div style="font-size:16px;font-weight:300;color:#1d1d1f;margin-top:4px">${d.data().action}</div>`;
+                area.appendChild(div);
             }
-            const div = document.createElement('div'); div.className = 'memory-item';
-            div.innerHTML = `<span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><span style="font-size:10px;margin-left:8px;color:#666">${data.weather || "晴"}</span><div style="font-size:16px;font-weight:300;color:#1d1d1f;margin-top:4px">${data.action}</div>`;
-            area.appendChild(div);
         });
+    }
+
+    let cur = 0, startY = 0;
+    const triggerSplash = (idx) => {
+        const splash = document.getElementById('splashLayer');
+        const container = document.getElementById('mainContainer');
+        splash.innerHTML = `<h2>${quotes[idx]}</h2>`;
+        container.classList.remove('visible');
+        splash.classList.add('active');
+        setTimeout(() => {
+            container.style.transform = `translateY(-${idx * 100}vh)`;
+            document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === idx));
+            if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
+        }, 1400);
+        setTimeout(() => { splash.classList.remove('active'); container.classList.add('visible'); }, 2600);
     };
 
-    // 導航控制
     window.nextPage = () => { if(cur < 4) { cur++; triggerSplash(cur); } };
     window.prevPage = () => { if(cur > 0) { cur--; triggerSplash(cur); } };
+    window.resetAllData = () => { if(confirm('重置標籤數據？')) { tags.forEach(t => t.count = 0); render(); } };
 
-    window.resetData = () => { if(confirm('確定要清除所有標籤次數嗎？')) { tags.forEach(t => t.count = 0); localStorage.setItem('myPills', JSON.stringify(tags)); render(); } };
+    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+    window.addEventListener('touchend', e => {
+        const dist = startY - e.changedTouches[0].clientY;
+        if (Math.abs(dist) > 80) {
+            const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
+            if (next !== cur) { cur = next; triggerSplash(cur); }
+        }
+    });
 
-    // ... 其餘渲染與啟動邏輯 ...
+    window.onload = () => { 
+        render(); 
+        const ed = document.getElementById('quoteEditor');
+        quotes.forEach((q, i) => {
+            const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee;padding:12px 0";
+            d.innerHTML = `<span style="font-size:10px;color:#a1a1a6">頁面 ${i+1}</span><input style="border:none;width:100%;font-size:16px;outline:none" value="${q}" onchange="quotes[${i}]=this.value;localStorage.setItem('myQuotes',JSON.stringify(quotes))">`;
+            ed.appendChild(d);
+        });
+        triggerSplash(0); 
+    };
 </script>
 </body>
 </html>
