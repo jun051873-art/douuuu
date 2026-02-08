@@ -3,42 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 深度靈魂版</title>
+    <title>在幹嘛 1 號 - 靈魂本源鎖定</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 靈魂標語層 - 每一頁翻開的儀式感 */
-        .page-splash { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.6s ease-in-out; }
-        .page-splash.active { opacity: 1; pointer-events: all; }
-        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; opacity: 0; transform: translateY(10px); }
-        .page-splash.active h2 { animation: soulFade 2.5s ease-in-out forwards; }
-        @keyframes soulFade { 0% { opacity: 0; filter: blur(4px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+        /* 標語儀式感 - 每一頁進入前的洗禮 */
+        .page-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; display: none; align-items: center; justify-content: center; opacity: 0; }
+        .page-splash.active { display: flex; animation: soulBreath 2.2s ease-in-out forwards; }
+        @keyframes soulBreath { 0% { opacity: 0; filter: blur(4px); } 30% { opacity: 1; filter: blur(0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+        .page-splash h2 { font-size: 16px; font-weight: 200; letter-spacing: 4px; color: #1d1d1f; }
 
         /* 絲滑軌道 */
-        .main-container { width: 100%; height: 500vh; transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; }
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        /* 3D 空間星系球體 */
-        .galaxy-stage { width: 100%; height: 55vh; position: relative; perspective: 1000px; }
+        /* 星系 - 集中、不重疊、有呼吸感 */
+        .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; }
         .sphere { 
             position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; 
-            transition: 1.5s cubic-bezier(0.23, 1, 0.32, 1);
-            animation: cosmicFloat var(--d) infinite ease-in-out;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.05);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: breathe 3s infinite ease-in-out;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+            cursor: pointer;
         }
-        @keyframes cosmicFloat { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(var(--x), var(--y)) scale(1.05); } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        /* 其他介面 */
+        /* 輸入區與列表 */
+        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 100; }
+        .memory-area { width: 85%; margin-top: 20px; overflow-y: auto; height: 55vh; border-left: 1.2px solid #000; padding-left: 18px; }
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
-        .input-section { position: absolute; bottom: 80px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 100; }
-        .memory-area { width: 85%; margin-top: 20px; overflow-y: auto; height: 55vh; border-left: 1px solid #000; padding-left: 18px; }
     </style>
 </head>
 <body>
 
-<div id="splashLayer" class="page-splash active"><h2 id="splashText">：（多久沒問問自己了呢）</h2></div>
+<div id="splashLayer" class="page-splash"><h2>：（多久沒問問自己了呢）</h2></div>
 <div class="dots-container"><div id="dot0" class="dot active"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
@@ -59,65 +59,63 @@
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || [":（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
     let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
 
-    function getOrganicStyle(i, ratio, isSelected) {
+    function getStaticStyle(i, ratio) {
         const angle = i * 137.5 * (Math.PI / 180);
-        const radius = isSelected ? (30 + (i * 28)) : (40 + (i * 30)); // 擴大間距
+        const radius = 25 + (i * 28); // 穩定間距，不重疊
         const size = 60 + (ratio * 60);
         const bg = i === 0 ? '#000' : (ratio > 0.6 ? '#3c3c3e' : (ratio > 0.3 ? '#8e8e93' : '#f2f2f7'));
-        return `
-            width:${size}px; height:${size}px; 
-            left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); 
-            top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); 
-            background:${bg}; color:${i===0||ratio>0.3?'#fff':'#000'}; 
-            z-index:${100-i}; --d:${8+i}s; --x:${i%2==0?8:-8}px; --y:${i%3==0?6:-6}px;
-        `;
+        return `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${bg}; color:${i===0||ratio>0.3?'#fff':'#000'}; z-index:${100-i};`;
     }
 
     window.renderAll = () => {
-        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
+        const stages = [document.getElementById('stage0'), document.getElementById('stage1')];
         tags.sort((a,b) => (b.count || 0) - (a.count || 0));
         const max = tags[0]?.count || 1;
-        s0.innerHTML = ''; s1.innerHTML = '';
+        stages.forEach(s => s.innerHTML = '');
         tags.forEach((t, i) => {
             const ratio = t.count / max;
             if(t.selected) {
-                const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = getOrganicStyle(i, ratio, true);
+                const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = getStaticStyle(i, ratio);
                 b.innerHTML = `<span style="font-size:14px;font-weight:600">${t.name}</span>`;
                 b.onclick = () => { t.count++; window.saveAction('tag', t.name); window.renderAll(); };
-                s0.appendChild(b);
+                stages[0].appendChild(b);
             }
-            const b2 = document.createElement('div'); b2.className = 'sphere'; b2.style.cssText = getOrganicStyle(i, t.selected?ratio:0, false);
+            const b2 = document.createElement('div'); b2.className = 'sphere'; b2.style.cssText = getStaticStyle(i, t.selected?ratio:0);
             if(!t.selected) { b2.style.background = 'transparent'; b2.style.border = '0.5px solid #d2d2d7'; }
             b2.innerHTML = `<span style="font-size:14px">${t.name}</span>`;
             b2.onclick = () => { t.selected = !t.selected; window.renderAll(); };
-            s1.appendChild(b2);
+            stages[1].appendChild(b2);
         });
         localStorage.setItem('myPills', JSON.stringify(tags));
     };
 
     let startY = 0, cur = 0;
+    const triggerSplash = (idx) => {
+        const splash = document.getElementById('splashLayer');
+        document.getElementById('splashText').innerText = quotes[idx];
+        splash.classList.remove('active');
+        void splash.offsetWidth; // 強制重繪
+        splash.classList.add('active');
+        setTimeout(() => {
+            document.getElementById('mainContainer').style.transform = `translateY(-${idx * 100}vh)`;
+            [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === idx));
+            if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
+        }, 1100);
+    };
+
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         let dist = startY - e.changedTouches[0].clientY;
         if (Math.abs(dist) > 50) {
-            const old = cur; cur = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
-            if (old !== cur) {
-                const splash = document.getElementById('splashLayer');
-                document.getElementById('splashText').innerText = quotes[cur];
-                splash.classList.add('active'); // 標語浮現
-                
-                setTimeout(() => {
-                    splash.classList.remove('active'); // 標語消失
-                    document.getElementById('mainContainer').style.transform = `translateY(-${cur * 100}vh)`;
-                    [0,1,2,3,4].forEach(i => document.getElementById(`dot${i}`).classList.toggle('active', i === cur));
-                    if(cur === 2) loadInsight(); if(cur === 3) loadMemories();
-                }, 1000); // 這裡調整標語停留的時間
-            }
+            const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
+            if (next !== cur) { cur = next; triggerSplash(cur); }
         }
     });
 
-    window.saveAction = async (t, v) => { /* Firebase 邏輯 */ };
-    window.onload = () => { window.renderAll(); initEditor(); };
+    window.onload = () => { triggerSplash(0); window.renderAll(); initEditor(); };
+    window.saveAction = async (t, v) => { /* Firebase 儲存邏輯 */ };
+    window.addNewTag = () => { /* 新增標籤邏輯 */ };
+    window.updateQuote = (i,v) => { quotes[i]=v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); };
 </script>
 </body>
 </html>
