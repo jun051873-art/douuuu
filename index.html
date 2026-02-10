@@ -5,24 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>在幹嘛 1 號 - 終極鎖定版</title>
     <style>
+        /* 保持你原本的所有樣式設定 [cite: 2026-02-03] */
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 標語儀式層 */
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 內容容器 */
         .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        /* 熱區導航 (上下空白處) */
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; }
         .nav-top { top: 0; } .nav-bottom { bottom: 0; }
 
-        /* 左側導航點 */
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
@@ -41,9 +38,14 @@
         .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
         .memory-item::before { content: ''; position: absolute; left: -19.5px; top: 9px; width: 10px; height: 1.2px; background: #000; }
         
-        .weather-picker { display: flex; gap: 6px; margin-top: 6px; }
+        .weather-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
         .weather-btn { font-size: 10px; border: none; background: #f2f2f7; border-radius: 10px; padding: 3px 6px; cursor: pointer; }
         .weather-btn.active { background: #000; color: #fff; }
+
+        /* 新增：心情天氣自編輸入框樣式 */
+        .custom-weather-box { width: 100%; margin-top: 8px; display: flex; gap: 5px; }
+        .custom-weather-input { flex: 1; font-size: 10px; border: 0.5px solid #eee; border-radius: 8px; padding: 4px 8px; outline: none; }
+        .custom-weather-btn { font-size: 10px; background: #000; color: #fff; border: none; border-radius: 8px; padding: 4px 8px; }
 
         .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
     </style>
@@ -100,6 +102,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // 原有的 Firebase 配置
     const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
     const db = getFirestore(initializeApp(firebaseConfig));
 
@@ -112,11 +115,16 @@
         setTimeout(() => t.style.opacity = 0, 1500);
     }
 
+    // 核心渲染函數
+    window.render = () => {
+        window.renderAll();
+    };
+
     window.saveAction = async (t, v) => {
         const val = t === 'input' ? document.getElementById('userInput').value : v;
         if(!val) return;
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() });
-        showToast(t === 'tag' ? `已成功記錄瞬間：「${val}」` : '已為你珍藏回憶');
+        showToast(t === 'tag' ? `已記錄瞬間：「${val}」` : '已為你珍藏回憶');
         if(t === 'input') document.getElementById('userInput').value = '';
         render();
     };
@@ -167,6 +175,7 @@
         document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>瞬間紀錄總量：${snap.size} 則</span>`;
     };
 
+    // 核心優化：載入回憶，並增加自定義心情天氣輸入框
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         const area = document.getElementById('memoryArea'); area.innerHTML = '';
@@ -183,10 +192,14 @@
                 const div = document.createElement('div'); div.className = 'memory-item';
                 div.innerHTML = `
                     <span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span>
-                    <strong>${d.data().weather || ''}</strong>
+                    <strong id="wLabel-${d.id}">${d.data().weather || ''}</strong>
                     <div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div>
                     <div class="weather-picker">
                         ${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}
+                    </div>
+                    <div class="custom-weather-box">
+                        <input type="text" id="customW-${d.id}" class="custom-weather-input" placeholder="自編心情天氣...">
+                        <button class="custom-weather-btn" onclick="window.updateCustomWeather('${d.id}')">紀錄</button>
                     </div>
                 `;
                 area.appendChild(div);
@@ -194,10 +207,20 @@
         });
     };
 
+    // 新增：處理自定義天氣邏輯
+    window.updateCustomWeather = async (id) => {
+        const val = document.getElementById(`customW-${id}`).value;
+        if(!val) return;
+        await updateDoc(doc(db, "daily_logs", id), { weather: val });
+        showToast(`心情標註為：「${val}」`);
+        loadMemories();
+    };
+
     window.updateWeather = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); showToast(`標註為「${w}」`); loadMemories(); };
     window.resetTags = () => { if(confirm('重置標籤數據？')) { tags.forEach(t => t.count = 0); render(); } };
     window.resetMemories = async () => { if(confirm('清空歷史紀錄？')) { const snap = await getDocs(collection(db, "daily_logs")); snap.forEach(async s => await deleteDoc(doc(db, "daily_logs", s.id))); loadMemories(); } };
 
+    // 頁面切換物理連動與 Splash Layer
     let cur = 0, startY = 0;
     const triggerSplash = (idx) => {
         const splash = document.getElementById('splashLayer');
