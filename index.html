@@ -3,165 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛？ 1號 - 原始職人版</title>
+    <title>在幹嘛 1 號 - 終極鎖定版</title>
     <style>
-        /* 恢復你最愛的賈伯斯黑金風格與 0.5px 細線 */
-        :root {
-            --bg: #000;
-            --gold: #d2d2d7;
-            --white: #fff;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.2);
-        }
-
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background: var(--bg); color: var(--white);
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            overflow: hidden;
-        }
-
-        /* 恢復第 38 行的靈魂：softBreathe 呼吸動畫 */
-        @keyframes softBreathe {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.02); opacity: 1; }
-        }
-
-        /* 恢復第 19 行的頁面基礎樣式 */
-        .page {
-            width: 100%; height: 100vh; flex-shrink: 0; position: absolute;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; pointer-events: none;
-            backdrop-filter: blur(8px);
-        }
-
-        .page.active { opacity: 1; pointer-events: auto; }
-
-        .main-container {
-            width: 85%; padding: 25px;
-            background: var(--glass); border: 0.5px solid var(--border);
-            border-radius: 20px; text-align: center;
-            animation: softBreathe 4s infinite ease-in-out;
-        }
-
-        /* 恢復原本的所有按鈕與標籤連動樣式 */
-        .btn-action {
-            margin-top: 25px; padding: 12px 45px;
-            background: var(--white); color: var(--bg);
-            border-radius: 50px; border: none; font-size: 15px; letter-spacing: 1px;
-        }
-
-        .weather-picker { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 15px; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        .weather-btn {
-            padding: 8px 16px; font-size: 12px; background: transparent;
-            border: 0.5px solid var(--border); color: var(--gold); border-radius: 40px;
-        }
+        /* 標語儀式層 */
+        #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
+        #splashLayer.active { opacity: 1; pointer-events: all; }
+        #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
+        @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        .weather-btn.active { background: var(--white); color: var(--bg); }
+        /* 內容容器 */
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
+        .main-container.visible { opacity: 1; }
+        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        .custom-input {
-            width: 100%; background: rgba(255,255,255,0.08);
-            border: 0.5px solid var(--border); border-radius: 10px;
-            color: #fff; padding: 12px; margin-top: 10px; box-sizing: border-box; outline: none;
-        }
+        /* 熱區導航 (上下空白處) */
+        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; }
+        .nav-top { top: 0; } .nav-bottom { bottom: 0; }
+
+        /* 左側導航點 */
+        .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
+        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
+        .dot.active { background: #000; transform: scale(2.2); }
+
+        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9000; pointer-events: none; }
+
+        .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; }
+        .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #eee; margin: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .square-tag.selected { background: #000; color: #fff; }
+
+        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; }
+        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
+        @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+        .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; }
+        .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
+        .memory-item::before { content: ''; position: absolute; left: -19.5px; top: 9px; width: 10px; height: 1.2px; background: #000; }
+        
+        .weather-picker { display: flex; gap: 6px; margin-top: 6px; }
+        .weather-btn { font-size: 10px; border: none; background: #f2f2f7; border-radius: 10px; padding: 3px 6px; cursor: pointer; }
+        .weather-btn.active { background: #000; color: #fff; }
+
+        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
     </style>
 </head>
 <body>
 
-    <div id="p1" class="page active">
-        <div class="main-container">
-            <h1 id="title1">我的專屬1號</h1> <p style="color: #888; font-size: 14px;">在幹嘛？ 1號系統</p>
-            <button class="btn-action" onclick="nav(2)">進入</button>
+<div id="splashLayer"></div>
+<div id="toast">已記錄成功</div>
+<div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
+
+<div class="main-container" id="mainContainer">
+    <section class="page" id="p0">
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>現在在幹嘛</h1>
+        <div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div>
+        <div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div>
+    </section>
+
+    <section class="page" id="p1">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>標籤</h1>
+        <div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div>
+        <div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div>
+    </section>
+
+    <section class="page" id="p2">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>透視</h1>
+        <div id="stage2" class="galaxy-stage"></div>
+        <div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div>
+    </section>
+
+    <section class="page" id="p3">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>回憶</h1>
+        <div id="memoryArea" class="memory-area"></div>
+    </section>
+
+    <section class="page" id="p4">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <h1>標語</h1>
+        <div id="quoteEditor" style="width:85%; margin-top:20px"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="resetTags()" style="color:#666; font-size:11px; border:1px solid #ddd; padding:5px 12px; border-radius:15px; background:none;">重置標籤次數</button>
+            <button onclick="resetMemories()" style="color:#ff3b30; font-size:11px; border:1px solid #ff3b30; padding:5px 12px; border-radius:15px; background:none;">清空紀錄數據</button>
         </div>
-    </div>
+    </section>
+</div>
 
-    <div id="p2" class="page">
-        <div class="main-container">
-            <h1>現在在幹嘛？</h1>
-            <div class="weather-picker">
-                <button class="weather-btn" onclick="nav(3)">工作中</button>
-                <button class="weather-btn" onclick="nav(3)">休息中</button>
-                <button class="weather-btn" onclick="nav(3)">摸魚中</button>
-            </div>
-            <button class="btn-action" style="background: transparent; color: #555;" onclick="nav(1)">返回</button>
-        </div>
-    </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    <div id="p3" class="page">
-        <div class="main-container">
-            <h1>具體內容</h1>
-            <p>正在努力打磨作品...</p>
-            <button class="btn-action" onclick="nav(4)">下一步</button>
-        </div>
-    </div>
+    const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
+    const db = getFirestore(initializeApp(firebaseConfig));
 
-    <div id="p4" class="page">
-        <div class="main-container">
-            <h1>心情標籤</h1>
-            <div class="weather-picker">
-                <button class="weather-btn" onclick="sel(this)">平靜</button>
-                <button class="weather-btn" onclick="sel(this)">興奮</button>
-                <button class="weather-btn" onclick="sel(this)">專注</button>
-            </div>
-            <button class="btn-action" onclick="nav(5)">前往編輯</button>
-        </div>
-    </div>
+    let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
+    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
 
-    <div id="p5" class="page">
-        <div class="main-container">
-            <h1>回憶編輯模式</h1>
-            <div style="text-align: left;">
-                <label style="font-size: 10px; color: #888;">自訂標語</label>
-                <input type="text" id="slogan" class="custom-input" placeholder="留下一段話...">
-            </div>
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.style.opacity = 1;
+        setTimeout(() => t.style.opacity = 0, 1500);
+    }
 
-            <div style="text-align: left; margin-top: 15px;">
-                <label style="font-size: 10px; color: #888;">選擇天氣標籤</label>
-                <div class="weather-picker" id="wBox">
-                    <button class="weather-btn" onclick="sel(this)">晴天</button>
-                    <button class="weather-btn" onclick="sel(this)">陰天</button>
-                    <button class="weather-btn" onclick="sel(this)">雨天</button>
-                </div>
-            </div>
+    window.saveAction = async (t, v) => {
+        const val = t === 'input' ? document.getElementById('userInput').value : v;
+        if(!val) return;
+        await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() });
+        showToast(t === 'tag' ? `已成功記錄瞬間：「${val}」` : '已為你珍藏回憶');
+        if(t === 'input') document.getElementById('userInput').value = '';
+        render();
+    };
 
-            <div style="text-align: left; margin-top: 15px;">
-                <label style="font-size: 10px; color: #888;">自編此刻心情天氣</label>
-                <input type="text" id="customW" class="custom-input" placeholder="例如：金色夕陽、暴躁雷雨...">
-            </div>
+    window.addNewTag = () => {
+        const input = document.getElementById('newTagInput');
+        if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); render(); input.value = ''; showToast('標籤已新增'); }
+    };
 
-            <button class="btn-action" onclick="save()">保存並入魂</button>
-        </div>
-    </div>
-
-    <script>
-        // 恢復所有原本的導航邏輯
-        function nav(n) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('p' + n).classList.add('active');
-        }
-
-        // 恢復標籤選擇邏輯
-        function sel(btn) {
-            const btns = btn.parentElement.querySelectorAll('.weather-btn');
-            btns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            // 如果是在第 5 頁點擊按鈕，則清空自編輸入框以維持連動唯一性
-            if(document.getElementById('customW')) document.getElementById('customW').value = "";
-        }
-
-        // 徹底檢查過的存檔連動功能
-        function save() {
-            const slogan = document.getElementById('slogan').value;
-            const custom = document.getElementById('customW').value;
-            const activeBtn = document.querySelector('#wBox .active');
+    window.renderAll = () => {
+        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
+        s0.innerHTML = ''; s1.innerHTML = '';
+        tags.forEach((t, i) => {
+            if(t.selected) {
+                const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
+                b.onclick = () => { t.count++; window.saveAction('tag', t.name); render(); };
+                s0.appendChild(b);
+            }
+            const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
+            b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
             
-            // 優先讀取自編心情，否則抓取預設按鈕
-            let finalW = custom || (activeBtn ? activeBtn.innerText : "未設定");
+            let timer;
+            const start = () => timer = setTimeout(() => { if(confirm(`確定刪除標籤「${t.name}」？`)) { tags.splice(i, 1); render(); } }, 800);
+            b2.onmousedown = start; b2.onmouseup = () => clearTimeout(timer);
+            b2.ontouchstart = start; b2.ontouchend = () => clearTimeout(timer);
             
-            alert("「在幹嘛？ 1號」數據已更新\n標語：" + (slogan || "預設") + "\n心情天氣：" + finalW);
-            nav(1); // 物理連動回到首頁
+            b2.onclick = () => { t.selected = !t.selected; render(); };
+            s1.appendChild(b2);
+        });
+        localStorage.setItem('myPills', JSON.stringify(tags));
+    };
+
+    window.loadInsight = async () => {
+        const snap = await getDocs(collection(db, "daily_logs"));
+        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        const max = sorted[0]?.[1] || 1;
+        sorted.forEach(([name, count], i) => {
+            const ratio = count / max; const size = 65 + (ratio * 70);
+            const angle = i * 137.5 * (Math.PI / 180); const radius = 30 + (i * 28);
+            const b = document.createElement('div'); b.className = 'sphere';
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
+            b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`;
+            s2.appendChild(b);
+        });
+        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>瞬間紀錄總量：${snap.size} 則</span>`;
+    };
+
+    window.loadMemories = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        const wks = ['週日','週一','週二','週三','週四','週五','週六'];
+        let lastDate = "";
+        snap.forEach(d => {
+            if(d.data().type === 'input') {
+                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日 ${wks[date.getDay()]}`;
+                if(dStr !== lastDate) {
+                    const h = document.createElement('div'); h.style.cssText = "font-size:11px;font-weight:700;margin:15px 0 10px -19.5px;background:#fff;padding-right:10px;display:inline-block";
+                    h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+                }
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.innerHTML = `
+                    <span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span>
+                    <strong>${d.data().weather || ''}</strong>
+                    <div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div>
+                    <div class="weather-picker">
+                        ${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}
+                    </div>
+                `;
+                area.appendChild(div);
+            }
+        });
+    };
+
+    window.updateWeather = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); showToast(`標註為「${w}」`); loadMemories(); };
+    window.resetTags = () => { if(confirm('重置標籤數據？')) { tags.forEach(t => t.count = 0); render(); } };
+    window.resetMemories = async () => { if(confirm('清空歷史紀錄？')) { const snap = await getDocs(collection(db, "daily_logs")); snap.forEach(async s => await deleteDoc(doc(db, "daily_logs", s.id))); loadMemories(); } };
+
+    let cur = 0, startY = 0;
+    const triggerSplash = (idx) => {
+        const splash = document.getElementById('splashLayer');
+        const container = document.getElementById('mainContainer');
+        splash.innerHTML = `<h2>${quotes[idx]}</h2>`;
+        container.classList.remove('visible');
+        splash.classList.add('active');
+        setTimeout(() => {
+            container.style.transform = `translateY(-${idx * 100}vh)`;
+            document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === idx));
+            if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
+        }, 1400);
+        setTimeout(() => { splash.classList.remove('active'); container.classList.add('visible'); }, 2600);
+    };
+
+    window.nextPage = () => { if(cur < 4) { cur++; triggerSplash(cur); } };
+    window.prevPage = () => { if(cur > 0) { cur--; triggerSplash(cur); } };
+
+    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+    window.addEventListener('touchend', e => {
+        const dist = startY - e.changedTouches[0].clientY;
+        const area = document.getElementById('memoryArea');
+        if (cur === 3) {
+            const isAtTop = area.scrollTop <= 0;
+            const isAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 1;
+            if ((dist > 50 && !isAtBottom) || (dist < -50 && !isAtTop)) return;
         }
-    </script>
+        if (Math.abs(dist) > 80) {
+            const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
+            if (next !== cur) { cur = next; triggerSplash(cur); }
+        }
+    });
+
+    window.onload = () => { 
+        render(); 
+        const ed = document.getElementById('quoteEditor');
+        quotes.forEach((q, i) => {
+            const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee;padding:12px 0";
+            d.innerHTML = `<span style="font-size:10px;color:#a1a1a6">頁面 ${i+1}</span><input style="border:none;width:100%;font-size:16px;outline:none" value="${q}" onchange="quotes[${i}]=this.value;localStorage.setItem('myQuotes',JSON.stringify(quotes))">`;
+            ed.appendChild(d);
+        });
+        triggerSplash(0); 
+    };
+</script>
 </body>
 </html>
