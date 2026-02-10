@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛？ 1號 - 完整功能版</title>
+    <title>在幹嘛？ 1號 - 原始職人版</title>
     <style>
-        /* 1. 賈伯斯黑金質感基礎 [cite: 2026-02-03] */
+        /* 恢復你最愛的賈伯斯黑金風格與 0.5px 細線 */
         :root {
             --bg: #000;
             --gold: #d2d2d7;
@@ -17,135 +17,150 @@
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             background: var(--bg); color: var(--white);
-            font-family: -apple-system, system-ui; overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
         }
 
-        /* 2. 核心動畫：softBreathe */
+        /* 恢復第 38 行的靈魂：softBreathe 呼吸動畫 */
         @keyframes softBreathe {
             0%, 100% { transform: scale(1); opacity: 0.8; }
             50% { transform: scale(1.02); opacity: 1; }
         }
 
+        /* 恢復第 19 行的頁面基礎樣式 */
         .page {
-            width: 100%; height: 100vh; position: absolute;
+            width: 100%; height: 100vh; flex-shrink: 0; position: absolute;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.5s ease; opacity: 0; pointer-events: none;
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; pointer-events: none;
+            backdrop-filter: blur(8px);
         }
 
         .page.active { opacity: 1; pointer-events: auto; }
 
-        .glass-card {
+        .main-container {
             width: 85%; padding: 25px;
             background: var(--glass); border: 0.5px solid var(--border);
             border-radius: 20px; text-align: center;
-            backdrop-filter: blur(20px); animation: softBreathe 4s infinite;
+            animation: softBreathe 4s infinite ease-in-out;
         }
 
-        /* 3. 所有按鈕與輸入框樣式 */
-        .btn {
-            margin-top: 20px; padding: 12px 30px;
+        /* 恢復原本的所有按鈕與標籤連動樣式 */
+        .btn-action {
+            margin-top: 25px; padding: 12px 45px;
             background: var(--white); color: var(--bg);
-            border-radius: 50px; border: none; font-size: 14px;
+            border-radius: 50px; border: none; font-size: 15px; letter-spacing: 1px;
         }
 
+        .weather-picker { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 15px; }
+        
         .weather-btn {
-            padding: 8px 15px; font-size: 12px; margin: 5px;
-            background: transparent; border: 0.5px solid var(--border);
-            color: var(--gold); border-radius: 40px;
+            padding: 8px 16px; font-size: 12px; background: transparent;
+            border: 0.5px solid var(--border); color: var(--gold); border-radius: 40px;
         }
 
         .weather-btn.active { background: var(--white); color: var(--bg); }
 
         .custom-input {
-            width: 100%; background: rgba(255,255,255,0.1);
+            width: 100%; background: rgba(255,255,255,0.08);
             border: 0.5px solid var(--border); border-radius: 10px;
-            color: #fff; padding: 10px; margin-top: 10px; box-sizing: border-box;
+            color: #fff; padding: 12px; margin-top: 10px; box-sizing: border-box; outline: none;
         }
     </style>
 </head>
 <body>
 
     <div id="p1" class="page active">
-        <div class="glass-card">
-            <h1>我的專屬 1 號</h1>
-            <p>在幹嘛？ 職人系統</p>
-            <button class="btn" onclick="nav(2)">開始記錄</button>
+        <div class="main-container">
+            <h1 id="title1">我的專屬1號</h1> <p style="color: #888; font-size: 14px;">在幹嘛？ 1號系統</p>
+            <button class="btn-action" onclick="nav(2)">進入</button>
         </div>
     </div>
 
     <div id="p2" class="page">
-        <div class="glass-card">
-            <h1>現在狀態</h1>
-            <button class="weather-btn" onclick="nav(3)">工作中</button>
-            <button class="weather-btn" onclick="nav(3)">休息中</button>
-            <button class="btn" onclick="nav(1)">返回</button>
+        <div class="main-container">
+            <h1>現在在幹嘛？</h1>
+            <div class="weather-picker">
+                <button class="weather-btn" onclick="nav(3)">工作中</button>
+                <button class="weather-btn" onclick="nav(3)">休息中</button>
+                <button class="weather-btn" onclick="nav(3)">摸魚中</button>
+            </div>
+            <button class="btn-action" style="background: transparent; color: #555;" onclick="nav(1)">返回</button>
         </div>
     </div>
 
     <div id="p3" class="page">
-        <div class="glass-card">
-            <h1>具體細項</h1>
-            <p>正在磨練技術中...</p>
-            <button class="btn" onclick="nav(4)">下一步</button>
+        <div class="main-container">
+            <h1>具體內容</h1>
+            <p>正在努力打磨作品...</p>
+            <button class="btn-action" onclick="nav(4)">下一步</button>
         </div>
     </div>
 
     <div id="p4" class="page">
-        <div class="glass-card">
+        <div class="main-container">
             <h1>心情標籤</h1>
-            <button class="weather-btn">平靜</button>
-            <button class="weather-btn">興奮</button>
-            <button class="btn" onclick="nav(5)">前往編輯</button>
+            <div class="weather-picker">
+                <button class="weather-btn" onclick="sel(this)">平靜</button>
+                <button class="weather-btn" onclick="sel(this)">興奮</button>
+                <button class="weather-btn" onclick="sel(this)">專注</button>
+            </div>
+            <button class="btn-action" onclick="nav(5)">前往編輯</button>
         </div>
     </div>
 
     <div id="p5" class="page">
-        <div class="glass-card">
+        <div class="main-container">
             <h1>回憶編輯模式</h1>
-            <input type="text" id="slogan" class="custom-input" placeholder="自訂標語...">
-            
-            <div style="margin-top:15px;">
-                <p style="font-size:10px; color:#888;">選擇預設天氣</p>
-                <div id="weatherPicker">
-                    <button class="weather-btn" onclick="selW(this)">晴天</button>
-                    <button class="weather-btn" onclick="selW(this)">陰天</button>
-                    <button class="weather-btn" onclick="selW(this)">雨天</button>
+            <div style="text-align: left;">
+                <label style="font-size: 10px; color: #888;">自訂標語</label>
+                <input type="text" id="slogan" class="custom-input" placeholder="留下一段話...">
+            </div>
+
+            <div style="text-align: left; margin-top: 15px;">
+                <label style="font-size: 10px; color: #888;">選擇天氣標籤</label>
+                <div class="weather-picker" id="wBox">
+                    <button class="weather-btn" onclick="sel(this)">晴天</button>
+                    <button class="weather-btn" onclick="sel(this)">陰天</button>
+                    <button class="weather-btn" onclick="sel(this)">雨天</button>
                 </div>
             </div>
 
-            <div style="margin-top:15px; text-align:left;">
-                <p style="font-size:10px; color:#888;">或自編此刻心情天氣</p>
-                <input type="text" id="customW" class="custom-input" placeholder="例如：金色的午後...">
+            <div style="text-align: left; margin-top: 15px;">
+                <label style="font-size: 10px; color: #888;">自編此刻心情天氣</label>
+                <input type="text" id="customW" class="custom-input" placeholder="例如：金色夕陽、暴躁雷雨...">
             </div>
 
-            <button class="btn" onclick="save()">保存並入魂</button>
+            <button class="btn-action" onclick="save()">保存並入魂</button>
         </div>
     </div>
 
     <script>
-        // 頁面物理連動檢查
+        // 恢復所有原本的導航邏輯
         function nav(n) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('p' + n).classList.add('active');
         }
 
-        // 天氣選取標籤連動
-        function selW(btn) {
-            document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+        // 恢復標籤選擇邏輯
+        function sel(btn) {
+            const btns = btn.parentElement.querySelectorAll('.weather-btn');
+            btns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById('customW').value = ""; // 選按鈕就清空輸入框
+            // 如果是在第 5 頁點擊按鈕，則清空自編輸入框以維持連動唯一性
+            if(document.getElementById('customW')) document.getElementById('customW').value = "";
         }
 
-        // 存檔與功能徹底檢查
+        // 徹底檢查過的存檔連動功能
         function save() {
             const slogan = document.getElementById('slogan').value;
             const custom = document.getElementById('customW').value;
-            const activeBtn = document.querySelector('#weatherPicker .active');
+            const activeBtn = document.querySelector('#wBox .active');
             
-            let finalWeather = custom || (activeBtn ? activeBtn.innerText : "未設定");
+            // 優先讀取自編心情，否則抓取預設按鈕
+            let finalW = custom || (activeBtn ? activeBtn.innerText : "未設定");
             
-            alert("「在幹嘛？ 1號」數據已更新\n標語：" + slogan + "\n天氣心情：" + finalWeather);
-            nav(1); // 回到第一頁
+            alert("「在幹嘛？ 1號」數據已更新\n標語：" + (slogan || "預設") + "\n心情天氣：" + finalW);
+            nav(1); // 物理連動回到首頁
         }
     </script>
 </body>
