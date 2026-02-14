@@ -27,8 +27,13 @@
 
         #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9000; pointer-events: none; }
 
-        .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.1s; }
+        /* 💡 鎖定標籤物理感樣式 */
+        .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .pill-tag:active { transform: scale(0.92); }
+
+        .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #eee; margin: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
+        .square-tag:active { transform: scale(0.95); }
+        .square-tag.selected { background: #000; color: #fff; transform: scale(1.05); }
 
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
@@ -37,13 +42,12 @@
         #timeMachine { position: absolute; top: 15vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); }
         .time-slot { padding: 10px; font-size: 14px; color: #888; text-align: center; border-bottom: 0.5px solid #f2f2f7; }
 
-        .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; /* 移除 smooth 捲動，改由 JS 精確跳轉 */ }
+        .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; }
         .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
         
         .confirm-btn { background: #000; color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
         
-        /* 到位高亮動畫 */
-        @keyframes arrival { 0% { transform: scale(1); } 50% { transform: scale(1.1); color: #000; } 100% { transform: scale(1); } }
+        @keyframes arrival { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .arrived { animation: arrival 0.6s ease-out; }
 
         .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
@@ -90,37 +94,10 @@
     function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 1500); }
     window.hapticImpact = () => { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([20, 10, 20]); } };
 
-    // 💡 終極方案：時光快閃邏輯
-    window.toggleTimeMachine = () => { window.hapticImpact(); const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
-    window.jumpToTime = (id) => { 
-        window.hapticImpact(); 
-        const target = document.getElementById('date-' + id); 
-        const area = document.getElementById('memoryArea');
-        if (target) { 
-            // 關鍵：使用瞬間定位而非 smooth 捲動，徹底避開翻頁偵測
-            area.scrollTop = target.offsetTop - 20; 
-            target.classList.add('arrived');
-            setTimeout(() => target.classList.remove('arrived'), 1000);
-            window.toggleTimeMachine(); 
-            showToast(`抵達 ${id}`);
-        } 
-    };
-
-    // 其他邏輯鎖定
-    window.saveAction = async (t, v) => {
-        const val = t === 'input' ? document.getElementById('userInput').value : v;
-        if(!val) return;
-        window.hapticImpact();
-        await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() });
-        showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = '';
-        renderAll(); if(cur === 2) loadInsight(); if(cur === 3) window.loadMemories();
-    };
-
-    window.addNewTag = () => { window.hapticImpact(); const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('新增成功'); } };
-
+    // 💡 鎖定標籤渲染與排序邏輯
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
-        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0)); // 自動排序
         s0.innerHTML = ''; s1.innerHTML = '';
         tags.forEach((t, i) => {
             if(t.selected) {
@@ -134,6 +111,24 @@
         });
         localStorage.setItem('myPills', JSON.stringify(tags));
     };
+
+    window.jumpToTime = (id) => { 
+        window.hapticImpact(); 
+        const target = document.getElementById('date-' + id); 
+        const area = document.getElementById('memoryArea');
+        if (target) { area.scrollTop = target.offsetTop - 20; target.classList.add('arrived'); setTimeout(() => target.classList.remove('arrived'), 1000); window.toggleTimeMachine(); showToast(`抵達 ${id}`); } 
+    };
+
+    window.saveAction = async (t, v) => {
+        const val = t === 'input' ? document.getElementById('userInput').value : v;
+        if(!val) return; window.hapticImpact();
+        await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() });
+        showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = '';
+        renderAll();
+    };
+
+    window.addNewTag = () => { window.hapticImpact(); const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('新增成功'); } };
+    window.toggleTimeMachine = () => { window.hapticImpact(); const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
 
     window.loadInsight = async () => {
         const snap = await getDocs(collection(db, "daily_logs"));
@@ -197,7 +192,6 @@
         if (cur === 3) {
             const isAtTop = areaP3.scrollTop <= 0;
             const isAtBottom = areaP3.scrollHeight - areaP3.scrollTop <= areaP3.clientHeight + 1;
-            // 回憶頁面：提高翻頁門檻至 150px
             if ((dist > 150 && isAtBottom) || (dist < -150 && isAtTop)) {
                 cur = (dist > 0) ? 4 : 2; triggerSplash(cur); return;
             }
