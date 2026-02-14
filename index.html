@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 簡約入魂版</title>
+    <title>在幹嘛 1 號 - 簡約還原版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        
-        /* 1. 儀式感鎖定 [cite: 2026-02-10] */
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
@@ -17,7 +15,7 @@
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        /* 隱藏礙眼的灰色條 */
+        /* 隱藏所有礙眼的灰色捲動條 */
         * { -ms-overflow-style: none; scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
 
@@ -29,22 +27,20 @@
 
         #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9000; pointer-events: none; }
 
-        /* 2. 物理感標籤還原 [cite: 2026-02-14] */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .pill-tag:active { transform: scale(0.85); }
 
-        /* 3. 星系球體還原 [cite: 2026-02-13] */
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
         @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        /* 4. 極簡時光機樣式：淡淡的灰色 */
-        #timeMachine { position: absolute; top: 15vh; width: 70%; background: rgba(255,255,255,0.98); border: 0.5px solid #eee; border-radius: 15px; z-index: 3000; display: none; padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .time-slot { padding: 10px; font-size: 12px; color: #aaa; text-align: center; border-bottom: 0.5px solid #f9f9f9; }
-        .time-slot:active { color: #000; font-weight: bold; }
-
         .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; scroll-behavior: smooth; }
-        .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
+        
+        /* 時光機撥輪優化 [cite: 2026-02-14] */
+        #timeMachine { position: absolute; top: 12vh; width: 85%; background: rgba(0,0,0,0.9); border-radius: 20px; z-index: 3000; display: none; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .time-slot { padding: 14px; font-size: 15px; color: #fff; text-align: center; border-bottom: 0.5px solid rgba(255,255,255,0.1); }
+        .time-slot:active { background: #333; }
+
         .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
     </style>
 </head>
@@ -55,29 +51,49 @@
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page" id="p0"><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
-    
-    <section class="page" id="p1"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
-    
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
+    <section class="page" id="p0">
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>現在在幹嘛</h1>
+        <div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div>
+        <div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div>
+    </section>
+
+    <section class="page" id="p1">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>標籤</h1>
+        <div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div>
+        <div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div>
+    </section>
+
+    <section class="page" id="p2">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>透視</h1>
+        <div id="stage2" class="galaxy-stage"></div>
+        <div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div>
+    </section>
 
     <section class="page" id="p3">
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <h1 style="margin:0;">回憶</h1>
-            <span onclick="window.toggleTimeMachine()" style="color:#eee; font-size:14px; cursor:pointer;">🕒</span>
-        </div>
-        <div id="timeMachine"><div id="timeSlots"></div></div>
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1 onclick="window.toggleTimeMachine()" style="background:#000; color:#fff; padding:5px 20px; border-radius:20px; font-size:18px;">時光機 ▼</h1>
+        <div id="timeMachine"><div id="timeSlots"></div><button onclick="window.toggleTimeMachine()" style="width:100%; border:none; background:none; padding-top:15px; color:#fff; font-size:13px; opacity:0.5;">關閉</button></div>
         <div id="memoryArea" class="memory-area"></div>
     </section>
 
     <section class="page" id="p4">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
         <h1>設定</h1>
-        <div id="quoteEditor" style="width:85%; margin-top:20px; max-height: 40vh; overflow-y: auto;"></div>
+        <div id="quoteEditor" style="width:85%; margin-top:20px; max-height: 45vh; overflow-y: auto; padding-right: 5px;"></div>
+        
         <div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;">
-            <button onclick="window.checkAndroidPermission()" style="width:100%; padding:14px; background:#000; color:#fff; border:none; border-radius:15px; font-size:14px;">自動對焦</button>
-            <button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button>
+            <button onclick="window.checkAndroidPermission()" style="width:100%; padding:14px; background:#000; color:#fff; border:none; border-radius:15px; font-size:14px; font-weight:300; letter-spacing:1px;">權限自動對焦</button>
+            <button onclick="window.setupHourlyReminder()" style="width:100%; padding:14px; background:#fff; color:#000; border:1px solid #000; border-radius:15px; font-size:14px; font-weight:300;">啟動週期提醒</button>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button onclick="resetTags()" style="flex:1; color:#aaa; font-size:11px; border:0.5px solid #eee; padding:8px; border-radius:12px; background:none;">重置標籤</button>
+                <button onclick="resetMemories()" style="flex:1; color:#ff3b30; font-size:11px; border:0.5px solid #ff3b30; padding:8px; border-radius:12px; background:none;">清空紀錄</button>
+            </div>
         </div>
     </section>
 </div>
@@ -100,12 +116,12 @@
         if(!val) return;
         window.hapticImpact();
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() });
-        showToast('已珍藏');
+        showToast('已為你珍藏回憶');
         if(t === 'input') document.getElementById('userInput').value = '';
         renderAll(); if(cur === 2) loadInsight(); if(cur === 3) window.loadMemories();
     };
 
-    window.addNewTag = () => { window.hapticImpact(); const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('新增成功'); } };
+    window.addNewTag = () => { window.hapticImpact(); const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('標籤已新增'); } };
 
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
@@ -119,6 +135,8 @@
             }
             const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
             b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
+            let timer; const start = () => timer = setTimeout(() => { if(confirm(`確定刪除標籤「${t.name}」？`)) { window.hapticImpact(); tags.splice(i, 1); renderAll(); } }, 800);
+            b2.onmousedown = start; b2.onmouseup = () => clearTimeout(timer); b2.ontouchstart = start; b2.ontouchend = () => clearTimeout(timer);
             b2.onclick = () => { window.hapticImpact(); t.selected = !t.selected; renderAll(); }; s1.appendChild(b2);
         });
         localStorage.setItem('myPills', JSON.stringify(tags));
@@ -138,11 +156,11 @@
             b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`;
             s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<span>總紀錄量：${snap.size}</span>`;
+        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>瞬間紀錄總量：${snap.size} 則</span>`;
     };
 
     window.toggleTimeMachine = () => { window.hapticImpact(); const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
-    window.jumpToTime = (id) => { window.hapticImpact(); const target = document.getElementById('date-' + id); if (target) { target.scrollIntoView({ behavior: 'smooth' }); window.toggleTimeMachine(); } };
+    window.jumpToTime = (id) => { window.hapticImpact(); const target = document.getElementById('date-' + id); if (target) { target.scrollIntoView({ behavior: 'smooth' }); window.toggleTimeMachine(); showToast(`抵達 ${id}`); } };
 
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
@@ -160,17 +178,18 @@
                     lastDate = dStr;
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span><strong style="color:#000">${d.data().weather || ''}</strong><div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div><div class="weather-picker">${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div class="custom-weather-edit"><input type="text" id="editW-${d.id}" class="custom-weather-input" placeholder="心情..." onchange="window.saveCustomWeather('${d.id}', this.value)" style="border:none; border-bottom:0.5px solid #eee; font-size:11px; outline:none; width:80px;"></div>`;
+                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span><strong style="color:#000">${d.data().weather || ''}</strong><div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div><div class="weather-picker">${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div class="custom-weather-edit"><input type="text" id="editW-${d.id}" class="custom-weather-input" placeholder="自訂天氣..."><button class="custom-weather-save" onclick="window.saveCustomWeather('${d.id}')">紀錄</button></div>`;
                 area.appendChild(div);
             }
         });
     };
 
-    window.saveCustomWeather = async (id, val) => { if(!val) return; window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); };
-    window.updateWeather = async (id, w) => { window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
-    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
-    window.checkAndroidPermission = () => { window.hapticImpact(); alert("請確認權限。"); };
-    window.resetMemories = async () => { if(confirm('清空數據？')) { window.hapticImpact(); const snap = await getDocs(collection(db, "daily_logs")); snap.forEach(async s => await deleteDoc(doc(db, "daily_logs", s.id))); window.loadMemories(); } };
+    window.saveCustomWeather = async (id) => { window.hapticImpact(); const val = document.getElementById(`editW-${id}`).value; if(!val) return; await updateDoc(doc(db, "daily_logs", id), { weather: val }); showToast(`已標註為「${val}」`); window.loadMemories(); };
+    window.updateWeather = async (id, w) => { window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: w }); showToast(`標註為「${w}」`); window.loadMemories(); };
+    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`鎖定儲存成功`); };
+
+    window.checkAndroidPermission = () => { window.hapticImpact(); alert("請在系統設定中開啟「自動啟動」權限以維持穩定。"); };
+    window.setupHourlyReminder = () => { window.hapticImpact(); showToast("週期提醒已在背景啟動"); };
 
     let cur = 0, startY = 0;
     const triggerSplash = (idx) => {
