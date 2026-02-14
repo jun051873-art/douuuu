@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 最終鎖定版</title>
+    <title>在幹嘛 1 號 - 終極鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
@@ -15,7 +15,6 @@
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        /* 移除捲動條視覺干擾 */
         * { -ms-overflow-style: none; scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
 
@@ -30,7 +29,6 @@
 
         #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9000; pointer-events: none; }
 
-        /* 修正標籤畸形：縮放比例回歸自然 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.1s; }
         .pill-tag:active { transform: scale(0.92); }
 
@@ -41,19 +39,23 @@
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
         @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        /* 時光機撥輪還原 */
         #timeMachine { position: absolute; top: 15vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); }
         .time-slot { padding: 10px; font-size: 14px; color: #888; text-align: center; border-bottom: 0.5px solid #f2f2f7; }
 
         .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; scroll-behavior: smooth; }
         .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
+        
+        /* 制定天氣心情專用樣式 */
+        .custom-weather-edit { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .confirm-btn { background: #000; color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
+        
         .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
     </style>
 </head>
 <body>
 
 <div id="splashLayer"></div>
-<div id="toast">已記錄成功</div>
+<div id="toast">已紀錄成功</div>
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
@@ -84,7 +86,7 @@
     <section class="page" id="p4">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
         <h1>設定</h1>
-        <div id="quoteEditor" style="width:85%; margin-top:20px; max-height:40vh; overflow-y:auto; padding-right:5px;"></div>
+        <div id="quoteEditor" style="width:85%; margin-top:20px; max-height:40vh; overflow-y:auto;"></div>
         <div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;">
             <button onclick="window.checkAndroidPermission()" style="width:100%; padding:14px; background:#000; color:#fff; border:none; border-radius:15px; font-size:14px;">自動對焦</button>
             <button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button>
@@ -148,7 +150,7 @@
             b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`;
             s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>瞬間紀錄總量：${snap.size} 則</span>`;
+        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>時間：14:00 - 16:00</span><br><span>紀錄量：${snap.size} 則</span>`;
     };
 
     window.toggleTimeMachine = () => { window.hapticImpact(); const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
@@ -170,16 +172,25 @@
                     lastDate = dStr;
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span><strong style="color:#000">${d.data().weather || ''}</strong><div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div><div class="weather-picker">${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div class="custom-weather-edit"><input type="text" id="editW-${d.id}" class="custom-weather-input" placeholder="心情..." onchange="window.saveCustomWeather('${d.id}', this.value)" style="border:none; border-bottom:0.5px solid #eee; font-size:11px; outline:none; width:80px;"></div>`;
+                div.innerHTML = `
+                    <span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span>
+                    <strong style="color:#000">${d.data().weather || ''}</strong>
+                    <div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div>
+                    <div class="weather-picker">${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div>
+                    <div class="custom-weather-edit">
+                        <input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:11px; outline:none; width:120px;" placeholder="制定天氣心情...">
+                        <button class="confirm-btn" onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)">確定</button>
+                    </div>`;
                 area.appendChild(div);
             }
         });
     };
 
-    window.saveCustomWeather = async (id, val) => { if(!val) return; window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); };
+    window.saveCustomWeather = async (id, val) => { if(!val) return; window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); showToast('心情已鎖定'); };
     window.updateWeather = async (id, w) => { window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
-    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`鎖定儲存成功`); };
+    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
     window.checkAndroidPermission = () => { window.hapticImpact(); alert("請確認權限。"); };
+    window.resetMemories = async () => { if(confirm('清空數據？')) { window.hapticImpact(); const snap = await getDocs(collection(db, "daily_logs")); snap.forEach(async s => await deleteDoc(doc(db, "daily_logs", s.id))); window.loadMemories(); } };
 
     let cur = 0, startY = 0;
     const triggerSplash = (idx) => {
@@ -196,17 +207,14 @@
     window.addEventListener('touchend', e => {
         const dist = startY - e.changedTouches[0].clientY;
         const areaP3 = document.getElementById('memoryArea');
-
-        // 核心修正：回憶頁面翻頁敏感度降至最低（須滑動超過 150px 且到頂/底才翻頁）
         if (cur === 3) {
             const isAtTop = areaP3.scrollTop <= 0;
             const isAtBottom = areaP3.scrollHeight - areaP3.scrollTop <= areaP3.clientHeight + 1;
             if ((dist > 150 && isAtBottom) || (dist < -150 && isAtTop)) {
                 cur = (dist > 0) ? 4 : 2; triggerSplash(cur); return;
             }
-            return; // 鎖定在區域內捲動
+            return;
         }
-        
         if (cur === 2 && Math.abs(dist) < 30) return;
         if (Math.abs(dist) > 80) {
             const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
