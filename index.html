@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 全面鎖定版</title>
+    <title>在幹嘛 1 號 - 尺規鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
@@ -23,18 +23,11 @@
 
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; }
         .nav-top { top: 0; } .nav-bottom { bottom: 0; }
-        .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
-        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
-        .dot.active { background: #000; transform: scale(2.2); }
 
-        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9000; pointer-events: none; }
-
-        /* 鎖定標籤物理樣式 [cite: 2026-02-14] */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .pill-tag:active { transform: scale(0.92); }
 
         .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #eee; margin: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
-        .square-tag:active { transform: scale(0.95); }
         .square-tag.selected { background: #000; color: #fff; transform: scale(1.05); }
 
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
@@ -44,11 +37,18 @@
         #timeMachine { position: absolute; top: 15vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); }
         .time-slot { padding: 10px; font-size: 14px; color: #888; text-align: center; border-bottom: 0.5px solid #f2f2f7; }
 
-        .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; }
-        .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
+        /* 💡 尺規刻度佈局優化 */
+        .memory-area { width: 88%; overflow-y: auto; height: 55vh; margin-top: 20px; position: relative; padding-left: 30px; }
         
+        /* 大刻度：日期標題專用 [cite: 2026-02-14] */
+        .date-anchor { position: relative; font-size: 11px; font-weight: 800; margin: 25px 0 15px -30px; padding-left: 35px; color: #000; letter-spacing: 1px; }
+        .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 20px; height: 2px; background: #000; } /* 長刻度 */
+
+        /* 小刻度：每一條紀錄 [cite: 2026-02-14] */
+        .memory-item { position: relative; padding-bottom: 30px; margin-bottom: 15px; border-bottom: 0.5px solid #f2f2f7; }
+        .memory-item::before { content: ''; position: absolute; left: -30px; top: 10px; width: 8px; height: 1px; background: #d2d2d7; } /* 短刻度 */
+
         .confirm-btn { background: #000; color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
-        
         @keyframes arrival { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .arrived { animation: arrival 0.6s ease-out; }
 
@@ -58,20 +58,12 @@
 <body>
 
 <div id="splashLayer"></div>
-<div id="toast">已紀錄成功</div>
+<div id="toast">已記錄成功</div>
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page" id="p0">
-        <div class="aura-bg" style="top: 15vh;"></div>
-        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
-        <h1 style="letter-spacing: 12px; font-weight: 200; margin-top: 12vh;">現在在幹嘛</h1>
-        <div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div>
-        <div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div>
-    </section>
-
+    <section class="page" id="p0"><div class="aura-bg" style="top: 15vh;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1 style="letter-spacing: 12px; font-weight: 200; margin-top: 12vh;">現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
     <section class="page" id="p1"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
-
     <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
 
     <section class="page" id="p3">
@@ -114,9 +106,7 @@
     };
 
     window.jumpToTime = (id) => { 
-        window.hapticImpact(); 
-        const target = document.getElementById('date-' + id); 
-        const area = document.getElementById('memoryArea');
+        window.hapticImpact(); const target = document.getElementById('date-' + id); const area = document.getElementById('memoryArea');
         if (target) { area.scrollTop = target.offsetTop - 20; target.classList.add('arrived'); setTimeout(() => target.classList.remove('arrived'), 1000); window.toggleTimeMachine(); showToast(`抵達 ${id}`); } 
     };
 
@@ -147,19 +137,23 @@
         document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>時間：14:00 - 16:00</span><br><span>紀錄量：${snap.size} 則</span>`;
     };
 
+    // 💡 補回星期幾顯示
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         const area = document.getElementById('memoryArea'), tsArea = document.getElementById('timeSlots');
         area.innerHTML = ''; tsArea.innerHTML = '';
-        let lastDate = "";
+        const wks = ['週日','週一','週二','週三','週四','週五','週六']; let lastDate = "";
         snap.forEach(d => {
             if(d.data().type === 'input') {
                 const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
                 const dStr = `${date.getMonth()+1}月${date.getDate()}日`;
+                const weekStr = wks[date.getDay()]; // 取得星期
+
                 if(dStr !== lastDate) {
-                    const h = document.createElement('div'); h.id = 'date-' + dStr; h.style.cssText = "font-size:11px;font-weight:700;margin:15px 0 10px -19.5px;background:#fff;padding-right:10px;display:inline-block";
-                    h.innerText = dStr; area.appendChild(h);
-                    const slot = document.createElement('div'); slot.className = 'time-slot'; slot.innerText = dStr; slot.onclick = () => window.jumpToTime(dStr); tsArea.appendChild(slot);
+                    const h = document.createElement('div'); h.id = 'date-' + dStr; h.className = 'date-anchor';
+                    h.innerText = `${dStr} ${weekStr}`; // 顯示日期 + 星期
+                    area.appendChild(h);
+                    const slot = document.createElement('div'); slot.className = 'time-slot'; slot.innerText = `${dStr} ${weekStr}`; slot.onclick = () => window.jumpToTime(dStr); tsArea.appendChild(slot);
                     lastDate = dStr;
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
@@ -185,7 +179,6 @@
 
     window.nextPage = () => { if(cur < 4) { cur++; triggerSplash(cur); } };
     window.prevPage = () => { if(cur > 0) { cur--; triggerSplash(cur); } };
-
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         const dist = startY - e.changedTouches[0].clientY;
@@ -199,10 +192,7 @@
             return;
         }
         if (cur === 2 && Math.abs(dist) < 30) return;
-        if (Math.abs(dist) > 80) {
-            const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
-            if (next !== cur) { cur = next; triggerSplash(cur); }
-        }
+        if (Math.abs(dist) > 80) { const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); if (next !== cur) { cur = next; triggerSplash(cur); } }
     });
 
     window.onload = () => { 
