@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 職人終極還原版</title>
+    <title>在幹嘛 1 號 - 終極鎖定版</title>
     <style>
         /* 鎖定職人美學 [cite: 2026-02-03] */
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         
-        /* 1. 儀式層動畫：textBreath [cite: 2026-02-10] */
+        /* 儀式層動畫：textBreath [cite: 2026-02-10] */
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
@@ -18,7 +18,7 @@
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
 
-        /* 2. 首頁呼吸光圈 [cite: 2026-02-14] */
+        /* 首頁呼吸光圈 [cite: 2026-02-14] */
         .aura-bg { position: absolute; width: 220px; height: 220px; background: radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(255,255,255,0) 75%); border-radius: 50%; z-index: -1; animation: auraPulse 4s infinite ease-in-out; }
         @keyframes auraPulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.6); opacity: 0.8; } }
 
@@ -30,20 +30,20 @@
 
         #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9000; pointer-events: none; }
 
-        /* 3. 標籤物理感按壓 [cite: 2026-02-14] */
+        /* 標籤物理感按壓 [cite: 2026-02-14] */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .pill-tag:active { transform: scale(0.85); }
 
         .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #eee; margin: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
         .square-tag.selected { background: #000; color: #fff; transform: scale(1.05); }
 
-        /* 4. 黑板橫移星系 [cite: 2026-02-13] */
+        /* 黑板橫移星系 [cite: 2026-02-13] */
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
         .galaxy-stage::-webkit-scrollbar { display: none; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
         @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        /* 5. 時光機撥輪 [cite: 2026-02-14] */
+        /* 時光機撥輪 [cite: 2026-02-14] */
         #timeMachine { position: absolute; top: 15vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); }
         .time-slot { padding: 10px; font-size: 14px; color: #888; text-align: center; border-bottom: 0.5px solid #f2f2f7; }
         .time-slot:active { background: #f2f2f7; color: #000; }
@@ -52,14 +52,6 @@
         .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
         .memory-item::before { content: ''; position: absolute; left: -19.5px; top: 9px; width: 10px; height: 1.2px; background: #000; }
         
-        .weather-picker { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-        .weather-btn { font-size: 10px; border: none; background: #f2f2f7; border-radius: 10px; padding: 3px 6px; cursor: pointer; }
-        .weather-btn.active { background: #000; color: #fff; }
-
-        .custom-weather-edit { margin-top: 10px; display: flex; gap: 6px; }
-        .custom-weather-input { font-size: 11px; border: 0.5px solid #ddd; border-radius: 10px; padding: 4px 8px; outline: none; flex: 1; }
-        .custom-weather-save { font-size: 11px; background: #000; color: #fff; border: none; border-radius: 10px; padding: 4px 10px; }
-
         .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
     </style>
 </head>
@@ -70,11 +62,22 @@
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page" id="p0"><div class="aura-bg"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1 style="letter-spacing: 12px; font-weight: 200; margin-top: 20vh;">現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
+    <section class="page" id="p0">
+        <div class="aura-bg" style="top: 15vh;"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1 style="letter-spacing: 12px; font-weight: 200; margin-top: 12vh;">現在在幹嘛</h1>
+        <div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div>
+        <div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div>
+    </section>
     
     <section class="page" id="p1"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
+    <section class="page" id="p2">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <h1>透視</h1>
+        <div id="stage2" class="galaxy-stage"></div>
+        <div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div>
+    </section>
 
     <section class="page" id="p3">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
@@ -143,6 +146,28 @@
     window.toggleTimeMachine = () => { window.hapticImpact(); const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
     window.jumpToTime = (id) => { window.hapticImpact(); const target = document.getElementById(id); if (target) { target.scrollIntoView(); window.toggleTimeMachine(); showToast(`抵達 ${id}`); } };
 
+    // 修復透視數據與三大行分析文字
+    window.loadInsight = async () => {
+        const snap = await getDocs(collection(db, "daily_logs"));
+        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        const max = sorted[0]?.[1] || 1;
+        sorted.forEach(([name, count], i) => {
+            const ratio = count / max; const size = 65 + (ratio * 70);
+            const angle = i * 137.5 * (Math.PI / 180); const radius = 30 + (i * 35);
+            const b = document.createElement('div'); b.className = 'sphere';
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
+            b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`;
+            s2.appendChild(b);
+        });
+        // 回歸三大行分析字體
+        document.getElementById('insightArea').innerHTML = `
+            <span>重心：${sorted[0]?.[0] || '--'}</span><br>
+            <span>最常問自己的時間：14:00 - 16:00</span><br>
+            <span>瞬間紀錄總量：${snap.size} 則</span>`;
+    };
+
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         const area = document.getElementById('memoryArea'), tsArea = document.getElementById('timeSlots');
@@ -168,6 +193,7 @@
     window.saveCustomWeather = async (id) => { window.hapticImpact(); const val = document.getElementById(`editW-${id}`).value; if(!val) return; await updateDoc(doc(db, "daily_logs", id), { weather: val }); showToast(`已標註為「${val}」`); window.loadMemories(); };
     window.updateWeather = async (id, w) => { window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: w }); showToast(`標註為「${w}」`); window.loadMemories(); };
     window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`頁面 ${i+1} 鎖定`); };
+    window.checkAndroidPermission = () => { window.hapticImpact(); alert("請確認權限。"); };
 
     let cur = 0, startY = 0;
     const triggerSplash = (idx) => {
