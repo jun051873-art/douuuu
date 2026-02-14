@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 終極鎖定版</title>
+    <title>在幹嘛 1 號 - 全面鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
@@ -21,13 +21,15 @@
         .aura-bg { position: absolute; width: 220px; height: 220px; background: radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(255,255,255,0) 75%); border-radius: 50%; z-index: -1; animation: auraPulse 4s infinite ease-in-out; }
         @keyframes auraPulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.6); opacity: 0.8; } }
 
+        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; }
+        .nav-top { top: 0; } .nav-bottom { bottom: 0; }
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
 
         #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9000; pointer-events: none; }
 
-        /* 💡 鎖定標籤物理感樣式 */
+        /* 鎖定標籤物理樣式 [cite: 2026-02-14] */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .pill-tag:active { transform: scale(0.92); }
 
@@ -56,7 +58,7 @@
 <body>
 
 <div id="splashLayer"></div>
-<div id="toast">已記錄成功</div>
+<div id="toast">已紀錄成功</div>
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
@@ -94,10 +96,9 @@
     function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 1500); }
     window.hapticImpact = () => { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([20, 10, 20]); } };
 
-    // 💡 鎖定標籤渲染與排序邏輯
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
-        tags.sort((a,b) => (b.count || 0) - (a.count || 0)); // 自動排序
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
         s0.innerHTML = ''; s1.innerHTML = '';
         tags.forEach((t, i) => {
             if(t.selected) {
