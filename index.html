@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 穩定鎖定版</title>
+    <title>在幹嘛 1 號 - 終極鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
@@ -21,8 +21,6 @@
         .aura-bg { position: absolute; width: 220px; height: 220px; background: radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(255,255,255,0) 75%); border-radius: 50%; z-index: -1; animation: auraPulse 4s infinite ease-in-out; }
         @keyframes auraPulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.6); opacity: 0.8; } }
 
-        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; }
-        .nav-top { top: 0; } .nav-bottom { bottom: 0; }
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
@@ -32,9 +30,6 @@
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 15px; cursor: pointer; margin: 8px; transition: all 0.1s; }
         .pill-tag:active { transform: scale(0.92); }
 
-        .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #eee; margin: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
-        .square-tag.selected { background: #000; color: #fff; transform: scale(1.05); }
-
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
         @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
@@ -42,19 +37,22 @@
         #timeMachine { position: absolute; top: 15vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); }
         .time-slot { padding: 10px; font-size: 14px; color: #888; text-align: center; border-bottom: 0.5px solid #f2f2f7; }
 
-        .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; scroll-behavior: smooth; }
+        .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 1.5px solid #000; padding-left: 18px; margin-top: 20px; /* 移除 smooth 捲動，改由 JS 精確跳轉 */ }
         .memory-item { position: relative; padding-bottom: 25px; border-bottom: 0.5px solid #f2f2f7; margin-bottom: 15px; }
         
-        .custom-weather-edit { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
         .confirm-btn { background: #000; color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
         
+        /* 到位高亮動畫 */
+        @keyframes arrival { 0% { transform: scale(1); } 50% { transform: scale(1.1); color: #000; } 100% { transform: scale(1); } }
+        .arrived { animation: arrival 0.6s ease-out; }
+
         .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
     </style>
 </head>
 <body>
 
 <div id="splashLayer"></div>
-<div id="toast">已紀錄成功</div>
+<div id="toast">已記錄成功</div>
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
@@ -68,12 +66,7 @@
 
     <section class="page" id="p1"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
 
-    <section class="page" id="p2">
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
-        <h1>透視</h1>
-        <div id="stage2" class="galaxy-stage"></div>
-        <div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div>
-    </section>
+    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
 
     <section class="page" id="p3">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
@@ -82,21 +75,12 @@
         <div id="memoryArea" class="memory-area"></div>
     </section>
 
-    <section class="page" id="p4">
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
-        <h1>設定</h1>
-        <div id="quoteEditor" style="width:85%; margin-top:20px; max-height:40vh; overflow-y:auto;"></div>
-        <div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;">
-            <button onclick="window.checkAndroidPermission()" style="width:100%; padding:14px; background:#000; color:#fff; border:none; border-radius:15px; font-size:14px;">自動對焦</button>
-            <button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button>
-        </div>
-    </section>
+    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:85%; margin-top:20px; max-height:40vh; overflow-y:auto;"></div><div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;"><button onclick="window.checkAndroidPermission()" style="width:100%; padding:14px; background:#000; color:#fff; border:none; border-radius:15px; font-size:14px;">自動對焦</button><button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div></section>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
     const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
     const db = getFirestore(initializeApp(firebaseConfig));
 
@@ -106,14 +90,30 @@
     function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 1500); }
     window.hapticImpact = () => { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([20, 10, 20]); } };
 
+    // 💡 終極方案：時光快閃邏輯
+    window.toggleTimeMachine = () => { window.hapticImpact(); const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
+    window.jumpToTime = (id) => { 
+        window.hapticImpact(); 
+        const target = document.getElementById('date-' + id); 
+        const area = document.getElementById('memoryArea');
+        if (target) { 
+            // 關鍵：使用瞬間定位而非 smooth 捲動，徹底避開翻頁偵測
+            area.scrollTop = target.offsetTop - 20; 
+            target.classList.add('arrived');
+            setTimeout(() => target.classList.remove('arrived'), 1000);
+            window.toggleTimeMachine(); 
+            showToast(`抵達 ${id}`);
+        } 
+    };
+
+    // 其他邏輯鎖定
     window.saveAction = async (t, v) => {
         const val = t === 'input' ? document.getElementById('userInput').value : v;
         if(!val) return;
         window.hapticImpact();
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() });
-        showToast('已珍藏');
-        if(t === 'input') document.getElementById('userInput').value = '';
-        renderAll();
+        showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = '';
+        renderAll(); if(cur === 2) loadInsight(); if(cur === 3) window.loadMemories();
     };
 
     window.addNewTag = () => { window.hapticImpact(); const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('新增成功'); } };
@@ -146,25 +146,9 @@
             const angle = i * 137.5 * (Math.PI / 180); const radius = 30 + (i * 35);
             const b = document.createElement('div'); b.className = 'sphere';
             b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
-            b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`;
-            s2.appendChild(b);
+            b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`; s2.appendChild(b);
         });
         document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>時間：14:00 - 16:00</span><br><span>紀錄量：${snap.size} 則</span>`;
-    };
-
-    // 💡 關鍵修復：鎖定跳轉期間的翻頁功能
-    let isJumping = false;
-    window.toggleTimeMachine = () => { window.hapticImpact(); const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
-    window.jumpToTime = (id) => { 
-        window.hapticImpact(); 
-        const target = document.getElementById('date-' + id); 
-        if (target) { 
-            isJumping = true; // 鎖定！不准翻頁
-            target.scrollIntoView({ behavior: 'smooth' }); 
-            window.toggleTimeMachine(); 
-            // 延遲 800ms 等捲動停止後解鎖
-            setTimeout(() => { isJumping = false; }, 800);
-        } 
     };
 
     window.loadMemories = async () => {
@@ -183,21 +167,13 @@
                     lastDate = dStr;
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `
-                    <span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span>
-                    <strong style="color:#000">${d.data().weather || ''}</strong>
-                    <div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div>
-                    <div class="weather-picker">${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div>
-                    <div class="custom-weather-edit">
-                        <input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:11px; outline:none; width:120px;" placeholder="制定天氣心情...">
-                        <button class="confirm-btn" onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)">確定</button>
-                    </div>`;
+                div.innerHTML = `<span style="font-size:10px;color:#a1a1a6">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} </span><strong style="color:#000">${d.data().weather || ''}</strong><div style="font-size:16px;font-weight:300;margin-top:5px">${d.data().action}</div><div class="weather-picker">${['晴','陰','雨','風','雪'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div class="custom-weather-edit"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:11px; outline:none; width:120px;" placeholder="制定天氣心情..."><button class="confirm-btn" onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)">確定</button></div>`;
                 area.appendChild(div);
             }
         });
     };
 
-    window.saveCustomWeather = async (id, val) => { if(!val) return; window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); showToast('心情已鎖定'); };
+    window.saveCustomWeather = async (id, val) => { if(!val) return; window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); };
     window.updateWeather = async (id, w) => { window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
     window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
     window.checkAndroidPermission = () => { window.hapticImpact(); alert("請確認權限。"); };
@@ -216,13 +192,12 @@
 
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
-        if (isJumping) return; // 💡 關鍵：時光機跳轉中，禁用翻頁
-
         const dist = startY - e.changedTouches[0].clientY;
         const areaP3 = document.getElementById('memoryArea');
         if (cur === 3) {
             const isAtTop = areaP3.scrollTop <= 0;
             const isAtBottom = areaP3.scrollHeight - areaP3.scrollTop <= areaP3.clientHeight + 1;
+            // 回憶頁面：提高翻頁門檻至 150px
             if ((dist > 150 && isAtBottom) || (dist < -150 && isAtTop)) {
                 cur = (dist > 0) ? 4 : 2; triggerSplash(cur); return;
             }
