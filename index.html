@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 終極全面鎖定版</title>
+    <title>在幹嘛 1 號 - 黃金比例鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9999; pointer-events: none; }
@@ -14,15 +14,20 @@
 
         .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
-        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; box-sizing: border-box; }
+        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
 
-        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 12vh; z-index: 500; }
-        .nav-top { top: 0; } .nav-bottom { bottom: 0; }
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
+
+        /* P0 呼吸感佈局修正 */
+        #p0 h1 { letter-spacing: 12px; font-weight: 200; margin-top: 15vh; }
+        #stage0 { display:flex; flex-wrap:wrap; justify-content:center; margin-top: 8vh; width:85%; }
+        
+        /* 底部輸入框定位鎖定 */
+        .input-section { position: absolute; bottom: 12vh; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
 
         .aura-bg { position: absolute; width: 220px; height: 220px; background: radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(255,255,255,0) 75%); border-radius: 50%; z-index: -1; animation: auraPulse 4s infinite ease-in-out; top: 15vh; }
         @keyframes auraPulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.6); opacity: 0.8; } }
@@ -35,10 +40,7 @@
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
 
-        #timeMachine { position: absolute; top: 15vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); }
-        .time-slot { padding: 10px; font-size: 14px; color: #888; text-align: center; border-bottom: 0.5px solid #f2f2f7; }
-
-        /* 💡 精密尺規鎖定 */
+        /* 尺規與星期鎖定 */
         .memory-area { width: 85%; overflow-y: auto; height: 55vh; border-left: 0.5px solid #f2f2f7; padding-left: 18px; margin-top: 20px; position: relative; }
         .date-anchor { position: relative; font-size: 11px; font-weight: 800; margin: 25px 0 15px -18px; padding-left: 20px; color: #000; letter-spacing: 1px; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.5px; background: #000; } 
@@ -49,8 +51,6 @@
         .weather-btn { background: #f2f2f7; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #8e8e93; }
         .weather-btn.active { background: #000; color: #fff; }
         .confirm-btn { background: #000; color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
-
-        .input-section { position: absolute; bottom: 100px; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; }
     </style>
 </head>
 <body>
@@ -60,16 +60,23 @@
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
-    <section class="page" id="p0"><div class="aura-bg"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1 style="letter-spacing: 12px; font-weight: 200; margin-top: 12vh;">現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:50px; width:85%"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
-    <section class="page" id="p1"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
-    <section class="page" id="p3">
+    <section class="page" id="p0">
+        <div class="aura-bg"></div>
+        <div class="nav-hotspot nav-bottom" style="height:15vh; bottom:0" onclick="nextPage()"></div>
+        <h1>現在在幹嘛</h1>
+        <div id="stage0"></div>
+        <div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div>
+    </section>
+
+    <section class="page" id="p1" style="padding-top:10vh"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; margin-top:40px; width:85%"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
+    <section class="page" id="p2" style="padding-top:10vh"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:82%; margin-top:20px; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px"></div></section>
+    <section class="page" id="p3" style="padding-top:10vh">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
         <h1 onclick="window.toggleTimeMachine()" style="cursor:pointer;">回憶 <span style="font-size:10px; color:#ccc;">▼ 時光機</span></h1>
-        <div id="timeMachine"><div id="timeSlots"></div><button onclick="window.toggleTimeMachine()" style="width:100%; border:none; background:none; padding-top:10px; color:#000; font-size:12px;">取消</button></div>
+        <div id="timeMachine" style="position: absolute; top: 15vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px);"><div id="timeSlots"></div><button onclick="window.toggleTimeMachine()" style="width:100%; border:none; background:none; padding-top:10px; color:#000; font-size:12px;">取消</button></div>
         <div id="memoryArea" class="memory-area"></div>
     </section>
-    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:85%; margin-top:20px; max-height:40vh; overflow-y:auto;"></div><div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;"><button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div></section>
+    <section class="page" id="p4" style="padding-top:10vh"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:85%; margin-top:20px; max-height:40vh; overflow-y:auto;"></div><div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;"><button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div></section>
 </div>
 
 <script type="module">
@@ -112,13 +119,6 @@
         });
     };
 
-    window.saveAction = async (t, v) => { const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return; window.hapticImpact(); await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() }); showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = ''; renderAll(); };
-    window.updateWeather = async (id, w) => { window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
-    window.saveCustomWeather = async (id, val) => { if(!val) return; window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); showToast('心情已鎖定'); };
-    window.jumpToTime = (id) => { window.hapticImpact(); const target = document.getElementById('date-' + id); if (target) { document.getElementById('memoryArea').scrollTop = target.offsetTop - 20; window.toggleTimeMachine(); } };
-    window.toggleTimeMachine = () => { const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
-    
-    // 渲染與其它邏輯 100% 鎖定還原
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
         tags.sort((a,b) => (b.count || 0) - (a.count || 0));
@@ -135,21 +135,13 @@
         localStorage.setItem('myPills', JSON.stringify(tags));
     };
 
-    window.loadInsight = async () => {
-        const snap = await getDocs(collection(db, "daily_logs"));
-        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
-        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
-        const max = sorted[0]?.[1] || 1;
-        sorted.forEach(([name, count], i) => {
-            const ratio = count / max; const size = 65 + (ratio * 70);
-            const angle = i * 137.5 * (Math.PI / 180); const radius = 30 + (i * 35);
-            const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
-            b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`; s2.appendChild(b);
-        });
-        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>瞬間紀錄總量：${snap.size} 則</span>`;
-    };
+    window.saveAction = async (t, v) => { const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return; window.hapticImpact(); await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "晴", timestamp: serverTimestamp() }); showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = ''; renderAll(); };
+    window.updateWeather = async (id, w) => { window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
+    window.saveCustomWeather = async (id, val) => { if(!val) return; window.hapticImpact(); await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); showToast('心情已鎖定'); };
+    window.jumpToTime = (id) => { window.hapticImpact(); const target = document.getElementById('date-' + id); if (target) { document.getElementById('memoryArea').scrollTop = target.offsetTop - 20; window.toggleTimeMachine(); } };
+    window.toggleTimeMachine = () => { const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
+    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
+    window.resetMemories = async () => { if(confirm('清空數據？')) { window.hapticImpact(); const snap = await getDocs(collection(db, "daily_logs")); snap.forEach(async s => await deleteDoc(doc(db, "daily_logs", s.id))); window.loadMemories(); } };
 
     let cur = 0, startY = 0;
     const triggerSplash = (idx) => {
@@ -170,7 +162,6 @@
             if ((dist > 150 && isAtBottom) || (dist < -150 && isAtTop)) { cur = (dist > 0) ? 4 : 2; triggerSplash(cur); return; }
             return;
         }
-        if (cur === 2 && Math.abs(dist) < 30) return;
         if (Math.abs(dist) > 80) { const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); if (next !== cur) { cur = next; triggerSplash(cur); } }
     });
     window.onload = () => { 
@@ -182,9 +173,6 @@
         });
         triggerSplash(0); 
     };
-    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
-    window.resetMemories = async () => { if(confirm('清空數據？')) { window.hapticImpact(); const snap = await getDocs(collection(db, "daily_logs")); snap.forEach(async s => await deleteDoc(doc(db, "daily_logs", s.id))); window.loadMemories(); } };
-    window.checkAndroidPermission = () => { window.hapticImpact(); alert("請確認權限。"); };
 </script>
 </body>
 </html>
