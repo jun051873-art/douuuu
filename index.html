@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 靈魂回歸版</title>
+    <title>在幹嘛 1 號 - 宇宙定稿版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; backdrop-filter: blur(10px); }
@@ -12,7 +12,7 @@
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity: 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         
@@ -38,10 +38,10 @@
         .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.5px solid #f2f2f7; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
         .square-tag.selected { background: #000; color: #fff; border: none; transform: scale(1.05); }
 
-        /* 💡 黑板橫移星系回歸：鎖定橫向捲動 [cite: 2026-02-13] */
-        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; margin-top: 5vh; }
-        .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-        @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        /* 💡 宇宙不規則佈局星系：鎖定上下排列與橫移 [cite: 2026-02-15] */
+        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; box-sizing: border-box; margin-top: 5vh; padding: 0 100px; }
+        .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); animation: softMove 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        @keyframes softMove { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(2px, -4px) scale(1.03); } }
 
         .memory-area { width: 85%; overflow-y: auto; height: 58vh; border-left: 0.5px solid #f2f2f7; padding-left: 18px; position: relative; margin-top: 2vh; }
         .date-anchor { position: relative; font-size: 10px; font-weight: 500; margin: 25px 0 15px -18px; padding-left: 20px; color: #8e8e93; }
@@ -104,17 +104,35 @@
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const s2 = document.getElementById('stage2'); s2.innerHTML = '';
         const max = sorted[0]?.[1] || 1;
+        
+        // 💡 宇宙不規則佈局邏輯 [cite: 2026-02-15]
         sorted.forEach(([name, count], i) => {
-            const ratio = count / max; const size = 65 + (ratio * 70);
-            const offset = i * 140; // 💡 橫向偏移鎖定
+            const ratio = count / max;
+            const size = 60 + (ratio * 100); // 隨次數變大
+            const grey = Math.max(0, 240 - (ratio * 240)); // 隨次數變深 (白->黑)
+            
+            // 物理位置：不規則分散
+            const angle = i * 137.5; // 斐波那契螺旋
+            const radius = 25 + (i * 30); 
+            const x = Math.cos(angle * Math.PI / 180) * radius;
+            const y = Math.sin(angle * Math.PI / 180) * radius;
+            
             const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `width:${size}px; height:${size}px; left:${50 + offset}px; background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'}; border:none;`;
-            b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`; s2.appendChild(b);
+            b.style.cssText = `
+                width:${size}px; height:${size}px; 
+                left:calc(50% + ${x}px - ${size/2}px); 
+                top:calc(50% + ${y}px - ${size/2}px); 
+                background: rgb(${grey},${grey},${grey}); 
+                color: ${ratio > 0.6 ? '#fff' : '#000'};
+                font-size: ${10 + (ratio * 4)}px;
+                font-weight: 600;
+            `;
+            b.innerHTML = `<span>${name}</span>`;
+            s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>時間：14:00 - 16:00</span><br><span>紀錄量：${snap.size} 則</span>`;
+        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>瞬間紀錄總量：${snap.size} 則</span>`;
     };
 
-    // 其他邏輯原封不動
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         const area = document.getElementById('memoryArea'), tsArea = document.getElementById('timeSlots');
@@ -155,7 +173,7 @@
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
         const dist = startY - e.changedTouches[0].clientY;
-        if (cur === 2 && Math.abs(dist) < 30) return; // 💡 橫移時禁止翻頁
+        if (cur === 2 && Math.abs(dist) < 30) return;
         const areaP3 = document.getElementById('memoryArea');
         if (cur === 3) {
             const isAtTop = areaP3.scrollTop <= 0;
