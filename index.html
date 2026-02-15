@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 像素對齊鎖定版</title>
+    <title>在幹嘛 1 號 - 氣場鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9999; pointer-events: none; }
@@ -12,19 +12,15 @@
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity: 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         
-        /* 💡 統一所有頁面佈局基礎 */
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         
-        /* 💡 標題位置物理鎖定：所有頁面標題都在 10vh 處 */
-        h1 { font-size: 24px; letter-spacing: 12px; font-weight: 200; margin-top: 10vh !important; margin-bottom: 0; height: 40px; display: flex; align-items: center; }
+        /* 💡 標題字體放大與位置物理鎖定 */
+        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 10vh !important; margin-bottom: 0; height: 50px; display: flex; align-items: center; color: #000; }
 
-        /* 💡 內容區位置物理鎖定：所有標籤區都在標題下 6vh 處 */
-        .stage-container { display: flex; flex-wrap: wrap; justify-content: center; width: 85%; margin-top: 6vh !important; flex: 1; align-content: flex-start; }
-
-        /* 💡 輸入框位置物理鎖定 */
+        .stage-container { display: flex; flex-wrap: wrap; justify-content: center; width: 85%; margin-top: 5vh !important; flex: 1; align-content: flex-start; }
         .input-section { position: absolute; bottom: 12vh; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 10; }
 
         * { -ms-overflow-style: none; scrollbar-width: none; }
@@ -45,7 +41,6 @@
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
 
-        /* 回憶頁面尺規與權重 */
         .memory-area { width: 85%; overflow-y: auto; height: 50vh; border-left: 0.5px solid #f2f2f7; padding-left: 18px; position: relative; margin-top: 2vh; }
         .date-anchor { position: relative; font-size: 10px; font-weight: 500; margin: 25px 0 15px -18px; padding-left: 20px; color: #8e8e93; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.2px; background: #000; } 
@@ -85,7 +80,7 @@
         <div class="nav-hotspot" style="top:0" onclick="prevPage()"></div>
         <div class="nav-hotspot" style="bottom:0" onclick="nextPage()"></div>
         <h1>透視</h1>
-        <div id="stage2" class="galaxy-stage" style="margin-top: 6vh;"></div>
+        <div id="stage2" class="galaxy-stage" style="margin-top: 5vh;"></div>
         <div id="insightArea" style="width:82%; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px; margin-bottom: 12vh;"></div>
     </section>
 
@@ -100,7 +95,7 @@
     <section class="page" id="p4">
         <div class="nav-hotspot" style="top:0" onclick="prevPage()"></div>
         <h1>設定</h1>
-        <div id="quoteEditor" style="width:85%; margin-top:6vh; max-height:40vh; overflow-y:auto;"></div>
+        <div id="quoteEditor" style="width:85%; margin-top:5vh; max-height:40vh; overflow-y:auto;"></div>
         <div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;"><button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div>
     </section>
 </div>
