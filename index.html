@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 氣場鎖定版</title>
+    <title>在幹嘛 1 號 - 精密體感版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        #toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9999; pointer-events: none; }
+        #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9999; pointer-events: none; }
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity: 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
-        
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         
-        /* 💡 標題字體放大與位置物理鎖定 */
+        /* 標題 32px 氣場鎖定 */
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 10vh !important; margin-bottom: 0; height: 50px; display: flex; align-items: center; color: #000; }
 
         .stage-container { display: flex; flex-wrap: wrap; justify-content: center; width: 85%; margin-top: 5vh !important; flex: 1; align-content: flex-start; }
-        .input-section { position: absolute; bottom: 12vh; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 10; }
+        
+        /* 💡 輸入框位置上收：避開底部翻頁區 */
+        .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 10; }
 
         * { -ms-overflow-style: none; scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
@@ -41,15 +42,19 @@
         .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 0 50px; box-sizing: border-box; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; }
 
+        /* 回憶頁面鎖定 */
         .memory-area { width: 85%; overflow-y: auto; height: 50vh; border-left: 0.5px solid #f2f2f7; padding-left: 18px; position: relative; margin-top: 2vh; }
         .date-anchor { position: relative; font-size: 10px; font-weight: 500; margin: 25px 0 15px -18px; padding-left: 20px; color: #8e8e93; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.2px; background: #000; } 
         .memory-item { position: relative; padding-bottom: 25px; margin-bottom: 15px; border-bottom: 0.5px solid #f2f2f7; }
         .memory-item::before { content: ''; position: absolute; left: -18px; top: 10px; width: 8px; height: 1px; background: #d2d2d7; } 
 
-        .weather-btn { background: #f2f2f7; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #8e8e93; }
+        /* 💡 天氣標籤精密化：縮小且精緻 */
+        .weather-picker { display: flex; gap: 6px; margin: 8px 0; }
+        .weather-btn { background: #f2f2f7; border: none; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #8e8e93; font-weight: 500; }
         .weather-btn.active { background: #000; color: #fff; }
-        .confirm-btn { background: #000; color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
+        .confirm-btn { background: #000; color: #fff; border: none; border-radius: 6px; padding: 3px 8px; font-size: 9px; cursor: pointer; }
+        
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 15vh; z-index: 500; }
     </style>
 </head>
@@ -148,8 +153,8 @@
                 div.innerHTML = `
                     <div style="font-size:10px; color:#a1a1a6; margin-bottom:5px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${d.data().weather || ''}</div>
                     <div style="font-size:18px; font-weight:600; color:#1d1d1f; line-height:1.4; margin-bottom:10px;">${d.data().action}</div>
-                    <div class="weather-picker" style="display:flex; gap:8px; margin:10px 0;">${weatherIcons.map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div>
-                    <div style="display:flex;align-items:center;gap:8px;"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:11px; outline:none; width:120px;" placeholder="記錄天氣心情..."><button class="confirm-btn" onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)">確定</button></div>
+                    <div class="weather-picker">${weatherIcons.map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div>
+                    <div style="display:flex;align-items:center;gap:8px;"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:10px; color:#aaa; outline:none; width:110px;" placeholder="記錄天氣心情..."><button class="confirm-btn" onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)">確定</button></div>
                 `;
                 area.appendChild(div);
             }
@@ -177,7 +182,7 @@
             b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${Math.cos(angle)*radius}px - ${size/2}px); top:calc(50% + ${Math.sin(angle)*radius}px - ${size/2}px); background:${i===0?'#000':(ratio>0.6?'#444':'#eee')}; color:${i===0||ratio>0.6?'#fff':'#000'};`;
             b.innerHTML = `<span style="font-size:12px;font-weight:600">${name}</span>`; s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>瞬間紀錄總量：${snap.size} 則</span>`;
+        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>時間：14:00 - 16:00</span><br><span>紀錄量：${snap.size} 則</span>`;
     };
 
     let cur = 0, startY = 0;
