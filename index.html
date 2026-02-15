@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 安全鎖定版</title>
+    <title>在幹嘛 1 號 - 最終定稿鎖定版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.2s; z-index: 9999; pointer-events: none; }
@@ -12,15 +12,13 @@
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity: 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         
-        /* 標題氣場鎖定 */
-        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 10vh !important; margin-bottom: 0; height: 50px; display: flex; align-items: center; color: #000; }
-        
-        /* 💡 P3 回憶頁標題壓低鎖定 */
-        #p3 h1 { margin-top: 14vh !important; }
+        /* 標題與空間鎖定 */
+        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 10vh !important; margin-bottom: 0; height: 50px; display: flex; align-items: center; color: #000; text-align: center; justify-content: center; }
+        #p3 h1 { margin-top: 14vh !important; } /* P3 壓低高度鎖定 */
 
         .stage-container { display: flex; flex-wrap: wrap; justify-content: center; width: 85%; margin-top: 5vh !important; flex: 1; align-content: flex-start; }
         .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 10; }
@@ -31,11 +29,7 @@
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
-
-        /* 💡 自適應導航熱區：P0 只留底、P4 只留頂、中間頁減半避誤觸 */
-        .nav-hotspot { position: absolute; left: 0; width: 100%; z-index: 500; }
-        .nav-top { top: 0; height: 8vh; } /* 縮小熱區 */
-        .nav-bottom { bottom: 0; height: 8vh; }
+        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 8vh; z-index: 500; }
 
         .aura-bg { position: absolute; width: 220px; height: 220px; background: radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(255,255,255,0) 75%); border-radius: 50%; z-index: -1; animation: auraPulse 4s infinite ease-in-out; top: 10vh; }
         @keyframes auraPulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.6); opacity: 0.8; } }
@@ -45,13 +39,20 @@
         .square-tag { width: 75px; height: 75px; border-radius: 18px; border: 1px solid #eee; margin: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
         .square-tag.selected { background: #000; color: #fff; transform: scale(1.05); }
 
-        /* 精密尺規鎖定 */
-        .memory-area { width: 85%; overflow-y: auto; height: 48vh; border-left: 0.5px solid #f2f2f7; padding-left: 18px; position: relative; margin-top: 2vh; }
+        /* 💡 透視星系：鎖定球體形狀 */
+        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 5vh; }
+        .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s; animation: softMove 4s infinite ease-in-out; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        @keyframes softMove { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+        /* 💡 精密尺規與高度優化 */
+        .memory-area { width: 85%; overflow-y: auto; height: 58vh; border-left: 0.5px solid #f2f2f7; padding-left: 18px; position: relative; margin-top: 2vh; }
         .date-anchor { position: relative; font-size: 10px; font-weight: 500; margin: 25px 0 15px -18px; padding-left: 20px; color: #8e8e93; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.2px; background: #000; } 
         .memory-item { position: relative; padding-bottom: 25px; margin-bottom: 15px; border-bottom: 0.5px solid #f2f2f7; }
         .memory-item::before { content: ''; position: absolute; left: -18px; top: 10px; width: 8px; height: 1px; background: #d2d2d7; } 
 
+        /* 天氣標籤精密化 */
+        .weather-picker { display: flex; gap: 6px; margin: 8px 0; }
         .weather-btn { background: #f2f2f7; border: none; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #8e8e93; font-weight: 500; }
         .weather-btn.active { background: #000; color: #fff; }
         .confirm-btn { background: #000; color: #fff; border: none; border-radius: 6px; padding: 3px 8px; font-size: 9px; cursor: pointer; }
@@ -66,38 +67,38 @@
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0">
         <div class="aura-bg"></div>
-        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <div class="nav-hotspot" style="bottom:0" onclick="nextPage()"></div>
         <h1>現在在幹嘛</h1>
         <div id="stage0" class="stage-container"></div>
         <div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div>
     </section>
 
     <section class="page" id="p1">
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
-        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <div class="nav-hotspot" style="top:0" onclick="prevPage()"></div>
+        <div class="nav-hotspot" style="bottom:0" onclick="nextPage()"></div>
         <h1>標籤</h1>
         <div id="stage1" class="stage-container"></div>
         <div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div>
     </section>
 
     <section class="page" id="p2">
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
-        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+        <div class="nav-hotspot" style="top:0" onclick="prevPage()"></div>
+        <div class="nav-hotspot" style="bottom:0" onclick="nextPage()"></div>
         <h1>透視</h1>
-        <div id="stage2" style="width:100%; height:45vh; position:relative; display:flex; align-items:center; justify-content:center; margin-top:5vh;"></div>
+        <div id="stage2" class="galaxy-stage"></div>
         <div id="insightArea" style="width:82%; font-size:12px; color:#8e8e93; line-height:2.8; border-top:0.5px solid #f2f2f7; padding-top:15px; margin-bottom: 12vh;"></div>
     </section>
 
     <section class="page" id="p3">
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
-        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
-        <h1 onclick="window.toggleTimeMachine()" style="cursor:pointer;">回憶 <span style="font-size:10px; color:#ccc;">▼ 時光機</span></h1>
-        <div id="timeMachine" style="position: absolute; top: 20vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px);"><div id="timeSlots"></div><button onclick="window.toggleTimeMachine()" style="width:100%; border:none; background:none; padding-top:10px; color:#000; font-size:12px;">取消</button></div>
+        <div class="nav-hotspot" style="top:0" onclick="prevPage()"></div>
+        <div class="nav-hotspot" style="bottom:0" onclick="nextPage()"></div>
+        <h1 onclick="window.toggleTimeMachine()" style="cursor:pointer; display: flex; align-items: baseline; gap: 4px;">回憶<span style="font-size: 10px; color: #ccc; letter-spacing: 1px;">▼時光機</span></h1>
+        <div id="timeMachine" style="position: absolute; top: 22vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px);"><div id="timeSlots"></div><button onclick="window.toggleTimeMachine()" style="width:100%; border:none; background:none; padding-top:10px; color:#000; font-size:12px;">取消</button></div>
         <div id="memoryArea" class="memory-area"></div>
     </section>
 
     <section class="page" id="p4">
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <div class="nav-hotspot" style="top:0" onclick="prevPage()"></div>
         <h1>設定</h1>
         <div id="quoteEditor" style="width:85%; margin-top:5vh; max-height:40vh; overflow-y:auto;"></div>
         <div style="width:85%; margin-top:30px; display:flex; flex-direction:column; gap:12px;"><button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div>
