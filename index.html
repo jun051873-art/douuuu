@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 職人定稿鎖定</title>
+    <title>在幹嘛 1 號 - 宏觀宇宙定稿版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
@@ -17,30 +17,21 @@
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         
-        /* 標題氣場與下移調整 */
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 13vh !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; }
 
-        /* 呼吸效果動畫 */
-        @keyframes heartBeat { 0% { transform: scale(1); } 50% { transform: scale(1.02); opacity: 0.92; } 100% { transform: scale(1); } }
-        
+        @keyframes heartBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); opacity: 0.92; } }
         .pill-tag { padding: 10px 24px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; transition: 0.1s; animation: heartBeat 3.5s infinite ease-in-out; }
-        .pill-tag:active { transform: scale(0.92); animation: none; }
-        
         .square-tag { width: 70px; height: 70px; border-radius: 20px; border: 0.5px solid #f2f2f7; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: heartBeat 4s infinite ease-in-out; }
         .square-tag.selected { background: #000; color: #fff; border: none; transform: scale(1.05); animation: none; }
 
         .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 0.5px solid #eee; padding: 6px; background: #fff; z-index: 10; }
-
-        /* 導航分區熱區 */
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 10vh; z-index: 500; }
-        .nav-top { top: 0; } .nav-bottom { bottom: 0; }
 
-        /* 透視宇宙：隱形化背景與重疊邏輯調整 */
+        /* 💡 透視宇宙：宏觀散開佈局 */
         .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 2vh; overflow: auto; background: #fff; }
         .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); animation: softFloat 6s infinite ease-in-out; }
-        @keyframes softFloat { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(3px, -8px); } }
+        @keyframes softFloat { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(4px, -10px); } }
 
-        /* 尺規鎖定 */
         .memory-area { width: 85%; overflow-y: auto; height: 60vh; border-left: 0.5px solid #f2f2f7; padding-left: 18px; position: relative; margin-top: 1vh; }
         .date-anchor { position: relative; font-size: 10px; font-weight: 500; margin: 25px 0 15px -18px; padding-left: 20px; color: #8e8e93; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.2px; background: #000; } 
@@ -101,33 +92,24 @@
         const s2 = document.getElementById('stage2'); s2.innerHTML = '';
         const max = sorted[0]?.[1] || 1;
         
-        // 💡 宇宙校準：微重疊、不覆蓋 [cite: 2026-02-15]
+        // 💡 宇宙校準：增加半徑係數，消滅重疊 [cite: 2026-02-15]
         sorted.forEach(([name, count], i) => {
             const ratio = count / max;
-            const size = 60 + (ratio * 100);
+            const size = 60 + (ratio * 105);
             const grey = Math.max(0, 240 - (ratio * 240));
             const angle = i * 137.5; 
-            const radius = 10 + (i * 25); // 維持適中聚落
+            const radius = 20 + (i * 38); // 💡 擴大分佈半徑
             const x = Math.cos(angle * Math.PI / 180) * radius;
             const y = Math.sin(angle * Math.PI / 180) * radius;
             
             const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `
-                width:${size}px; height:${size}px; 
-                left:calc(50% + ${x}px - ${size/2}px); 
-                top:calc(50% + ${y}px - ${size/2}px); 
-                background:rgba(${grey},${grey},${grey},0.9); 
-                color:${ratio>0.5?'#fff':'#000'}; 
-                font-weight:600; font-size:${11+(ratio*4)}px;
-                z-index:${Math.round(ratio * 10)};
-            `;
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${x}px - ${size/2}px); top:calc(50% + ${y}px - ${size/2}px); background:rgba(${grey},${grey},${grey},0.9); color:${ratio>0.5?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*4)}px; z-index:${Math.round(ratio * 10)};`;
             b.innerHTML = `<span>${name}</span>`;
             s2.appendChild(b);
         });
         document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>紀錄總量：${snap.size} 則</span>`;
     };
 
-    // 其他邏輯完全鎖定
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
         tags.sort((a,b) => (b.count || 0) - (a.count || 0));
