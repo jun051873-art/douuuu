@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 極簡零回饋版</title>
+    <title>在幹嘛 1 號 - 職人定稿</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        /* 💡 底部提示條：已珍藏 */
         #toast { position: fixed; bottom: 15vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
         
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
@@ -17,18 +16,16 @@
         .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity: 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 13vh !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; justify-content: center; }
 
         * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
         input { -webkit-user-select: auto; user-select: auto; }
 
-        /* 💡 呼吸動畫保留，用於視覺生命感 */
         @keyframes naturalPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.88; } }
 
-        /* 💡 第一頁標籤：移除所有點擊特效 [cite: 2026-02-16] */
-        .pill-tag { padding: 10px 24px; border-radius: 40px; background: #000; color: rgba(255,255,255,0.4); border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
-        .pill-tag:active { /* 💡 保持靜止，僅內部觸發已珍藏 */ }
+        /* 💡 第一頁：淡淡灰字，零點擊回饋 */
+        .pill-tag { padding: 10px 24px; border-radius: 40px; background: transparent; color: #bbb; border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
+        .pill-tag:active { /* 💡 徹底禁用回饋 */ }
 
         .square-tag { width: 72px; height: 72px; border-radius: 18px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; }
         .square-tag.selected { background: #000; color: #fff; border: none; animation: none; transform: scale(1.05); }
@@ -36,7 +33,8 @@
         .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 10vh; z-index: 500; }
 
-        .galaxy-stage { width: 100%; height: 48vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 1vh; overflow: auto; background: #fff; }
+        /* 💡 透視：完全一體成型，移除所有框線 */
+        .galaxy-stage { width: 100%; height: 48vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 1vh; overflow: auto; background: #fff; border: none !important; }
         .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.15); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3); }
 
         #glassDialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 220px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 25px; padding: 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.1); z-index: 9000; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.18, 1, 0.32, 1); border: 1px solid rgba(255,255,255,0.5); text-align: center; }
@@ -61,7 +59,6 @@
 
 <div id="toast">已珍藏</div>
 <div id="splashLayer"></div>
-
 <div id="glassDialog">
     <div style="font-size: 15px; font-weight: 600; margin-bottom: 20px; color: #000;">確定刪除標籤？</div>
     <div style="display: flex; gap: 10px;">
@@ -75,11 +72,11 @@
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
     <section class="page" id="p1"><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:85%; font-size:11px; color:#8e8e93; line-height:2.4; padding-top:15px; border-top: 1px solid #f2f2f7; margin-bottom: 12vh;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:85%; font-size:11px; color:#bbb; line-height:2.4; padding-top:15px; border: none; margin-bottom: 12vh;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
     
     <section class="page" id="p3">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
-        <h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #888; font-weight: 400; cursor:pointer; padding-left: 2px;">時光機 ▼</span></h1>
+        <h1 style="display:flex; align-items: center; justify-content: center; gap: 0;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #bbb; font-weight: 400; cursor:pointer; padding-top: 10px;">時光機▼</span></h1>
         <div id="timeMachine"></div>
         <div id="memoryArea" class="memory-area"></div>
         <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
@@ -112,14 +109,14 @@
         sorted.forEach(([name, count], i) => {
             if (i >= hexCoords.length) return;
             const coord = hexCoords[i]; const ratio = count / max;
-            const size = coord.small ? (45 + ratio * 20) : (75 + ratio * 85);
+            const size = coord.small ? (45 + ratio * 20) : (70 + ratio * 80);
             const grays = [0, 60, 120, 180, 240];
             const colorVal = grays[Math.min(4, Math.floor((1 - ratio) * 5))];
             const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * baseRadius}px - ${size/2}px); top:calc(50% + ${coord.y * baseRadius}px - ${size/2}px); background:rgb(${colorVal},${colorVal},${colorVal}); color:${colorVal<130?'#fff':'#000'}; font-weight:600; font-size:${coord.small ? 8 : 11+(ratio*4)}px; z-index:${100 - i}; animation: naturalPulse ${4+Math.random()*3}s infinite ease-in-out;`;
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * baseRadius}px - ${size/2}px); top:calc(50% + ${coord.y * baseRadius}px - ${size/2}px); background:rgb(${colorVal},${colorVal},${colorVal}); color:${colorVal<130?'#fff':'#000'}; font-weight:600; font-size:${coord.small ? 8 : 11+(ratio*4)}px; z-index:${100-i}; animation: naturalPulse ${4+Math.random()*3}s infinite ease-in-out;`;
             b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>瞬間紀錄量：${snap.size} 則</span><br><span>最常紀錄時間：14:00 - 16:00</span>`;
+        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>紀錄總量：${snap.size} 則</span><br><span>最常紀錄時間：14:00 - 16:00</span>`;
     };
 
     window.renderAll = () => {
@@ -128,8 +125,7 @@
         tags.forEach((t, i) => {
             if(t.selected) {
                 const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
-                b.onclick = () => { window.saveAction('tag', t.name); renderAll(); }; // 💡 零回饋點擊
-                s0.appendChild(b);
+                b.onclick = () => { window.saveAction('tag', t.name); renderAll(); }; s0.appendChild(b);
             }
             const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
             b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
@@ -163,7 +159,7 @@
                     lastDate = rawDate;
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:10px; color:#000; margin-bottom:5px; font-weight:800;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${d.data().weather || ''}</div><div style="font-size:18px; font-weight:600; color:#000; line-height:1.4;">${d.data().action}</div><div style="margin-top:10px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:10px; color:#aaa; outline:none; width:110px;" placeholder="修改天氣心情..."><button onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:9px;">確定</button></div>`;
+                div.innerHTML = `<div style="font-size:10px; color:#000; margin-bottom:5px; font-weight:800;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · <span style="color:#bbb; font-weight:400;">${d.data().weather || ''}</span></div><div style="font-size:18px; font-weight:600; color:#000; line-height:1.4;">${d.data().action}</div><div style="margin-top:10px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:1px solid #eee; font-size:18px; color:#000; outline:none; width:180px;" placeholder="心情天氣..."><button onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:9px;">確定</button></div>`;
                 area.appendChild(div);
             }
         });
