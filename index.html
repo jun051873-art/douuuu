@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 一體成型版</title>
+    <title>在幹嘛 1 號 - 極簡零回饋版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
+        /* 💡 底部提示條：已珍藏 */
+        #toast { position: fixed; bottom: 15vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
         
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
@@ -17,36 +18,37 @@
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
         
-        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 13vh !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; }
+        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 13vh !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; justify-content: center; }
 
-        /* 💡 禁用所有文字選擇 Bug */
         * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
         input { -webkit-user-select: auto; user-select: auto; }
 
+        /* 💡 呼吸動畫保留，用於視覺生命感 */
         @keyframes naturalPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.88; } }
-        @keyframes softGlow { 0% { box-shadow: 0 0 0 0px rgba(0,0,0,0.15); } 100% { box-shadow: 0 0 0 25px rgba(0,0,0,0); } }
 
-        /* 💡 第一頁無感點擊 */
-        .pill-tag { padding: 10px 24px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3s infinite ease-in-out; transition: none; }
-        .pill-tag:active { animation: softGlow 0.5s ease-out !important; }
+        /* 💡 第一頁標籤：移除所有點擊特效 [cite: 2026-02-16] */
+        .pill-tag { padding: 10px 24px; border-radius: 40px; background: #000; color: rgba(255,255,255,0.4); border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
+        .pill-tag:active { /* 💡 保持靜止，僅內部觸發已珍藏 */ }
 
-        .square-tag { width: 72px; height: 72px; border-radius: 18px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; transition: opacity 0.2s; }
+        .square-tag { width: 72px; height: 72px; border-radius: 18px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; }
         .square-tag.selected { background: #000; color: #fff; border: none; animation: none; transform: scale(1.05); }
 
         .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 10vh; z-index: 500; }
 
-        /* 💡 透視：完全一體成型無框線 */
-        .galaxy-stage { width: 100%; height: 48vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 1vh; overflow: auto; background: #fff; border: none !important; }
+        .galaxy-stage { width: 100%; height: 48vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 1vh; overflow: auto; background: #fff; }
         .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.15); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3); }
 
-        /* 💡 柔和玻璃對話框 */
-        #glassDialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 220px; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 25px; padding: 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.1); z-index: 9000; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.18, 1, 0.32, 1); border: 1px solid rgba(255,255,255,0.5); text-align: center; }
+        #glassDialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 220px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 25px; padding: 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.1); z-index: 9000; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.18, 1, 0.32, 1); border: 1px solid rgba(255,255,255,0.5); text-align: center; }
         #glassDialog.active { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: all; }
 
+        #timeMachine { position: absolute; top: 18vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); max-height: 50vh; overflow-y: auto; }
+        .time-slot { padding: 14px; border-bottom: 0.5px solid #f2f2f7; font-size: 13px; font-weight: 600; color: #000; }
+
         .memory-area { width: 85%; overflow-y: auto; height: 60vh; border-left: 1px solid #eee; padding-left: 18px; position: relative; margin-top: 1vh; }
-        .date-anchor { position: relative; font-size: 13px; font-weight: 700; margin: 25px 0 15px -18px; padding-left: 20px; color: #000; letter-spacing: 0.5px; }
+        .date-anchor { position: relative; font-size: 13px; font-weight: 700; margin: 25px 0 15px -18px; padding-left: 20px; color: #000; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 2px; background: #000; } 
+        .memory-item { position: relative; padding-bottom: 25px; margin-bottom: 15px; border-bottom: 1px solid #f9f9f9; }
         .weather-btn { background: #f2f2f7; border: none; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #3a3a3c; margin-right: 4px; font-weight: 600; }
         .weather-btn.active { background: #000; color: #fff; }
 
@@ -59,6 +61,7 @@
 
 <div id="toast">已珍藏</div>
 <div id="splashLayer"></div>
+
 <div id="glassDialog">
     <div style="font-size: 15px; font-weight: 600; margin-bottom: 20px; color: #000;">確定刪除標籤？</div>
     <div style="display: flex; gap: 10px;">
@@ -71,14 +74,13 @@
 
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
-    
     <section class="page" id="p1"><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
-    
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:85%; font-size:11px; color:#3a3a3c; line-height:2.4; padding-top:15px; border-top: 1px solid #f2f2f7; margin-bottom: 12vh;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:85%; font-size:11px; color:#8e8e93; line-height:2.4; padding-top:15px; border-top: 1px solid #f2f2f7; margin-bottom: 12vh;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
     
     <section class="page" id="p3">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
-        <h1 style="display:flex; align-items: center; justify-content: center; gap: 4px; cursor:pointer;">回憶<span style="font-size: 10px; color: #aaa; font-weight: 400; padding-top: 10px;">時光機 ▼</span></h1>
+        <h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #888; font-weight: 400; cursor:pointer; padding-left: 2px;">時光機 ▼</span></h1>
+        <div id="timeMachine"></div>
         <div id="memoryArea" class="memory-area"></div>
         <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
     </section>
@@ -110,7 +112,7 @@
         sorted.forEach(([name, count], i) => {
             if (i >= hexCoords.length) return;
             const coord = hexCoords[i]; const ratio = count / max;
-            const size = coord.small ? (45 + ratio * 20) : (70 + ratio * 80);
+            const size = coord.small ? (45 + ratio * 20) : (75 + ratio * 85);
             const grays = [0, 60, 120, 180, 240];
             const colorVal = grays[Math.min(4, Math.floor((1 - ratio) * 5))];
             const b = document.createElement('div'); b.className = 'sphere';
@@ -122,29 +124,17 @@
 
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
-        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
-        s0.innerHTML = ''; s1.innerHTML = '';
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0)); s0.innerHTML = ''; s1.innerHTML = '';
         tags.forEach((t, i) => {
             if(t.selected) {
                 const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
-                b.onclick = () => { window.hapticImpact(); t.count++; window.saveAction('tag', t.name); renderAll(); }; s0.appendChild(b);
+                b.onclick = () => { window.saveAction('tag', t.name); renderAll(); }; // 💡 零回饋點擊
+                s0.appendChild(b);
             }
             const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
             b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
-            
-            // 💡 柔和玻璃對話框邏輯
             let timer;
-            const start = () => { 
-                timer = setTimeout(() => { 
-                    window.hapticImpact();
-                    const dialog = document.getElementById('glassDialog');
-                    dialog.classList.add('active');
-                    document.getElementById('confirmBtn').onclick = () => {
-                        tags.splice(i, 1); renderAll(); dialog.classList.remove('active');
-                    };
-                    document.getElementById('cancelBtn').onclick = () => dialog.classList.remove('active');
-                }, 1000); 
-            };
+            const start = () => { timer = setTimeout(() => { window.hapticImpact(); const dialog = document.getElementById('glassDialog'); dialog.classList.add('active'); document.getElementById('confirmBtn').onclick = () => { tags.splice(i, 1); renderAll(); dialog.classList.remove('active'); }; document.getElementById('cancelBtn').onclick = () => dialog.classList.remove('active'); }, 1000); };
             b2.onmousedown = start; b2.onmouseup = () => clearTimeout(timer); b2.ontouchstart = start; b2.ontouchend = () => clearTimeout(timer);
             b2.onclick = () => { if(!document.getElementById('glassDialog').classList.contains('active')){ window.hapticImpact(); t.selected = !t.selected; renderAll(); } };
             s1.appendChild(b2);
@@ -153,25 +143,34 @@
     };
 
     window.saveAction = async (t, v) => { const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return; await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "曬", timestamp: serverTimestamp() }); showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = ''; renderAll(); };
+    window.toggleTimeMachine = () => { const tm = document.getElementById('timeMachine'); tm.style.display = (tm.style.display === 'block') ? 'none' : 'block'; };
+    window.jumpToTime = (id) => { const target = document.getElementById('date-' + id); if (target) { document.getElementById('memoryArea').scrollTop = target.offsetTop - 20; window.toggleTimeMachine(); } };
+
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        const area = document.getElementById('memoryArea'), tm = document.getElementById('timeMachine');
+        area.innerHTML = ''; tm.innerHTML = '';
         const wks = ['週日','週一','週二','週三','週四','週五','週六'];
         let lastDate = "";
         snap.forEach(d => {
             if(d.data().type === 'input') {
                 const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
-                const dStr = `${date.getMonth()+1}月${date.getDate()}日 (${wks[date.getDay()]})`;
-                if(dStr !== lastDate) {
-                    const h = document.createElement('div'); h.className = 'date-anchor'; h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日 ${wks[date.getDay()]}`;
+                const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
+                if(rawDate !== lastDate) {
+                    const h = document.createElement('div'); h.id = 'date-' + rawDate; h.className = 'date-anchor'; h.innerText = dStr; area.appendChild(h);
+                    const slot = document.createElement('div'); slot.className = 'time-slot'; slot.innerText = dStr; slot.onclick = () => window.jumpToTime(rawDate); tm.appendChild(slot);
+                    lastDate = rawDate;
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:10px; color:#000; margin-bottom:5px; font-weight:800;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${d.data().weather || ''}</div><div style="font-size:18px; font-weight:600; color:#000; line-height:1.4;">${d.data().action}</div><div style="margin-top:10px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div>`;
+                div.innerHTML = `<div style="font-size:10px; color:#000; margin-bottom:5px; font-weight:800;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${d.data().weather || ''}</div><div style="font-size:18px; font-weight:600; color:#000; line-height:1.4;">${d.data().action}</div><div style="margin-top:10px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:10px; color:#aaa; outline:none; width:110px;" placeholder="修改天氣心情..."><button onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:9px;">確定</button></div>`;
                 area.appendChild(div);
             }
         });
     };
+
     window.updateWeather = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
+    window.saveCustomWeather = async (id, val) => { if(!val) return; await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); showToast('心情已更新'); };
     window.resetMemories = async () => { if(confirm('清空數據？')) { const snap = await getDocs(collection(db, "daily_logs")); for (const s of snap.docs) { await deleteDoc(doc(db, "daily_logs", s.id)); } window.loadMemories(); } };
     window.onload = () => { renderAll(); const ed = document.getElementById('quoteEditor'); ed.innerHTML = ''; quotes.forEach((q, i) => { const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee; padding:12px 0; display:flex; align-items:center; justify-content:space-between"; d.innerHTML = `<div style="flex:1"><span style="font-size:10px; color:#a1a1a6">頁面 ${i+1}</span><input id="qInput-${i}" style="border:none; width:100%; font-size:16px; outline:none; background:transparent" value="${q}"></div><button onclick="window.saveQuote(${i}, document.getElementById('qInput-${i}').value)" style="background:#000; color:#fff; border:none; border-radius:12px; padding:6px 12px; font-size:12px; font-weight:bold; flex-shrink:0; margin-left:10px">確定</button>`; ed.appendChild(d); }); triggerSplash(0); };
     window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
@@ -181,7 +180,7 @@
     window.nextPage = () => { if(cur < 4) { cur++; triggerSplash(cur); } };
     window.prevPage = () => { if(cur > 0) { cur--; triggerSplash(cur); } };
     window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-    window.addEventListener('touchend', e => { const dist = startY - e.changedTouches[0].clientY; const target = e.target; if (target.closest('.galaxy-stage') || target.closest('.memory-area') || target.closest('#quoteEditor') || target.closest('#glassDialog')) return; if (Math.abs(dist) > 80) { const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); if (next !== cur) { cur = next; triggerSplash(cur); } } });
+    window.addEventListener('touchend', e => { const dist = startY - e.changedTouches[0].clientY; const target = e.target; if (target.closest('.galaxy-stage') || target.closest('.memory-area') || target.closest('#quoteEditor') || target.closest('#glassDialog') || target.closest('#timeMachine')) return; if (Math.abs(dist) > 80) { const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); if (next !== cur) { cur = next; triggerSplash(cur); } } });
 </script>
 </body>
 </html>
