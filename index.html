@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 黃金比例版</title>
+    <title>在幹嘛 1 號 - 賈伯斯終極版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 15vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 28px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
-        
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
@@ -16,7 +15,6 @@
         .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 13vh !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; justify-content: center; }
 
         * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -24,7 +22,7 @@
 
         @keyframes naturalPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.88; } }
 
-        /* 💡 第一頁標籤：絕對靜止 */
+        /* 💡 第一頁：靜悄悄標籤鎖死 */
         .pill-tag { padding: 12px 26px; border-radius: 40px; background: #000; color: rgba(255,255,255,0.4); border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
         .pill-tag:active { transform: none !important; opacity: 1 !important; }
 
@@ -34,8 +32,8 @@
         .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 10vh; z-index: 500; }
 
-        /* 💡 透視宇宙：標題回位 10vh，縮小球體半徑以騰出空間 */
-        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 5vh; background: #fff; border: none !important; overflow: visible; }
+        /* 💡 透視：大氣五官間距校準 [cite: 2026-02-16] */
+        .galaxy-stage { width: 100%; height: 45vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 10vh; background: #fff; border: none !important; overflow: visible; }
         .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3); }
 
         #glassDialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 240px; background: rgba(255,255,255,0.88); backdrop-filter: blur(25px); border-radius: 28px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.12); z-index: 9000; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.5); text-align: center; }
@@ -44,13 +42,6 @@
         .memory-area { width: 88%; overflow-y: auto; height: 62vh; border-left: 1.2px solid #f2f2f7; padding-left: 22px; position: relative; margin-top: 1vh; }
         .date-anchor { position: relative; font-size: 14px; font-weight: 700; margin: 30px 0 18px -22px; padding-left: 24px; color: #000; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 22px; height: 2.5px; background: #000; } 
-        .memory-item { position: relative; padding-bottom: 35px; margin-bottom: 20px; border-bottom: 0.8px solid #f9f9f9; }
-        .weather-btn { background: #f2f2f7; border: none; border-radius: 6px; padding: 5px 12px; font-size: 11px; color: #3a3a3c; margin-right: 6px; font-weight: 600; }
-        .weather-btn.active { background: #000; color: #fff; }
-
-        .dots-container { position:fixed; left:22px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:14px; z-index:1000; }
-        .dot { width:3px; height:3px; background:#d2d2d7; border-radius:50%; transition:0.4s; }
-        .dot.active { background:#000; transform:scale(2.2); }
     </style>
 </head>
 <body>
@@ -64,8 +55,6 @@
         <button id="confirmBtn" style="flex:1; padding: 14px; border:none; background: #ff3b30; color:#fff; border-radius: 14px; font-weight: 600;">刪除</button>
     </div>
 </div>
-
-<div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
@@ -81,13 +70,13 @@
     
     <section class="page" id="p3">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
-        <h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #bbb; font-weight: 400; cursor:pointer; margin-left: -2px; letter-spacing: -1px;">時光機▼</span></h1>
+        <h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #bbb; font-weight: 400; cursor:pointer; margin-left: -2px; letter-spacing: -1.5px;">時光機▼</span></h1>
         <div id="timeMachine" style="position: absolute; top: 18vh; width: 85%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); max-height: 50vh; overflow-y: auto;"></div>
         <div id="memoryArea" class="memory-area"></div>
         <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
     </section>
     
-    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:90%; margin-top:5vh; max-height:45vh; overflow-y:auto;"></div><div style="width:90%; margin-top:30px;"><button onclick="window.resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px; font-weight:600;">清空數據</button></div></section>
+    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:90%; margin-top:5vh; max-height:45vh; overflow-y:auto;"></div><div style="width:90%; margin-top:30px;"><button onclick="window.resetMemories()" style="width:100%; padding:16px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px; font-weight:600;">清空數據</button></div></section>
 </div>
 
 <script type="module">
@@ -109,12 +98,12 @@
         const s2 = document.getElementById('stage2'); s2.innerHTML = '';
         const spiralCoords = [{x:0, y:0}, {x:0, y:-1}, {x:0.8, y:-0.5}, {x:0.8, y:0.5}, {x:0, y:1}, {x:-0.8, y:0.5}, {x:-0.8, y:-0.5}];
         const max = sorted[0]?.[1] || 1;
-        const baseRadius = 110; // 💡 縮小半徑，徹底分開標題與球體
+        const baseRadius = 135; // 💡 精確校準「各安其位」的五官間距 [cite: 2026-02-16]
 
         sorted.forEach(([name, count], i) => {
             if (i >= 7) return;
             const coord = spiralCoords[i]; const ratio = count / max;
-            const size = 65 + (ratio * 100);
+            const size = 65 + (ratio * 105);
             const grays = [0, 80, 130, 180, 230];
             const colorVal = grays[Math.min(4, i)];
             const b = document.createElement('div'); b.className = 'sphere';
