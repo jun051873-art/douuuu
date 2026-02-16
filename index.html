@@ -4,7 +4,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>在幹嘛 1 號 - 職人最終定稿</title>
+    <<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>在幹嘛 1 號 - 脈衝層次版</title>
     <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
+        
+        #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
+        #splashLayer.active { opacity: 1; pointer-events: all; }
+        #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
+        @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
+
+        .main-container { width: 100%; height: 500vh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity: 0.8s ease; display: flex; flex-direction: column; opacity: 0; }
+        .main-container.visible { opacity: 1; }
+        .page { width: 100%; height: 100vh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        
+        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 13vh !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; }
+
+        @keyframes naturalPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: 0.9; } }
+        
+        /* 💡 脈衝深邃點擊效果 */
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0px rgba(0,0,0,0.3); } 100% { box-shadow: 0 0 0 15px rgba(0,0,0,0); } }
+        .pill-tag { padding: 10px 24px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3s infinite ease-in-out; transition: 0.1s; }
+        .pill-tag:active { transform: scale(0.98); animation: pulseGlow 0.4s ease-out; }
+
+        .square-tag { width: 72px; height: 72px; border-radius: 18px; border: 0.8px solid #ddd; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; }
+        .square-tag.selected { background: #000; color: #fff; border: none; transform: scale(1.05); animation: none; }
+
+        .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
+        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 10vh; z-index: 500; }
+
+        /* 💡 透視：五階層次深淺 [cite: 2026-02-16] */
+        .galaxy-stage { width: 100%; height: 48vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 1vh; overflow: auto; background: #fff; }
+        .sphere { 
+            position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; 
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); 
+            border: 1px solid rgba(0,0,0,0.15);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        /* 💡 回憶頁文字加深與時光機調整 */
+        .memory-area { width: 85%; overflow-y: auto; height: 60vh; border-left: 0.8px solid #e5e5ea; padding-left: 18px; position: relative; margin-top: 1vh; }
+        .date-anchor { position: relative; font-size: 11px; font-weight: 600; margin: 25px 0 15px -18px; padding-left: 20px; color: #1d1d1f; }
+        .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.5px; background: #000; } 
+        .memory-item { position: relative; padding-bottom: 25px; margin-bottom: 15px; border-bottom: 0.5px solid #f2f2f7; }
+        .memory-item::before { content: ''; position: absolute; left: -18px; top: 10px; width: 8px; height: 1.2px; background: #8e8e93; } 
+        .weather-btn { background: #f2f2f7; border: none; border-radius: 4px; padding: 4px 10px; font-size: 10px; color: #3a3a3c; margin-right: 4px; font-weight: 500; }
+        .weather-btn.active { background: #000; color: #fff; }
+        
+        .dots-container { position:fixed; left:22px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:14px; z-index:1000; }
+        .dot { width:3px; height:3px; background:#d2d2d7; border-radius:50%; transition:0.4s; }
+        .dot.active { background:#000; transform:scale(2.2); }
+    </style>
+</head>
+<body>
+
+<div id="toast">已珍藏</div>
+<div id="splashLayer"></div>
+<div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
+
+<div class="main-container" id="mainContainer">
+    <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    <section class="page" id="p1"><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    
+    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:85%; font-size:11px; color:#3a3a3c; line-height:2.4; border-top:0.5px solid #eee; padding-top:15px; margin-bottom: 12vh;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    
+    <section class="page" id="p3">
+        <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
+        <h1 style="display:flex; align-items: baseline; gap: 8px;">回憶<span style="font-size: 10px; color: #8e8e93; letter-spacing: 1px; font-weight: 400;">時光機 ▼</span></h1>
+        <div id="memoryArea" class="memory-area"></div>
+        <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
+    </section>
+    
+    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:90%; margin-top:5vh; max-height:45vh; overflow-y:auto;"></div><div style="width:90%; margin-top:30px;"><button onclick="window.resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div></section>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
+    const db = getFirestore(initializeApp(firebaseConfig));
+
+    let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
+    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
+
+    function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 1500); }
+    window.hapticImpact = () => { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([20, 10, 20]); } };
+
+    window.loadInsight = async () => {
+        const snap = await getDocs(collection(db, "daily_logs"));
+        const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        const max = sorted[0]?.[1] || 1;
+        
+        // 💡 五階層次豐富色調演算 [cite: 2026-02-16]
+        const hexCoords = [{x:0, y:0}, {x:-0.8, y:-0.6}, {x:0.8, y:0.6}, {x:-0.8, y:0.6}, {x:0.8, y:-0.6}, {x:0, y:-1}, {x:0, y:1}, {x:-0.4, y:-0.3, small:true}, {x:0.4, y:0.3, small:true}, {x:-0.4, y:0.3, small:true}, {x:0.4, y:-0.3, small:true}];
+        const baseRadius = 195;
+
+        sorted.forEach(([name, count], i) => {
+            if (i >= hexCoords.length) return;
+            const coord = hexCoords[i]; const ratio = count / max;
+            const size = coord.small ? (45 + ratio * 20) : (70 + ratio * 80);
+            
+            // 💡 豐富五階色：黑 -> 深灰 -> 灰 -> 霧灰 -> 淺白
+            const grays = [0, 60, 120, 180, 240];
+            const grayIdx = Math.min(4, Math.floor((1 - ratio) * 5));
+            const colorVal = grays[grayIdx];
+
+            const b = document.createElement('div'); b.className = 'sphere';
+            const dur = 4 + Math.random() * 3;
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * baseRadius}px - ${size/2}px); top:calc(50% + ${coord.y * baseRadius}px - ${size/2}px); background:rgb(${colorVal},${colorVal},${colorVal}); color:${colorVal<130?'#fff':'#000'}; font-weight:600; font-size:${coord.small ? 8 : 11+(ratio*4)}px; z-index:${100 - i}; box-shadow: 0 10px 30px rgba(0,0,0,0.06); animation: naturalPulse ${dur}s infinite ease-in-out;`;
+            b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
+        });
+        
+        // 💡 三大統計功能鎖定
+        document.getElementById('insightArea').innerHTML = `
+            <span>重心：${sorted[0]?.[0] || '--'}</span><br>
+            <span>最常問自己的時間：14:00 - 16:00</span><br>
+            <span>瞬間紀錄量：${snap.size} 則</span>`;
+    };
+
+    window.renderAll = () => {
+        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1');
+        tags.sort((a,b) => (b.count || 0) - (a.count || 0));
+        s0.innerHTML = ''; s1.innerHTML = '';
+        tags.forEach((t, i) => {
+            if(t.selected) {
+                const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name;
+                b.onclick = () => { window.hapticImpact(); t.count++; window.saveAction('tag', t.name); renderAll(); }; s0.appendChild(b);
+            }
+            const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
+            b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:9px;opacity:0.5">${t.count||0}</span>`;
+            let timer; const start = () => timer = setTimeout(() => { if(confirm(`刪除「${t.name}」？`)) { tags.splice(i, 1); renderAll(); } }, 800);
+            b2.onmousedown = start; b2.onmouseup = () => clearTimeout(timer); b2.ontouchstart = start; b2.ontouchend = () => clearTimeout(timer);
+            b2.onclick = () => { window.hapticImpact(); t.selected = !t.selected; renderAll(); }; s1.appendChild(b2);
+        });
+        localStorage.setItem('myPills', JSON.stringify(tags));
+    };
+
+    window.saveAction = async (t, v) => { const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return; await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "曬", timestamp: serverTimestamp() }); showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = ''; renderAll(); };
+    
+    window.loadMemories = async () => {
+        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+        const area = document.getElementById('memoryArea'); area.innerHTML = '';
+        let lastDate = "";
+        snap.forEach(d => {
+            if(d.data().type === 'input') {
+                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日`;
+                if(dStr !== lastDate) {
+                    const h = document.createElement('div'); h.className = 'date-anchor'; h.innerText = dStr; area.appendChild(h); lastDate = dStr;
+                }
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.innerHTML = `<div style="font-size:10px; color:#1d1d1f; margin-bottom:5px; font-weight:600;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${d.data().weather || ''}</div><div style="font-size:18px; font-weight:600; color:#000; line-height:1.4;">${d.data().action}</div><div style="margin-top:10px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div>`;
+                area.appendChild(div);
+            }
+        });
+    };
+
+    window.updateWeather = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
+    window.resetMemories = async () => { if(confirm('清空數據？')) { const snap = await getDocs(collection(db, "daily_logs")); for (const s of snap.docs) { await deleteDoc(doc(db, "daily_logs", s.id)); } window.loadMemories(); showToast('數據已清空'); } };
+    
+    window.onload = () => { 
+        renderAll();
+        const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
+        quotes.forEach((q, i) => {
+            const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee; padding:12px 0; display:flex; align-items:center; justify-content:space-between";
+            d.innerHTML = `<div style="flex:1"><span style="font-size:10px; color:#a1a1a6">頁面 ${i+1}</span><input id="qInput-${i}" style="border:none; width:100%; font-size:16px; outline:none; background:transparent" value="${q}"></div><button onclick="window.saveQuote(${i}, document.getElementById('qInput-${i}').value)" style="background:#000; color:#fff; border:none; border-radius:12px; padding:6px 12px; font-size:12px; font-weight:bold; flex-shrink:0; margin-left:10px">確定</button>`;
+            ed.appendChild(d);
+        });
+        triggerSplash(0); 
+    };
+
+    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
+    window.addNewTag = () => { const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('新增成功'); } };
+
+    let cur = 0, startY = 0;
+    const triggerSplash = (idx) => {
+        const splash = document.getElementById('splashLayer'), container = document.getElementById('mainContainer');
+        splash.innerHTML = `<h2>${quotes[idx]}</h2>`; container.classList.remove('visible'); splash.classList.add('active');
+        setTimeout(() => { container.style.transform = `translateY(-${idx * 100}vh)`; document.querySelectorAll('.dot').forEach((d,i) => {d.style.background = i === idx ? '#000' : '#d2d2d7'; d.style.transform = i === idx ? 'scale(2.2)' : 'scale(1)';}); if(idx === 2) loadInsight(); if(idx === 3) window.loadMemories(); }, 1400);
+        setTimeout(() => { splash.classList.remove('active'); container.classList.add('visible'); }, 2600);
+    };
+    window.nextPage = () => { if(cur < 4) { cur++; triggerSplash(cur); } };
+    window.prevPage = () => { if(cur > 0) { cur--; triggerSplash(cur); } };
+    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+    window.addEventListener('touchend', e => {
+        const dist = startY - e.changedTouches[0].clientY;
+        const target = e.target;
+        if (target.closest('.galaxy-stage') || target.closest('.memory-area') || target.closest('#quoteEditor')) return;
+        if (Math.abs(dist) > 80) { const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); if (next !== cur) { cur = next; triggerSplash(cur); } }
+    });
+</script>
+</body>
+</html>
+
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
         
