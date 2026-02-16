@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>在幹嘛 1 號 - 星簇定稿版</title>
+    <title>在幹嘛 1 號 - 變形蟲波浪版</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; backdrop-filter: blur(10px); }
+        #toast { position: fixed; bottom: 22vh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 8px 25px; border-radius: 30px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; backdrop-filter: blur(10px); }
         
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
@@ -19,28 +19,39 @@
         
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: 13vh !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; }
 
-        @keyframes heartBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); opacity: 0.92; } }
-        .pill-tag { padding: 10px 24px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: heartBeat 3.5s infinite ease-in-out; }
-        .square-tag { width: 70px; height: 70px; border-radius: 22px; border: 0.8px solid #efefef; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: heartBeat 4s infinite ease-in-out; }
-        .square-tag.selected { background: #000; color: #fff; border: none; transform: scale(1.05); animation: none; }
+        /* 💡 變形蟲有機呼吸算法 [cite: 2026-02-16] */
+        @keyframes amoebaPulse {
+            0% { border-radius: 22px 22px 22px 22px; transform: scale(1); }
+            33% { border-radius: 35px 20px 30px 22px; transform: scale(1.02) rotate(1deg); }
+            66% { border-radius: 20px 35px 22px 30px; transform: scale(1.01) rotate(-1deg); }
+            100% { border-radius: 22px 22px 22px 22px; transform: scale(1); }
+        }
+
+        /* 💡 深層水波回饋動畫 */
+        @keyframes deepRipple {
+            0% { box-shadow: inset 0 0 0 0 rgba(0,0,0,0.1), 0 0 0 0 rgba(0,0,0,0.1); }
+            100% { box-shadow: inset 0 0 20px 10px rgba(0,0,0,0), 0 0 0 25px rgba(0,0,0,0); }
+        }
+        
+        .pill-tag { padding: 10px 24px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; position: relative; overflow: hidden; }
+        .pill-tag:active { animation: deepRipple 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+        .square-tag { 
+            width: 70px; height: 70px; border: 0.8px solid #efefef; margin: 8px; background: #fbfbfb; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            animation: amoebaPulse 6s infinite ease-in-out; /* 💡 緩緩的變形蟲律動 */
+            transition: background 0.3s;
+        }
+        .square-tag.selected { background: #000; color: #fff; border: none; animation: none; transform: scale(1.05); }
 
         .input-section { position: absolute; bottom: 18vh; display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
         .nav-hotspot { position: absolute; left: 0; width: 100%; height: 10vh; z-index: 500; }
 
-        /* 💡 透視宇宙：核心陣列結構 */
         .galaxy-stage { width: 100%; height: 50vh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 2vh; overflow: auto; background: #fff; }
         .sphere { 
-            position: absolute; 
-            border-radius: 50% !important; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); 
-            animation: softFloat 6s infinite ease-in-out; 
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid #000;
+            position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; 
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); animation: softFloat 6s infinite ease-in-out; 
+            backdrop-filter: blur(10px); border: 1px solid #000;
         }
         @keyframes softFloat { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(3px, -8px); } }
 
@@ -49,6 +60,7 @@
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.2px; background: #000; } 
         .memory-item { position: relative; padding-bottom: 25px; margin-bottom: 15px; border-bottom: 0.5px solid #f9f9f9; }
         .memory-item::before { content: ''; position: absolute; left: -18px; top: 10px; width: 8px; height: 1px; background: #d2d2d7; } 
+
         .dots-container { position:fixed; left:22px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:14px; z-index:1000; }
         .dot { width:3px; height:3px; background:#d2d2d7; border-radius:50%; transition:0.4s; }
         .dot.active { background:#000; transform:scale(2.2); }
@@ -62,10 +74,14 @@
 
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    
     <section class="page" id="p1"><h1>標籤</h1><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;outline:none;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div><div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    
     <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width:85%; font-size:11px; color:#8e8e93; line-height:2.4; border-top:0.5px solid #f2f2f7; padding-top:15px; margin-bottom: 12vh;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
-    <section class="page" id="p3"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1 onclick="window.toggleTimeMachine()" style="cursor:pointer; display: flex; align-items: baseline; gap: 4px;">回憶<span style="font-size: 10px; color: #ccc;">▼時光機</span></h1><div id="memoryArea" class="memory-area"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
-    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:90%; margin-top:5vh; max-height:45vh; overflow-y:auto;"></div><div style="width:100%; margin-top:20px; display:flex; flex-direction:column; gap:12px;"><button onclick="resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div></section>
+
+    <section class="page" id="p3"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1 style="cursor:pointer; display: flex; align-items: baseline; gap: 4px;">回憶<span style="font-size: 10px; color: #ccc;">▼時光機</span></h1><div id="memoryArea" class="memory-area"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    
+    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width:90%; margin-top:5vh; max-height:45vh; overflow-y:auto;"></div><div style="width:90%; margin-top:30px; display:flex; flex-direction:column; gap:12px;"><button onclick="window.resetMemories()" style="width:100%; padding:14px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:15px; font-size:14px;">清空數據</button></div></section>
 </div>
 
 <script type="module">
@@ -86,43 +102,19 @@
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const s2 = document.getElementById('stage2'); s2.innerHTML = '';
         const max = sorted[0]?.[1] || 1;
-        
-        // 💡 六角星簇陣列演算 [cite: 2026-02-16]
-        const hexCoords = [
-            {x: 0, y: 0},     // 1號 (中心)
-            {x: -0.8, y: -0.6}, // 2號 (左上)
-            {x: 0.8, y: 0.6},   // 3號 (右下)
-            {x: -0.8, y: 0.6},  // 4號 (左下)
-            {x: 0.8, y: -0.6},  // 5號 (右上)
-            {x: 0, y: -1},      // 6號 (正上)
-            {x: 0, y: 1},       // 7號 (正下)
-            // 穿插小圓位置 (大圓之間的縫隙)
-            {x: -0.4, y: -0.3, small: true}, {x: 0.4, y: 0.3, small: true},
-            {x: -0.4, y: 0.3, small: true}, {x: 0.4, y: -0.3, small: true}
-        ];
+        const hexCoords = [{x:0, y:0}, {x:-0.8, y:-0.6}, {x:0.8, y:0.6}, {x:-0.8, y:0.6}, {x:0.8, y:-0.6}, {x:0, y:-1}, {x:0, y:1}, {x:-0.4, y:-0.3, small:true}, {x:0.4, y:0.3, small:true}, {x:-0.4, y:0.3, small:true}, {x:0.4, y:-0.3, small:true}];
+        const baseRadius = 135;
 
         sorted.forEach(([name, count], i) => {
-            if (i >= hexCoords.length) return; // 依標籤數量連動修剪
-            const coord = hexCoords[i];
-            const ratio = count / max;
+            if (i >= hexCoords.length) return;
+            const coord = hexCoords[i]; const ratio = count / max;
             const size = coord.small ? (40 + ratio * 30) : (75 + ratio * 85);
             const grey = Math.max(0, 240 - (ratio * 150));
-            const baseRadius = 110;
-
             const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `
-                width:${size}px; height:${size}px; 
-                left:calc(50% + ${coord.x * baseRadius}px - ${size/2}px); 
-                top:calc(50% + ${coord.y * baseRadius}px - ${size/2}px); 
-                background:rgba(${grey},${grey},${grey}, ${0.1 + (ratio * 0.4)}); 
-                color:#000; font-weight:600; font-size:${coord.small ? 8 : 12+(ratio*4)}px;
-                z-index:${100 - i};
-                box-shadow: 0 10px 30px rgba(0,0,0,${0.02 + ratio*0.04});
-            `;
-            b.innerHTML = `<span>${name}</span>`;
-            s2.appendChild(b);
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * baseRadius}px - ${size/2}px); top:calc(50% + ${coord.y * baseRadius}px - ${size/2}px); background:rgba(${grey},${grey},${grey}, ${0.1 + (ratio * 0.4)}); color:#000; font-weight:600; font-size:${coord.small ? 8 : 12+(ratio*4)}px; z-index:${100 - i}; box-shadow: 0 10px 30px rgba(0,0,0,0.02);`;
+            b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>最常問自己的時間：14:00 - 16:00</span><br><span>紀錄總量：${snap.size} 則</span>`;
+        document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>紀錄總量：${snap.size} 則</span>`;
     };
 
     window.renderAll = () => {
@@ -144,23 +136,20 @@
     };
 
     window.saveAction = async (t, v) => { const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return; await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "曬", timestamp: serverTimestamp() }); showToast('已珍藏'); if(t === 'input') document.getElementById('userInput').value = ''; renderAll(); };
-    window.onload = () => { renderAll(); triggerSplash(0); };
-    let cur = 0, startY = 0;
-    const triggerSplash = (idx) => {
-        const splash = document.getElementById('splashLayer'), container = document.getElementById('mainContainer');
-        splash.innerHTML = `<h2>${quotes[idx]}</h2>`; container.classList.remove('visible'); splash.classList.add('active');
-        setTimeout(() => { container.style.transform = `translateY(-${idx * 100}vh)`; document.querySelectorAll('.dot').forEach((d,i) => {d.style.background = i === idx ? '#000' : '#d2d2d7'; d.style.transform = i === idx ? 'scale(2.2)' : 'scale(1)';}); if(idx === 2) loadInsight(); if(idx === 3) window.loadMemories(); }, 1400);
-        setTimeout(() => { splash.classList.remove('active'); container.classList.add('visible'); }, 2600);
+    window.onload = () => { 
+        renderAll();
+        const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
+        quotes.forEach((q, i) => {
+            const d = document.createElement('div'); d.style.cssText="border-bottom:0.5px solid #eee; padding:12px 0; display:flex; align-items:center; justify-content:space-between";
+            d.innerHTML = `<div style="flex:1"><span style="font-size:10px; color:#a1a1a6">頁面 ${i+1}</span><input id="qInput-${i}" style="border:none; width:100%; font-size:16px; outline:none; background:transparent" value="${q}"></div><button onclick="window.saveQuote(${i}, document.getElementById('qInput-${i}').value)" style="background:#000; color:#fff; border:none; border-radius:12px; padding:6px 12px; font-size:12px; font-weight:bold; flex-shrink:0; margin-left:10px">確定</button>`;
+            ed.appendChild(d);
+        });
+        triggerSplash(0); 
     };
-    window.nextPage = () => { if(cur < 4) { cur++; triggerSplash(cur); } };
-    window.prevPage = () => { if(cur > 0) { cur--; triggerSplash(cur); } };
-    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-    window.addEventListener('touchend', e => {
-        const dist = startY - e.changedTouches[0].clientY;
-        const target = e.target;
-        if (target.closest('.galaxy-stage') || target.closest('.memory-area')) return;
-        if (Math.abs(dist) > 80) { const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); if (next !== cur) { cur = next; triggerSplash(cur); } }
-    });
+    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
+    window.resetMemories = async () => { if(confirm('數據清空？')) { const snap = await getDocs(collection(db, "daily_logs")); for (const s of snap.docs) { await deleteDoc(doc(db, "daily_logs", s.id)); } window.loadMemories(); showToast('數據已清空'); } };
+    window.addNewTag = () => { const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('新增成功'); } };
+
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         const area = document.getElementById('memoryArea'); area.innerHTML = '';
@@ -174,16 +163,30 @@
                     const h = document.createElement('div'); h.className = 'date-anchor'; h.innerText = `${dStr} ${wks[date.getDay()]}`; area.appendChild(h); lastDate = dStr;
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:10px; color:#a1a1a6; margin-bottom:5px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${d.data().weather || ''}</div><div style="font-size:18px; font-weight:600; color:#1d1d1f; line-height:1.4; margin-bottom:10px;">${d.data().action}</div><div class="weather-picker" style="display:flex; gap:6px; margin:8px 0;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;gap:8px;"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:10px; color:#aaa; outline:none; width:110px;" placeholder="記錄天氣心情..."><button class="confirm-btn" onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)">確定</button></div>`;
+                div.innerHTML = `<div style="font-size:10px; color:#a1a1a6; margin-bottom:5px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · ${d.data().weather || ''}</div><div style="font-size:18px; font-weight:600; color:#1d1d1f; line-height:1.4; margin-bottom:10px;">${d.data().action}</div><div class="weather-picker" style="display:flex; gap:6px; margin:8px 0;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;gap:8px;"><input type="text" id="editW-${d.id}" style="border:none; border-bottom:0.5px solid #eee; font-size:10px; color:#aaa; outline:none; width:110px;" placeholder="修改天氣..."><button onclick="window.saveCustomWeather('${d.id}', document.getElementById('editW-${d.id}').value)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:9px;">確定</button></div>`;
                 area.appendChild(div);
             }
         });
     };
     window.updateWeather = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); };
-    window.saveCustomWeather = async (id, val) => { if(!val) return; await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); showToast('心情已鎖定'); };
-    window.resetMemories = async () => { if(confirm('清空數據？')) { const snap = await getDocs(collection(db, "daily_logs")); snap.forEach(async s => await deleteDoc(doc(db, "daily_logs", s.id))); window.loadMemories(); } };
-    window.saveQuote = (i, v) => { window.hapticImpact(); quotes[i] = v; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast(`已鎖定`); };
-    window.addNewTag = () => { window.hapticImpact(); const input = document.getElementById('newTagInput'); if(input.value) { tags.unshift({ name: input.value, selected: true, count: 0 }); renderAll(); input.value = ''; showToast('新增成功'); } };
+    window.saveCustomWeather = async (id, val) => { if(!val) return; await updateDoc(doc(db, "daily_logs", id), { weather: val }); window.loadMemories(); showToast('心情已更新'); };
+
+    let cur = 0, startY = 0;
+    const triggerSplash = (idx) => {
+        const splash = document.getElementById('splashLayer'), container = document.getElementById('mainContainer');
+        splash.innerHTML = `<h2>${quotes[idx]}</h2>`; container.classList.remove('visible'); splash.classList.add('active');
+        setTimeout(() => { container.style.transform = `translateY(-${idx * 100}vh)`; document.querySelectorAll('.dot').forEach((d,i) => {d.style.background = i === idx ? '#000' : '#d2d2d7'; d.style.transform = i === idx ? 'scale(2.2)' : 'scale(1)';}); if(idx === 2) loadInsight(); if(idx === 3) window.loadMemories(); }, 1400);
+        setTimeout(() => { splash.classList.remove('active'); container.classList.add('visible'); }, 2600);
+    };
+    window.nextPage = () => { if(cur < 4) { cur++; triggerSplash(cur); } };
+    window.prevPage = () => { if(cur > 0) { cur--; triggerSplash(cur); } };
+    window.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+    window.addEventListener('touchend', e => {
+        const dist = startY - e.changedTouches[0].clientY;
+        const target = e.target;
+        if (target.closest('.galaxy-stage') || target.closest('.memory-area') || target.closest('#quoteEditor')) return;
+        if (Math.abs(dist) > 80) { const next = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); if (next !== cur) { cur = next; triggerSplash(cur); } }
+    });
 </script>
 </body>
 </html>
