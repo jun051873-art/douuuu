@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 避讓重疊最終版</title>
+    <title>在幹嘛 1 號 - 黃金避位版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        
         #toast { position: fixed; bottom: 15dvh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 30px; border-radius: 35px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
         
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
@@ -18,7 +17,6 @@
         .main-container { width: 100%; height: 500dvh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100dvh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: calc(13dvh + var(--safe-top)) !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; justify-content: center; }
 
         * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -29,24 +27,20 @@
         /* P0 標籤：黑底純白字 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
 
-        /* P1 標籤：方形圓角 */
-        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; }
-        .square-tag.selected { background: #000; color: #fff; border: none; animation: none; transform: scale(1.05); }
-
         /* 側邊導航點點 */
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
 
-        /* 透視宇宙 */
-        .galaxy-stage { width: 100%; height: 42dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 7dvh; background: #fff; overflow: visible; }
+        /* 💡 透視宇宙：縮減高度與半徑，騰出下方空間 */
+        .galaxy-stage { width: 100%; height: 38dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 5dvh; background: #fff; overflow: visible; }
         .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3); }
 
-        /* 💡 設定頁與回憶頁空間優化：寬度縮減至 82% 避開側邊點點 */
-        .safe-content-area { width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto; }
-        
+        /* 💡 安全內容區：避開點點，寬度 82% */
+        .safe-content-area { width: 82%; margin-top: 5dvh; max-height: 45dvh; overflow-y: auto; }
+        .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 22px; position: relative; margin-top: 1vh; }
+
         .input-section { position: absolute; bottom: 18dvh; display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
-        .nav-hotspot { position: absolute; left: 0; width: 100%; height: 10dvh; z-index: 500; }
     </style>
 </head>
 <body>
@@ -63,14 +57,13 @@
         <p style="font-size: 11px; color: #ddd; margin-top: -10px; font-weight: 300; letter-spacing: 1px;">點擊切換開關 · 長按標籤刪除</p>
         <div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div>
         <div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div>
-        <div class="nav-hotspot nav-top" onclick="prevPage()"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
     </section>
     
     <section class="page" id="p2">
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
         <h1 style="margin-top: 10dvh !important;">透視</h1>
         <div id="stage2" class="galaxy-stage"></div>
-        <div id="insightArea" style="width:82%; font-size:12px; color:#bbb; line-height:2.6; border: none; margin-bottom: 8dvh; text-align: center;"></div>
+        <div id="insightArea" style="width:82%; font-size:12px; color:#bbb; line-height:2.6; border: none; margin-top: 2dvh; margin-bottom: 10dvh; text-align: center;"></div>
         <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
     </section>
     
@@ -78,7 +71,7 @@
         <div class="nav-hotspot nav-top" onclick="prevPage()"></div>
         <h1 style="display:flex; align-items: baseline; justify-content: center; margin-top: 10dvh !important;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #bbb; font-weight: 400; cursor:pointer; margin-left: -2px; letter-spacing: -1px;">時光機▼</span></h1>
         <div id="timeMachine" style="position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); max-height: 50dvh; overflow-y: auto;"></div>
-        <div id="memoryArea" style="width: 82%;" class="memory-area"></div>
+        <div id="memoryArea" class="memory-area"></div>
         <div class="nav-hotspot nav-bottom" onclick="nextPage()"></div>
     </section>
     
@@ -109,6 +102,7 @@
         const s2 = document.getElementById('stage2'); s2.innerHTML = '';
         const max = sorted[0]?.[1] || 1;
         const spiralCoords = [{x:0, y:0}, {x:0, y:-1}, {x:0.8, y:-0.5}, {x:0.8, y:0.5}, {x:0, y:1}, {x:-0.8, y:0.5}, {x:-0.8, y:-0.5}];
+        const baseRadius = 115; // 💡 縮減半徑確保文字不被遮蓋
 
         sorted.forEach(([name, count], i) => {
             if (i >= 7) return;
@@ -116,7 +110,7 @@
             const size = 65 + (ratio * 105);
             const grays = [0, 80, 130, 180, 230];
             const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 135}px - ${size/2}px); top:calc(50% + ${coord.y * 135}px - ${size/2}px); background:rgb(${grays[Math.min(4,i)]},${grays[Math.min(4,i)]},${grays[Math.min(4,i)]}); color:${grays[Math.min(4,i)]<130?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*4)}px; z-index:${100-i}; animation: naturalPulse ${4+Math.random()*3}s infinite ease-in-out;`;
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * baseRadius}px - ${size/2}px); top:calc(50% + ${coord.y * baseRadius}px - ${size/2}px); background:rgb(${grays[Math.min(4,i)]},${grays[Math.min(4,i)]},${grays[Math.min(4,i)]}); color:${grays[Math.min(4,i)]<130?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*4)}px; z-index:${100-i}; animation: naturalPulse ${4+Math.random()*3}s infinite ease-in-out;`;
             b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
         });
         document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>紀錄總量：${snap.size} 則</span><br><span>最常時間：14:00 - 16:00</span>`;
