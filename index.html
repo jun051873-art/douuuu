@@ -3,44 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 賈伯斯意志最終版</title>
+    <title>在幹嘛 1 號 - 賈伯斯精神</title>
     <style>
-        :root { --safe-top: env(safe-area-inset-top); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 15dvh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 30px; border-radius: 35px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
-        #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
-        #splashLayer.active { opacity: 1; pointer-events: all; }
-        #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.8s ease-in-out forwards; }
-        @keyframes textBreath { 0% { opacity: 0; filter: blur(8px); transform: translateY(10px); } 30% { opacity: 1; filter: blur(0); transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
-
+        
         .main-container { width: 100%; height: 500dvh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; opacity: 0; }
         .main-container.visible { opacity: 1; }
         .page { width: 100%; height: 100dvh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: calc(13dvh + var(--safe-top)) !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; justify-content: center; }
+        
+        /* 標題高度適配 iPhone */
+        h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: calc(12dvh + var(--safe-top)) !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #000; text-align: center; justify-content: center; }
 
         * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
         input { -webkit-user-select: auto; user-select: auto; outline: none; }
 
+        /* P0 & P1: 標籤視覺 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
         .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; }
         .square-tag.selected { background: #000; color: #fff; border: none; transform: scale(1.05); }
 
-        .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
+        /* 💡 側邊導航點點：確保不重疊 */
+        .dots-container { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
 
-        .galaxy-stage { width: 100%; height: 38dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6dvh; overflow: visible; }
-        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3); }
+        /* 💡 透視宇宙：正中心、不重疊、大小顏色分明 */
+        .galaxy-stage { width: 100%; height: 45dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 5dvh; overflow: visible; }
+        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        .memory-area { width: 85%; overflow-y: auto; height: 68dvh; border-left: 1px solid #f2f2f7; padding-left: 24px; position: relative; margin-top: 2vh; }
+        /* 💡 回憶頁：深度適配手機長度 */
+        .memory-area { width: 82%; overflow-y: auto; height: 68dvh; border-left: 1px solid #f2f2f7; padding-left: 24px; position: relative; margin-top: 1vh; }
         .date-anchor { position: relative; font-size: 13px; font-weight: 600; margin: 40px 0 24px -24px; padding-left: 28px; color: #8e8e93; letter-spacing: 1px; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 22px; height: 2px; background: #000; }
-        .content-main { font-size: 18px; font-weight: 700; color: #000; line-height: 1.5; margin-bottom: 12px; }
-        .weather-btn { background: rgba(0,0,0,0.03); border: none; border-radius: 8px; padding: 5px 12px; font-size: 11px; color: #a1a1a6; margin-right: 6px; font-weight: 500; }
+        .memory-item { margin-bottom: 40px; }
+        .content-main { font-size: 18px; font-weight: 700; color: #000; line-height: 1.6; margin-bottom: 12px; }
+        .weather-btn { background: rgba(0,0,0,0.03); border: none; border-radius: 8px; padding: 6px 14px; font-size: 11px; color: #a1a1a6; margin-right: 6px; }
         .weather-btn.active { background: #000 !important; color: #fff !important; }
 
-        .input-section { position: absolute; bottom: 18dvh; display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
-        @keyframes naturalPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.88; } }
+        .input-section { position: absolute; bottom: calc(15dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #000; padding: 6px; background: #fff; z-index: 10; }
+        @keyframes naturalPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.03); opacity: 0.9; } }
     </style>
 </head>
 <body>
@@ -54,7 +57,7 @@
     
     <section class="page" id="p1"><h1>標籤</h1><p style="font-size: 11px; color: #ddd; margin-top: -10px; font-weight: 300; letter-spacing: 1px;">點擊切換開關 · 長按標籤刪除</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width: 82%; font-size: 12px; color: #bbb; line-height: 2.6; margin-top: 5dvh; text-align: center;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width: 82%; font-size: 12px; color: #bbb; line-height: 2.6; margin-top: 4dvh; text-align: center;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
     
     <section class="page" id="p3"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1 style="display:flex; align-items: baseline; justify-content: center; margin-top: 10dvh !important;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #bbb; font-weight: 400; cursor:pointer; margin-left: -2px;">時光機▼</span></h1><div id="timeMachine" style="position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); max-height: 50dvh; overflow-y: auto;"></div><div id="memoryArea" class="memory-area"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
     
@@ -76,7 +79,7 @@
     window.saveAction = async (t, v) => { 
         const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return; 
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "曬", timestamp: serverTimestamp() }); 
-        showToast(t === 'input' ? '已珍藏' : '已紀錄');
+        showToast(t === 'input' ? '已珍藏' : '已紀錄'); [cite: 2026-02-19]
         if(t === 'input') document.getElementById('userInput').value = ''; renderAll(); 
     };
 
@@ -103,6 +106,7 @@
         });
     };
 
+    /* 💡 回憶功能修復 */
     window.updateWeather = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); showToast('已紀錄'); };
     window.saveCustomWeather = async (id, inputId) => { 
         const val = document.getElementById('editW-' + inputId).value; if(!val) return; 
@@ -115,13 +119,17 @@
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const s2 = document.getElementById('stage2'); s2.innerHTML = '';
         const max = sorted[0]?.[1] || 1;
-        const spiralCoords = [{x:0, y:0}, {x:0, y:-1}, {x:0.8, y:-0.5}, {x:0.8, y:0.5}, {x:0, y:1}, {x:-0.8, y:0.5}, {x:-0.8, y:-0.5}];
+        // 💡 絕對正中心、不重疊螺旋坐標
+        const spiralCoords = [{x:0, y:0}, {x:0, y:-1}, {x:0.95, y:-0.35}, {x:0.95, y:0.35}, {x:0, y:1}, {x:-0.95, y:0.35}, {x:-0.95, y:-0.35}];
+        const baseRadius = 145; 
+
         sorted.forEach(([name, count], i) => {
             if (i >= 7) return;
             const coord = spiralCoords[i]; const ratio = count / max;
             const size = 65 + (ratio * 115);
+            const grays = [0, 80, 130, 180, 210, 230, 245];
             const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 230][Math.min(4,i)]},${[0, 80, 130, 180, 230][Math.min(4,i)]},${[0, 80, 130, 180, 230][Math.min(4,i)]}); color:${[0, 80, 130, 180, 230][Math.min(4,i)]<130?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; animation: naturalPulse ${4+Math.random()*3}s infinite ease-in-out;`;
+            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * baseRadius}px - ${size/2}px); top:calc(50% + ${coord.y * baseRadius}px - ${size/2}px); background:rgb(${grays[i]},${grays[i]},${grays[i]}); color:${grays[i]<130?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i};`;
             b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
         });
         document.getElementById('insightArea').innerHTML = `<span>重心：${sorted[0]?.[0] || '--'}</span><br><span>紀錄總量：${snap.size} 則</span><br><span>最常時間：14:00 - 16:00</span>`;
