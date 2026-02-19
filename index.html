@@ -3,24 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 最終物理歸位</title>
+    <title>在幹嘛 1 號 - 物理重建版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; overflow: hidden; }
+        
+        /* 徹底根除藍框 */
         * { -webkit-tap-highlight-color: transparent; outline: none !important; -webkit-user-select: none; box-sizing: border-box; }
-        input { -webkit-user-select: auto; }
+        input { -webkit-user-select: auto; outline: none !important; border: none !important; }
 
-        /* 💡 唯美浮現提示 */
+        /* 唯美浮現提示 */
         #etherealToast { position: fixed; top: 46dvh; left: 50%; transform: translateX(-50%); color: #3a3a3c; font-size: 17px; font-weight: 200; letter-spacing: 5px; opacity: 0; transition: 1.2s; z-index: 9999; pointer-events: none; }
         #etherealToast.active { opacity: 0.7; transform: translateX(-50%) translateY(-25px); }
 
-        /* 💡 Splash 標語層 */
+        /* Splash 標語層 */
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.6s; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
         #splashLayer h2 { font-size: 19px; font-weight: 200; letter-spacing: 6px; color: #1c1c1e; animation: textBreath 2.5s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 💡 全機物理翻頁架構：橫向排列 */
+        /* 橫向物理翻頁架構 */
         .main-container { width: 500%; height: 100%; display: flex; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .page { width: 20%; height: 100dvh; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(11dvh + var(--safe-top)); overflow: hidden; }
         
@@ -30,25 +32,28 @@
         .dot { width: 4px; height: 4px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #1c1c1e; transform: scale(2); }
 
-        /* 透視舞台 */
-        .galaxy-stage { width: 100%; height: 40dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 5dvh; overflow: visible; }
+        /* 透視：對稱間距 0.09公分 */
+        .galaxy-stage { width: 100%; height: 40dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 8.5dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; animation-delay: var(--b-delay); }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
-        #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 5dvh; text-align: center; }
+        
+        #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 6.5dvh; text-align: center; }
 
-        /* 回憶頁與標籤樣式 */
+        /* 回憶：灰底自訂樣式與穩定滾動 */
         .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; }
         .date-anchor { position: relative; font-size: 13px; font-weight: 600; margin: 35px 0 20px -24px; padding-left: 28px; color: #8e8e93; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 22px; height: 2px; background: #2c2c2e; }
         .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
+        
         .weather-active-label { background: #2c2c2e; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; }
         .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
         .weather-btn { background: transparent; border: none; padding: 6px 6px; font-size: 12px; color: #aeaeb2; }
 
-        .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; }
-        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; z-index: 10; }
+        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
         .square-tag.selected { background: #1c1c1e; color: #fff; border: none; transform: scale(1.05); }
-        .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; }
+        .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; cursor: pointer; }
+        
         #timeMachine { position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border-radius: 20px; z-index: 2000; display: none; padding: 15px; backdrop-filter: blur(15px); max-height: 50dvh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
     </style>
 </head>
@@ -109,8 +114,8 @@
                 const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
                 const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
                 if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getDate()}" class="date-anchor">${dStr}</div>`; tm.innerHTML += `<div style="padding:12px;border-bottom:0.5px solid #eee;" onclick="window.jumpTo('${date.getDate()}')">${dStr}</div>`; lastDate = dStr; }
-                const div = document.createElement('div'); div.className = 'memory-item';
                 const labelClass = d.data().isCustom ? 'custom-active-label' : 'weather-active-label';
+                const div = document.createElement('div'); div.className = 'memory-item';
                 div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${labelClass}">${d.data().weather || ''}</span></div><div class="content-main">${d.data().action}</div><div style="display:flex; margin-top:6px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn" onclick="window.updW('${d.id}','${w}', false)">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; color:#aeaeb2; width:110px; background:transparent;" placeholder="制定心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                 area.appendChild(div);
             }
@@ -152,8 +157,7 @@
 
     window.addNewTag = () => { const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); document.getElementById('newTagInput').value=''; showToast('已紀錄'); } };
 
-    let cur = 0; 
-    window.addEventListener('touchstart', e => { window.startX = e.touches[0].clientX; });
+    let cur = 0; window.addEventListener('touchstart', e => { window.startX = e.touches[0].clientX; });
     window.addEventListener('touchend', e => {
         const dX = window.startX - e.changedTouches[0].clientX;
         if (Math.abs(dX) > 70) { 
