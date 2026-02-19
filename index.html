@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 縱向意志版</title>
+    <title>在幹嘛 1 號 - 意圖鎖定版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
         * { -webkit-tap-highlight-color: transparent; outline: none !important; -webkit-user-select: none; box-sizing: border-box; }
-        input { -webkit-user-select: auto; outline: none !important; border: none !important; }
+        input { -webkit-user-select: auto; }
 
-        /* 唯美浮現訊息 [cite: 2026-02-19] */
+        /* 唯美浮現提示 */
         #etherealToast { position: fixed; top: 46dvh; left: 50%; transform: translateX(-50%); color: #3a3a3c; font-size: 17px; font-weight: 200; letter-spacing: 5px; opacity: 0; transition: 1s; z-index: 9999; pointer-events: none; }
         #etherealToast.active { opacity: 0.7; transform: translateX(-50%) translateY(-25px); }
 
@@ -20,38 +20,37 @@
         #splashLayer h2 { font-size: 19px; font-weight: 200; letter-spacing: 6px; color: #1c1c1e; animation: textBreath 2.4s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 💡 全機縱向物理架構 [cite: 2026-02-19] */
+        /* 縱向物理架構 */
         .main-container { width: 100%; height: 500%; display: flex; flex-direction: column; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .page { width: 100%; height: 20%; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(11dvh + var(--safe-top)); overflow: hidden; }
-        
         h1 { font-size: 32px; letter-spacing: 14px; font-weight: 300; margin: 0; color: #1c1c1e; text-align: center; }
 
-        /* 💡 左側垂直導航點 [cite: 2026-02-17, 2026-02-19] */
+        /* 左側導航點 */
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #1c1c1e; transform: scale(2.5); }
 
-        /* 透視舞台 */
+        /* 透視：0.09公分避位 */
         .galaxy-stage { width: 100%; height: 40dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 8.5dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; animation-delay: var(--b-delay); }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
         #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 6.5dvh; text-align: center; }
 
-        /* 回憶頁視覺 [cite: 2026-02-19] */
+        /* 回憶：滾動區塊鎖定 [cite: 2026-02-19] */
         .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; }
         .date-anchor { position: relative; font-size: 13px; font-weight: 600; margin: 35px 0 20px -24px; padding-left: 28px; color: #8e8e93; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 22px; height: 2px; background: #2c2c2e; }
         .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
+        
         .weather-active-label { background: #2c2c2e; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; }
         .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
         .weather-btn { background: transparent; border: none; padding: 6px 6px; font-size: 12px; color: #aeaeb2; }
 
         .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; }
-        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .square-tag.selected { background: #1c1c1e; color: #fff; border: none; transform: scale(1.05); }
-        .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; cursor: pointer; }
-        
-        #timeMachine { position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border-radius: 20px; z-index: 2000; display: none; padding: 15px; backdrop-filter: blur(15px); max-height: 50dvh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; }
+        #timeMachine { position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border-radius: 20px; z-index: 2000; display: none; padding: 15px; backdrop-filter: blur(15px); max-height: 50dvh; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -87,9 +86,37 @@
             document.getElementById('mainContainer').style.transform = `translateY(-${idx * 20}%)`;
             document.querySelectorAll('.dot').forEach((d,i) => d.className = i === idx ? 'dot active' : 'dot');
             if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
-        }, 1000);
-        setTimeout(() => s.classList.remove('active'), 2500);
+        }, 1200);
+        setTimeout(() => s.classList.remove('active'), 2600);
     };
+
+    /* 💡 翻頁意圖判定 [cite: 2026-02-19] */
+    let cur = 0;
+    window.addEventListener('touchstart', e => { 
+        window.startY = e.touches[0].clientY;
+        // 偵測是否在滾動區內
+        window.inScrollZone = e.target.closest('.memory-area') || e.target.closest('#quoteEditor');
+    }, {passive: true});
+
+    window.addEventListener('touchend', e => {
+        const dY = window.startY - e.changedTouches[0].clientY;
+        const absDY = Math.abs(dY);
+        
+        // 如果在滾動區內，只有極大加速度且已到頂/到底才考慮翻頁
+        if (window.inScrollZone) {
+            const zone = window.inScrollZone;
+            const isAtTop = zone.scrollTop <= 0;
+            const isAtBottom = zone.scrollTop + zone.offsetHeight >= zone.scrollHeight;
+            
+            if ((dY < -120 && isAtTop) || (dY > 120 && isAtBottom)) {
+                cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
+                triggerSplash(cur);
+            }
+        } else if (absDY > 80) {
+            cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
+            triggerSplash(cur);
+        }
+    }, {passive: true});
 
     window.saveAction = async (t, v, isCust) => {
         const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return;
@@ -131,7 +158,6 @@
             b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*14-7)+'px'}; --b-y:${(Math.random()*14-7)+'px'};`;
             b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
         });
-        document.getElementById('insightArea').innerHTML = `重心：${sorted[0]?.[0] || '--'}<br>紀錄總量：${snap.size} 則<br>最常時間：14:00 - 16:00`;
     };
 
     window.renderAll = () => {
@@ -149,17 +175,6 @@
     };
 
     window.addNewTag = () => { const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); document.getElementById('newTagInput').value=''; showToast('已紀錄'); } };
-
-    let cur = 0; window.addEventListener('touchstart', e => { window.startY = e.touches[0].clientY; });
-    window.addEventListener('touchend', e => {
-        const dY = window.startY - e.changedTouches[0].clientY;
-        /* 💡 縱向翻頁判定：大於 70px 縱移即觸發 [cite: 2026-02-19] */
-        if (Math.abs(dY) > 70) { 
-            cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); 
-            triggerSplash(cur); 
-        }
-    });
-    
     window.onload = () => {
         const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
         quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button onclick="window.sq(${i})" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
