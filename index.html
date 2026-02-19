@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 邏輯修復定稿</title>
+    <title>在幹嘛 1 號 - 終極還原版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
         #toast { position: fixed; bottom: 15dvh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 12px 30px; border-radius: 35px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
         #splashLayer.active { opacity: 1; pointer-events: all; }
@@ -26,20 +26,22 @@
         /* P0: 標籤黑底白字 */
         .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; cursor: pointer; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
 
+        /* 💡 P1: 標籤頁面架構還原 */
+        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; }
+        .square-tag.selected { background: #000; color: #fff; border: none; animation: none; transform: scale(1.05); }
+
         /* 側邊導航點點 */
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
 
-        /* 透視：大氣平衡比例 */
+        /* 透視宇宙 */
         .galaxy-stage { width: 100%; height: 40dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6dvh; background: #fff; overflow: visible; }
         .sphere { position: absolute; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3); }
-        #insightArea { width: 82%; font-size: 12px; color: #bbb; line-height: 2.6; margin-top: 5dvh; text-align: center; }
 
-        /* 回憶頁比例 */
+        /* 💡 回憶頁文字放大優化 */
         .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 22px; position: relative; margin-top: 1vh; }
-        .date-anchor { position: relative; font-size: 14px; font-weight: 700; margin: 30px 0 18px -22px; padding-left: 24px; color: #000; }
-        .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 22px; height: 2.5px; background: #000; } 
+        .weather-info { font-size: 15px !important; color: #8e8e93; font-weight: 500; } 
         .weather-btn { background: #f2f2f7; border: none; border-radius: 6px; padding: 6px 14px; font-size: 11px; color: #3a3a3c; margin-right: 6px; font-weight: 600; cursor: pointer; }
         .weather-btn.active { background: #000 !important; color: #fff !important; }
 
@@ -58,7 +60,7 @@
     
     <section class="page" id="p1"><h1>標籤</h1><p style="font-size: 11px; color: #ddd; margin-top: -10px; font-weight: 300; letter-spacing: 1px;">點擊切換開關 · 長按標籤刪除</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1 style="margin-top: 10dvh !important;">透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
+    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1 style="margin-top: 10dvh !important;">透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width: 82%; font-size: 12px; color: #bbb; line-height: 2.6; margin-top: 5dvh; text-align: center;"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
     
     <section class="page" id="p3"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1 style="display:flex; align-items: baseline; justify-content: center; margin-top: 10dvh !important;">回憶<span onclick="window.toggleTimeMachine()" style="font-size: 10px; color: #bbb; font-weight: 400; cursor:pointer; margin-left: -2px; letter-spacing: -1px;">時光機▼</span></h1><div id="timeMachine" style="position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); max-height: 50dvh; overflow-y: auto;"></div><div id="memoryArea" class="memory-area"></div><div class="nav-hotspot nav-bottom" onclick="nextPage()"></div></section>
     
@@ -81,7 +83,6 @@
         const val = t === 'input' ? document.getElementById('userInput').value : v; 
         if(!val) return; 
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: "曬", timestamp: serverTimestamp() }); 
-        /* 💡 修正：點擊標籤顯示「已紀錄」，手動輸入顯示「已珍藏」 */
         showToast(t === 'input' ? '已珍藏' : '已紀錄'); 
         if(t === 'input') document.getElementById('userInput').value = ''; 
         renderAll(); 
@@ -105,7 +106,7 @@
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
                 div.innerHTML = `
-                    <div style="font-size:12px; color:#000; margin-bottom:8px; font-weight:800;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · <span style="color:#bbb; font-weight:400;">${d.data().weather || ''}</span></div>
+                    <div style="font-size:12px; color:#000; margin-bottom:8px; font-weight:800;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} · <span class="weather-info">${d.data().weather || ''}</span></div>
                     <div style="font-size:18px; font-weight:600; color:#000; line-height:1.5;">${d.data().action}</div>
                     <div style="margin-top:15px; display:flex; gap:6px;">
                         ${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn ${d.data().weather==w?'active':''}" onclick="window.updateWeather('${d.id}','${w}')">${w}</button>`).join('')}
@@ -119,7 +120,6 @@
         });
     };
 
-    /* 💡 修復回憶頁按鈕與輸入框邏輯 */
     window.updateWeather = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); showToast('已紀錄'); };
     window.saveCustomWeather = async (id, inputId) => { 
         const val = document.getElementById('editW-' + inputId).value;
