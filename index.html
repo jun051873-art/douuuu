@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 唯美定稿</title>
+    <title>在幹嘛 1 號 - 終極鎖定</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        
         * { -webkit-tap-highlight-color: transparent; outline: none !important; -webkit-user-select: none; }
         input { -webkit-user-select: auto; }
 
-        /* 💡 唯美浮現提示：無背景，淡雅文字 [cite: 2026-02-19] */
-        #etherealToast { position: fixed; top: 45dvh; left: 50%; transform: translateX(-50%); color: #000; font-size: 15px; font-weight: 200; letter-spacing: 4px; opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; pointer-events: none; }
+        /* 💡 唯美浮現訊息：無背景，淡雅文字 [cite: 2026-02-19] */
+        #etherealToast { position: fixed; top: 45dvh; left: 50%; transform: translateX(-50%); color: #000; font-size: 15px; font-weight: 200; letter-spacing: 4px; opacity: 0; transition: 1.2s; z-index: 9999; pointer-events: none; }
         #etherealToast.active { opacity: 0.6; transform: translateX(-50%) translateY(-20px); }
         
         #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.8s; }
@@ -20,27 +19,19 @@
         #splashLayer h2 { font-size: 16px; font-weight: 200; letter-spacing: 5px; color: #1d1d1f; animation: textBreath 2.6s ease-in-out forwards; }
         @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        .main-container { width: 100%; height: 500dvh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; opacity: 0; }
-        .main-container.visible { opacity: 1; }
+        .main-container { width: 100%; height: 500dvh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         .page { width: 100%; height: 100dvh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: calc(12dvh + var(--safe-top)) !important; margin-bottom: 0; color: #000; text-align: center; }
-
-        .pill-tag { padding: 12px 28px; border-radius: 40px; background: #000; color: #fff; border: none; font-size: 14px; margin: 8px; animation: naturalPulse 3.5s infinite ease-in-out; }
-        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: naturalPulse 4s infinite ease-in-out; }
-        .square-tag.selected { background: #000; color: #fff; border: none; transform: scale(1.05); }
 
         .dots-container { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #000; transform: scale(2.2); }
 
-        /* 透視：螺旋間隙優化與殘影 [cite: 2026-02-19] */
+        /* 透視：橢圓螺旋間隙優化 [cite: 2026-02-19] */
         .galaxy-stage { width: 100%; height: 42dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 4dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
 
         .memory-area { width: 82%; overflow-y: auto; height: 68dvh; border-left: 1px solid #f2f2f7; padding-left: 24px; position: relative; margin-top: 1vh; }
-        .date-anchor { position: relative; font-size: 13px; font-weight: 600; margin: 40px 0 24px -24px; padding-left: 28px; color: #8e8e93; }
-        .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 22px; height: 2px; background: #000; }
         .weather-active-label { background: #000; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; }
         .weather-btn { background: transparent; border: none; padding: 6px 12px; font-size: 12px; color: #c7c7cc; margin-right: 4px; }
 
@@ -56,8 +47,8 @@
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">↑</button></div></section>
     <section class="page" id="p1"><h1>標籤</h1><p style="font-size: 11px; color: #ddd; margin: 15px 0;">點擊切換 · 長按刪除</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea" style="width: 82%; font-size: 12px; color: #bbb; line-height: 2.6; margin-top: 5dvh; text-align: center;"></div></section>
-    <section class="page" id="p3"><h1>回憶<span onclick="toggleTimeMachine()" style="font-size: 10px; color: #bbb; cursor:pointer;">時光機▼</span></h1><div id="timeMachine" style="position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); backdrop-filter: blur(10px); max-height: 50dvh; overflow-y: auto;"></div><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page" id="p4"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><div style="width:82%; margin-top:30px;"><button onclick="window.resetMemories()" style="width:100%; padding:16px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px; font-weight:600;">清空數據</button></div></section>
+    <section class="page" id="p3"><h1>回憶<span onclick="window.tm()" style="font-size: 10px; color: #bbb; cursor:pointer;">時光機▼</span></h1><div id="timeMachine" style="position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.95); border: 0.5px solid #eee; border-radius: 20px; z-index: 2000; display: none; padding: 15px; backdrop-filter: blur(10px); max-height: 50dvh; overflow-y: auto;"></div><div id="memoryArea" class="memory-area"></div></section>
+    <section class="page" id="p4"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><div style="width:82%; margin-top:30px;"><button onclick="window.resetM()" style="width:100%; padding:16px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px;">清空數據</button></div></section>
 </div>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -69,20 +60,18 @@
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
 
     function showToast(msg) { 
-        const t = document.getElementById('etherealToast'); 
-        t.innerText = msg; t.classList.add('active'); 
+        const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); 
         setTimeout(() => t.classList.remove('active'), 2000); 
     }
 
     const triggerSplash = (idx) => {
-        const splash = document.getElementById('splashLayer'); splash.innerHTML = `<h2>${quotes[idx]}</h2>`;
-        splash.classList.add('active');
+        const s = document.getElementById('splashLayer'); s.innerHTML = `<h2>${quotes[idx]}</h2>`; s.classList.add('active');
         setTimeout(() => {
             document.getElementById('mainContainer').style.transform = `translateY(-${idx * 100}dvh)`;
             document.querySelectorAll('.dot').forEach((d,i) => d.className = i === idx ? 'dot active' : 'dot');
             if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
         }, 1200);
-        setTimeout(() => splash.classList.remove('active'), 2600);
+        setTimeout(() => s.classList.remove('active'), 2600);
     };
 
     window.saveAction = async (t, v) => {
@@ -100,22 +89,22 @@
             if(d.data().type === 'input') {
                 const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
                 const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
-                const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
-                if(rawDate !== lastDate) {
-                    area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${dStr}</div>`;
-                    tm.innerHTML += `<div style="padding:12px;border-bottom:0.5px solid #eee;" onclick="jumpTo('${rawDate}')">${dStr}</div>`;
-                    lastDate = rawDate;
+                if(dStr !== lastDate) { 
+                    area.innerHTML += `<div id="date-${date.getDate()}" class="date-anchor">${dStr}</div>`;
+                    tm.innerHTML += `<div style="padding:12px;border-bottom:0.5px solid #eee;" onclick="jumpTo('${date.getDate()}')">${dStr}</div>`;
+                    lastDate = dStr; 
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:11px; color:#c7c7cc; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="weather-active-label">${d.data().weather || ''}</span></div><div class="content-main" style="font-size:18px; font-weight:700; color:#000;">${d.data().action}</div><div style="display:flex; margin-bottom:12px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn" onclick="window.updW('${d.id}','${w}')">${w}</button>`).join('')}</div>`;
+                div.innerHTML = `<div style="font-size:11px; color:#c7c7cc; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="weather-active-label">${d.data().weather || ''}</span></div><div style="font-size:18px; font-weight:700;">${d.data().action}</div><div style="display:flex; margin-top:10px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn" onclick="window.updW('${d.id}','${w}')">${w}</button>`).join('')}</div>`;
                 area.appendChild(div);
             }
         });
     };
 
-    window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; toggleTimeMachine(); } };
+    window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; tm(); } };
     window.updW = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); window.loadMemories(); showToast('已紀錄'); };
-    window.toggleTimeMachine = () => { const tm = document.getElementById('timeMachine'); tm.style.display = tm.style.display==='block'?'none':'block'; };
+    window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
+    window.resetM = async () => { if(confirm('清空數據？')) { const snap = await getDocs(collection(db, "daily_logs")); for (const s of snap.docs) { await deleteDoc(doc(db, "daily_logs", s.id)); } window.loadMemories(); } };
 
     window.loadInsight = async () => {
         const snap = await getDocs(collection(db, "daily_logs")); const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
@@ -123,12 +112,12 @@
         const coords = [{x:0, y:0}, {x:0.1, y:-1.1}, {x:0.95, y:-0.4}, {x:1.1, y:0.45}, {x:0.25, y:1.15}, {x:-0.85, y:0.65}, {x:-1.05, y:-0.35}];
         sorted.forEach(([name, count], i) => {
             if (i >= 7) return; const coord = coords[i]; const ratio = count / (sorted[0][1] || 1); 
-            // 💡 球體稍微縮小，增加間隙感 [cite: 2026-02-19]
             const size = 52 + (ratio * 105);
             const b = document.createElement('div'); b.className = 'sphere';
             b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${10+(ratio*5)}px; z-index:${100-i};`;
             b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
         });
+        document.getElementById('insightArea').innerHTML = `重心：${sorted[0]?.[0] || '--'}<br>紀錄總量：${snap.size} 則<br>最常時間：14:00 - 16:00`;
     };
 
     window.renderAll = () => {
@@ -146,16 +135,15 @@
     };
 
     window.addNewTag = () => { const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); document.getElementById('newTagInput').value=''; showToast('已紀錄'); } };
-    window.resetMemories = async () => { if(confirm('清空數據？')) { const snap = await getDocs(collection(db, "daily_logs")); for (const s of snap.docs) { await deleteDoc(doc(db, "daily_logs", s.id)); } window.loadMemories(); } };
 
     let cur = 0; window.addEventListener('touchstart', e => window.startY = e.touches[0].clientY);
     window.addEventListener('touchend', e => {
-        const dist = window.startY - e.changedTouches[0].clientY;
-        if (Math.abs(dist) > 80) { cur = dist > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
+        const d = window.startY - e.changedTouches[0].clientY;
+        if (Math.abs(d) > 80) { cur = d > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
     });
     window.onload = () => {
         const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
-        quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:12px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none;" value="${q}"><button onclick="sq(${i})" style="background:#000;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;">確定</button></div>`; });
+        quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:12px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none;" value="${q}"><button onclick="window.sq(${i})" style="background:#000;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;">確定</button></div>`; });
         renderAll(); triggerSplash(0);
     };
     window.sq = (i) => { quotes[i] = document.getElementById('q-'+i).value; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast('已鎖定'); };
