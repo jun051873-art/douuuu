@@ -3,186 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 終極定稿</title>
-    <style>
-        :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
-        * { -webkit-tap-highlight-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 邊界鎖定版</title>
+    <title>在幹嘛 1 號 - 月曆意志版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
         * { -webkit-tap-highlight-color: transparent; outline: none !important; -webkit-user-select: none; box-sizing: border-box; }
-        input { -webkit-user-select: auto; }
-
-        #etherealToast { position: fixed; top: 46dvh; left: 50%; transform: translateX(-50%); color: #3a3a3c; font-size: 17px; font-weight: 200; letter-spacing: 5px; opacity: 0; transition: 1s; z-index: 9999; pointer-events: none; }
-        #etherealToast.active { opacity: 0.7; transform: translateX(-50%) translateY(-25px); }
-
-        #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.6s; }
-        #splashLayer.active { opacity: 1; pointer-events: all; }
-        #splashLayer h2 { font-size: 19px; font-weight: 200; letter-spacing: 6px; color: #1c1c1e; animation: textBreath 2.4s ease-in-out forwards; }
-        @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
-
-        .main-container { width: 100%; height: 500%; display: flex; flex-direction: column; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        .page { width: 100%; height: 20%; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(11dvh + var(--safe-top)); overflow: hidden; }
-        h1 { font-size: 32px; letter-spacing: 14px; font-weight: 300; margin: 0; color: #1c1c1e; text-align: center; }
-
-        .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
-        .dot.active { background: #1c1c1e; transform: scale(2.5); }
-
-        .galaxy-stage { width: 100%; height: 40dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 8.5dvh; overflow: visible; }
-        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; animation-delay: var(--b-delay); }
-        @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
-        #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 6.5dvh; text-align: center; }
-
-        .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; }
-        .date-anchor { position: relative; font-size: 11px; font-weight: 600; margin: 40px 0 24px -24px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; letter-spacing: 1px; }
-        .weather-active-label, .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
-        .weather-btn { background: transparent; border: none; padding: 6px 8px; font-size: 12px; color: #aeaeb2; }
-
-        .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; }
-        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .square-tag.selected { background: #1c1c1e; color: #fff; border: none; transform: scale(1.05); }
-        .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; }
-
-        #timeMachine { position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.98); border-radius: 20px; z-index: 2000; display: none; padding: 15px; backdrop-filter: blur(15px); max-height: 50dvh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-    </style>
-</head>
-<body>
-<div id="etherealToast"></div>
-<div id="splashLayer"></div>
-<div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
-
-<div class="main-container" id="mainContainer">
-    <section class="page"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;font-size:17px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#1c1c1e;color:#fff;border:none;border-radius:50%;width:34px;height:34px">↑</button></div></section>
-    <section class="page"><h1>標籤</h1><p style="font-size: 12px; color: #ddd; margin: 15px 0;">點擊切換 · 長按刪除</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
-    <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea"></div></section>
-    <section class="page">
-        <h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px;">時光機▼</span></h1>
-        <div id="timeMachine"></div><div id="memoryArea" class="memory-area"></div>
-    </section>
-    <section class="page"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><div style="width:82%; margin-top:30px;"><button onclick="window.resetM()" style="width:100%; padding:16px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px;">清空數據</button></div></section>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
-    const db = getFirestore(initializeApp(firebaseConfig));
-
-    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
-    let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
-
-    function showToast(msg) { const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); }
-
-    const triggerSplash = (idx) => {
-        const s = document.getElementById('splashLayer'); s.innerHTML = `<h2>${quotes[idx]}</h2>`; s.classList.add('active');
-        setTimeout(() => {
-            document.getElementById('mainContainer').style.transform = `translateY(-${idx * 20}%)`;
-            document.querySelectorAll('.dot').forEach((d,i) => d.className = i === idx ? 'dot active' : 'dot');
-            if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
-        }, 1200);
-        setTimeout(() => s.classList.remove('active'), 2600);
-    };
-
-    /* 💡 翻頁與邊界鎖定判定 [cite: 2026-02-19] */
-    let cur = 0;
-    window.addEventListener('touchstart', e => { 
-        window.startY = e.touches[0].clientY;
-        const tm = document.getElementById('timeMachine');
-        // 核心邏輯：如果時光機選單是開啟的(block)，則強制鎖定所有翻頁判定
-        window.tmActive = (tm.style.display === 'block');
-        window.inScrollZone = e.target.closest('.memory-area') || e.target.closest('#quoteEditor');
-    }, {passive: true});
-
-    window.addEventListener('touchend', e => {
-        if (window.tmActive) return; // 時光機開啟時，徹底封鎖翻頁指令
-        const dY = window.startY - e.changedTouches[0].clientY;
-        if (window.inScrollZone) {
-            const zone = window.inScrollZone;
-            if ((dY < -120 && zone.scrollTop <= 0) || (dY > 120 && (zone.scrollTop + zone.offsetHeight >= zone.scrollHeight))) {
-                cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur);
-            }
-        } else if (Math.abs(dY) > 80) { cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
-    }, {passive: true});
-
-    window.saveAction = async (t, v, isCust) => {
-        const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return;
-        await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: t==='input'?'':(v||'曬'), isCustom: isCust||false, timestamp: serverTimestamp() });
-        showToast(t === 'input' || isCust ? '已珍藏' : '已紀錄');
-        if(t === 'input') document.getElementById('userInput').value = ''; renderAll();
-    };
-
-    window.loadMemories = async () => {
-        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-        const area = document.getElementById('memoryArea'), tm = document.getElementById('timeMachine');
-        area.innerHTML = ''; tm.innerHTML = ''; let lastDate = "";
-        snap.forEach(d => {
-            if(d.data().type === 'input') {
-                const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
-                const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
-                if(dStr !== lastDate) { 
-                    area.innerHTML += `<div id="date-${date.getDate()}" class="date-anchor">${dStr}</div>`; 
-                    tm.innerHTML += `<div style="padding:16px; border-bottom:0.5px solid #eee; font-size:14px;" onclick="window.jumpTo('${date.getDate()}')">${dStr}</div>`;
-                    lastDate = dStr; 
-                }
-                const labelClass = d.data().isCustom ? 'custom-active-label' : 'weather-active-label';
-                const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${labelClass}">${d.data().weather || ''}</span></div><div class="content-main">${d.data().action}</div><div style="display:flex; margin-top:6px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn" onclick="window.updW('${d.id}','${w}', false)">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; color:#aeaeb2; width:110px; background:transparent;" placeholder="制定心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
-                area.appendChild(div);
-            }
-        });
-    };
-
-    window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
-    window.updW = async (id, w, isCust) => { if(!w) return; await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); window.loadMemories(); showToast(isCust ? '已珍藏' : '已紀錄'); };
-    window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
-    window.resetM = async () => { if(confirm('清空數據？')) { const snap = await getDocs(collection(db, "daily_logs")); for (const s of snap.docs) { await deleteDoc(doc(db, "daily_logs", s.id)); } window.loadMemories(); } };
-
-    window.loadInsight = async () => {
-        const snap = await getDocs(collection(db, "daily_logs")); const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
-        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]); const s2 = document.getElementById('stage2'); s2.innerHTML = '';
-        const coords = [{x:0, y:0}, {x:0.1, y:-1.2}, {x:1, y:-0.5}, {x:1.1, y:0.5}, {x:0.3, y:1.2}, {x:-0.95, y:0.7}, {x:-1.1, y:-0.4}];
-        sorted.forEach(([name, count], i) => {
-            if (i >= 7) return; const coord = coords[i]; const ratio = count / (sorted[0][1] || 1);
-            const size = 52 + (ratio * 102);
-            const b = document.createElement('div'); b.className = 'sphere';
-            b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*14-7)+'px'}; --b-y:${(Math.random()*14-7)+'px'};`;
-            b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
-        });
-        document.getElementById('insightArea').innerHTML = `重心：${sorted[0]?.[0] || '--'}<br>紀錄總量：${snap.size} 則<br>最常時間：14:00 - 16:00`;
-    };
-
-    window.renderAll = () => {
-        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1'); s0.innerHTML = ''; s1.innerHTML = '';
-        tags.forEach((t, i) => {
-            if(t.selected) { const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name; b.onclick = () => window.saveAction('tag', t.name); s0.appendChild(b); }
-            const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
-            b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:10px;opacity:0.5">${t.count||0}</span>`;
-            let timer;
-            b2.onmousedown = () => timer = setTimeout(() => { if(confirm('刪除標籤？')){ tags.splice(i,1); renderAll(); localStorage.setItem('myPills', JSON.stringify(tags)); } }, 1000);
-            b2.onmouseup = () => clearTimeout(timer); b2.ontouchstart = b2.onmousedown; b2.ontouchend = b2.onmouseup;
-            b2.onclick = () => { t.selected = !t.selected; renderAll(); localStorage.setItem('myPills', JSON.stringify(tags)); };
-            s1.appendChild(b2);
-        });
-    };
-
-    window.addNewTag = () => { const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); document.getElementById('newTagInput').value=''; showToast('已紀錄'); } };
-    window.onload = () => {
-        const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
-        quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button onclick="window.sq(${i})" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
-        renderAll(); triggerSplash(0);
-    };
-    window.sq = (i) => { quotes[i] = document.getElementById('q-'+i).value; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast('已鎖定'); };
-</script>
-</body>
-</html>
-: transparent; outline: none !important; -webkit-user-select: none; box-sizing: border-box; }
         input { -webkit-user-select: auto; }
 
         /* 唯美浮現訊息 */
@@ -205,27 +30,31 @@
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #1c1c1e; transform: scale(2.5); }
 
-        /* 透視舞台 */
+        /* 透視避位：0.09公分 */
         .galaxy-stage { width: 100%; height: 40dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 8.5dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; animation-delay: var(--b-delay); }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
         #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 6.5dvh; text-align: center; }
 
-        /* 回憶頁：對話視覺調換 */
+        /* 回憶視覺：視覺調換版 [cite: 2026-02-19] */
         .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; }
         .date-anchor { position: relative; font-size: 11px; font-weight: 600; margin: 40px 0 24px -24px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; letter-spacing: 1px; }
         .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
         .weather-active-label, .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
         .weather-btn { background: transparent; border: none; padding: 6px 8px; font-size: 12px; color: #aeaeb2; }
 
-        /* 設定與標籤視覺 */
+        /* 💡 終極月曆時光機 [cite: 2026-02-19] */
+        #timeMachine { position: absolute; top: 16dvh; width: 88%; background: rgba(255,255,255,0.98); border-radius: 30px; z-index: 2000; display: none; padding: 20px; backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; }
+        .cal-day { font-size: 14px; padding: 10px 0; border-radius: 12px; position: relative; color: #1c1c1e; }
+        .cal-dot-container { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; }
+        .heat-dot { width: 3px; height: 3px; background: #8e8e93; border-radius: 50%; opacity: 0.6; }
+
         .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; }
         .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .square-tag.selected { background: #1c1c1e; color: #fff; border: none; transform: scale(1.05); }
         .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; }
-
-        /* 💡 時光機選單：強化滾動區域判定 [cite: 2026-02-19] */
-        #timeMachine { position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.98); border-radius: 20px; z-index: 2000; display: none; padding: 15px; backdrop-filter: blur(15px); max-height: 50dvh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body>
@@ -239,7 +68,15 @@
     <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea"></div></section>
     <section class="page">
         <h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px;">時光機▼</span></h1>
-        <div id="timeMachine"></div><div id="memoryArea" class="memory-area"></div>
+        <div id="timeMachine">
+            <div class="cal-header">
+                <button onclick="window.changeMonth(-1)" style="border:none;background:none;font-size:18px;">‹</button>
+                <div id="calTitle" style="font-weight:600; font-size:16px;">2026年 2月</div>
+                <button onclick="window.changeMonth(1)" style="border:none;background:none;font-size:18px;">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+        <div id="memoryArea" class="memory-area"></div>
     </section>
     <section class="page"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><div style="width:82%; margin-top:30px;"><button onclick="window.resetM()" style="width:100%; padding:16px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px;">清空數據</button></div></section>
 </div>
@@ -252,6 +89,8 @@
 
     let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
+    let viewDate = new Date();
+    let logsCache = [];
 
     function showToast(msg) { const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); }
 
@@ -265,28 +104,27 @@
         setTimeout(() => s.classList.remove('active'), 2600);
     };
 
-    /* 💡 翻頁意圖判定 + 時光機鎖定 [cite: 2026-02-19] */
-    let cur = 0;
-    window.addEventListener('touchstart', e => { 
-        window.startY = e.touches[0].clientY;
-        // 偵測是否在時光機選單或回憶區內
-        window.activeScrollZone = e.target.closest('#timeMachine') || e.target.closest('.memory-area');
-    }, {passive: true});
+    /* 💡 月曆邏輯與點點熱度圖 [cite: 2026-02-19] */
+    window.renderCalendar = () => {
+        const grid = document.getElementById('calGrid'); grid.innerHTML = '';
+        const year = viewDate.getFullYear(), month = viewDate.getMonth();
+        document.getElementById('calTitle').innerText = `${year}年 ${month + 1}月`;
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    window.addEventListener('touchend', e => {
-        const dY = window.startY - e.changedTouches[0].clientY;
-        // 如果在任何滾動選單內，大幅提高翻頁難度，防止誤觸
-        if (window.activeScrollZone) {
-            const zone = window.activeScrollZone;
-            const isAtTop = zone.scrollTop <= 0;
-            const isAtBottom = zone.scrollTop + zone.offsetHeight >= zone.scrollHeight;
-            if ((dY < -130 && isAtTop) || (dY > 130 && isAtBottom)) {
-                cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur);
-            }
-        } else if (Math.abs(dY) > 80) {
-            cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur);
+        for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${month + 1}月${d}日`;
+            const dayLogs = logsCache.filter(l => {
+                const ld = l.timestamp?.toDate() || new Date();
+                return ld.getMonth() === month && ld.getDate() === d;
+            });
+            const dots = dayLogs.slice(0, 3).map(() => '<div class="heat-dot"></div>').join('');
+            grid.innerHTML += `<div class="cal-day" onclick="window.jumpTo('${dateStr}')">${d}<div class="cal-dot-container">${dots}</div></div>`;
         }
-    }, {passive: true});
+    };
+
+    window.changeMonth = (dir) => { viewDate.setMonth(viewDate.getMonth() + dir); window.renderCalendar(); };
 
     window.saveAction = async (t, v, isCust) => {
         const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return;
@@ -297,23 +135,21 @@
 
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-        const area = document.getElementById('memoryArea'), tm = document.getElementById('timeMachine');
-        area.innerHTML = ''; tm.innerHTML = ''; let lastDate = "";
+        logsCache = snap.docs.map(d => d.data());
+        const area = document.getElementById('memoryArea'); area.innerHTML = ''; let lastDate = "";
         snap.forEach(d => {
             if(d.data().type === 'input') {
                 const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
                 const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
-                if(dStr !== lastDate) { 
-                    area.innerHTML += `<div id="date-${date.getDate()}" class="date-anchor">${dStr}</div>`; 
-                    tm.innerHTML += `<div style="padding:16px; border-bottom:0.5px solid #eee; font-size:14px;" onclick="window.jumpTo('${date.getDate()}')">${dStr}</div>`;
-                    lastDate = dStr; 
-                }
+                const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
+                if(rawDate !== lastDate) { area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${dStr}</div>`; lastDate = rawDate; }
                 const labelClass = d.data().isCustom ? 'custom-active-label' : 'weather-active-label';
                 const div = document.createElement('div'); div.className = 'memory-item';
                 div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${labelClass}">${d.data().weather || ''}</span></div><div class="content-main">${d.data().action}</div><div style="display:flex; margin-top:6px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn" onclick="window.updW('${d.id}','${w}', false)">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; color:#aeaeb2; width:110px; background:transparent;" placeholder="制定心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                 area.appendChild(div);
             }
         });
+        window.renderCalendar();
     };
 
     window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
@@ -350,6 +186,26 @@
     };
 
     window.addNewTag = () => { const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); document.getElementById('newTagInput').value=''; showToast('已紀錄'); } };
+
+    let cur = 0;
+    window.addEventListener('touchstart', e => { 
+        window.startY = e.touches[0].clientY;
+        const tm = document.getElementById('timeMachine');
+        window.tmActive = (tm.style.display === 'block');
+        window.inScrollZone = e.target.closest('.memory-area') || e.target.closest('#quoteEditor');
+    }, {passive: true});
+
+    window.addEventListener('touchend', e => {
+        if (window.tmActive) return;
+        const dY = window.startY - e.changedTouches[0].clientY;
+        if (window.inScrollZone) {
+            const zone = window.inScrollZone;
+            if ((dY < -120 && zone.scrollTop <= 0) || (dY > 120 && (zone.scrollTop + zone.offsetHeight >= zone.scrollHeight))) {
+                cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur);
+            }
+        } else if (Math.abs(dY) > 80) { cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
+    }, {passive: true});
+
     window.onload = () => {
         const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
         quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button onclick="window.sq(${i})" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
