@@ -7,6 +7,7 @@
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        
         * { -webkit-tap-highlight-color: transparent; outline: none !important; -webkit-user-select: none; }
         input { -webkit-user-select: auto; }
 
@@ -21,7 +22,8 @@
         @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
         .main-container { width: 100%; height: 500dvh; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
-        .page { width: 100%; height: 100dvh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .page { width: 100%; height: 100dvh; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; overflow: hidden; }
+        
         h1 { font-size: 32px !important; letter-spacing: 14px; font-weight: 300; margin-top: calc(11dvh + var(--safe-top)) !important; margin-bottom: 0; height: 60px; display: flex; align-items: center; color: #1c1c1e; text-align: center; justify-content: center; }
 
         .dots-container { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 1000; }
@@ -34,16 +36,13 @@
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
         #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 6.5dvh; text-align: center; }
 
-        /* 回憶：防誤觸區域與灰底樣式 [cite: 2026-02-19] */
-        .memory-area { width: 82%; overflow-y: auto; height: 68dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; position: relative; margin-top: 1vh; touch-action: pan-y; }
+        /* 回憶：穩定滾動與視覺層次 */
+        .memory-area { width: 82%; overflow-y: auto; height: 68dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; position: relative; margin-top: 1vh; -webkit-overflow-scrolling: touch; }
         .date-anchor { position: relative; font-size: 13px; font-weight: 600; margin: 40px 0 24px -24px; padding-left: 28px; color: #8e8e93; }
         .date-anchor::before { content: ''; position: absolute; left: 0; top: 50%; width: 22px; height: 2px; background: #2c2c2e; }
         .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
-        
         .weather-active-label { background: #2c2c2e; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; }
-        /* 💡 自訂心情：灰底柔和色調 [cite: 2026-02-19] */
         .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
-        
         .weather-btn { background: transparent; border: none; padding: 6px 6px; font-size: 12px; color: #aeaeb2; }
 
         .input-section { position: absolute; bottom: calc(14dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2.5px solid #2c2c2e; padding: 6px; background: #fff; z-index: 10; }
@@ -54,16 +53,16 @@
         #timeMachine { position: absolute; top: 18dvh; width: 82%; background: rgba(255,255,255,0.92); border-radius: 20px; z-index: 2000; display: none; padding: 15px; backdrop-filter: blur(15px); max-height: 50dvh; overflow-y: auto; }
     </style>
 </head>
-<body>
+<body id="masterBody">
 <div id="etherealToast"></div>
 <div id="splashLayer"></div>
 <div class="dots-container"><div id="dot0" class="dot"></div><div id="dot1" class="dot"></div><div id="dot2" class="dot"></div><div id="dot3" class="dot"></div><div id="dot4" class="dot"></div></div>
 <div class="main-container" id="mainContainer">
     <section class="page" id="p0"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;font-size:17px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#1c1c1e;color:#fff;border:none;border-radius:50%;width:34px;height:34px">↑</button></div></section>
     <section class="page" id="p1"><h1>標籤</h1><p style="font-size: 12px; color: #ddd; margin: 15px 0;">點擊切換 · 長按刪除</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.addNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
-    <section class="page" id="p2"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea">重心：--<br>紀錄總量：0 則<br>最常時間：14:00 - 16:00</div></section>
-    <section class="page" id="p3"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1 style="display:flex; align-items: baseline; justify-content: center; margin-top: 10dvh !important;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px;">時光機▼</span></h1><div id="timeMachine"></div><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page" id="p4"><div class="nav-hotspot nav-top" onclick="prevPage()"></div><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><div style="width:82%; margin-top:30px;"><button onclick="window.resetM()" style="width:100%; padding:16px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px;">清空數據</button></div></section>
+    <section class="page" id="p2"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea">重心：--<br>紀錄總量：0 則<br>最常時間：14:00 - 16:00</div></section>
+    <section class="page" id="p3"><h1 style="display:flex; align-items: baseline; justify-content: center; margin-top: 10dvh !important;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px;">時光機▼</span></h1><div id="timeMachine"></div><div id="memoryArea" class="memory-area"></div></section>
+    <section class="page" id="p4"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><div style="width:82%; margin-top:30px;"><button onclick="window.resetM()" style="width:100%; padding:16px; background:#fff; color:#ff3b30; border:1px solid #ff3b30; border-radius:18px; font-size:14px;">清空數據</button></div></section>
 </div>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -78,13 +77,12 @@
 
     const triggerSplash = (idx) => {
         const s = document.getElementById('splashLayer'); s.innerHTML = `<h2>${quotes[idx]}</h2>`; s.classList.add('active');
-        const container = document.getElementById('mainContainer');
         setTimeout(() => {
-            container.style.transform = `translateY(-${idx * 100}dvh)`;
+            document.getElementById('mainContainer').style.transform = `translateY(-${idx * 100}dvh)`;
             document.querySelectorAll('.dot').forEach((d,i) => d.className = i === idx ? 'dot active' : 'dot');
             if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
         }, 1200);
-        setTimeout(() => { s.classList.remove('active'); container.classList.add('visible'); }, 2600);
+        setTimeout(() => s.classList.remove('active'), 2600);
     };
 
     window.saveAction = async (t, v) => {
@@ -102,7 +100,7 @@
             if(d.data().type === 'input') {
                 const date = d.data().timestamp ? d.data().timestamp.toDate() : new Date();
                 const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
-                if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getDate()}" class="date-anchor">${dStr}</div>`; tm.innerHTML += `<div style="padding:12px; border-bottom:0.5px solid #eee;" onclick="window.jumpTo('${date.getDate()}')">${dStr}</div>`; lastDate = dStr; }
+                if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getDate()}" class="date-anchor">${dStr}</div>`; tm.innerHTML += `<div style="padding:12px;border-bottom:0.5px solid #eee;" onclick="window.jumpTo('${date.getDate()}')">${dStr}</div>`; lastDate = dStr; }
                 const labelClass = d.data().isCustom ? 'custom-active-label' : 'weather-active-label';
                 const div = document.createElement('div'); div.className = 'memory-item';
                 div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${labelClass}">${d.data().weather || ''}</span></div><div class="content-main">${d.data().action}</div><div style="display:flex; margin-top:6px;">${['晴','陰','雨','風','雪','曬'].map(w => `<button class="weather-btn" onclick="window.updW('${d.id}','${w}', false)">${w}</button>`).join('')}</div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; color:#aeaeb2; width:110px; background:transparent;" placeholder="制定心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
@@ -129,6 +127,7 @@
             b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${dur}; --b-delay:${del}; --b-x:${rx}; --b-y:${ry};`;
             b.innerHTML = `<span>${name}</span>`; s2.appendChild(b);
         });
+        document.getElementById('insightArea').innerHTML = `重心：${sorted[0]?.[0] || '--'}<br>紀錄總量：${snap.size} 則<br>最常時間：14:00 - 16:00`;
     };
 
     window.renderAll = () => {
@@ -147,19 +146,22 @@
 
     window.addNewTag = () => { const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); document.getElementById('newTagInput').value=''; showToast('已紀錄'); } };
 
-    let cur = 0; window.addEventListener('touchstart', e => { 
+    let cur = 0; 
+    window.addEventListener('touchstart', e => { 
         window.startX = e.touches[0].clientX; 
         window.startY = e.touches[0].clientY; 
-    });
+    }, {passive: true});
+    
     window.addEventListener('touchend', e => {
         const dX = window.startX - e.changedTouches[0].clientX;
         const dY = window.startY - e.changedTouches[0].clientY;
-        /* 💡 誤觸防禦：偵測滑動方向與距離 [cite: 2026-02-19] */
-        if (Math.abs(dX) > Math.abs(dY) && Math.abs(dX) > 120) { 
+        // 💡 優化換頁判定：偵測更明確的橫向動作，且避開內部垂直滾動影響
+        if (Math.abs(dX) > Math.abs(dY) * 1.5 && Math.abs(dX) > 100) { 
             cur = dX > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); 
             triggerSplash(cur); 
         }
-    });
+    }, {passive: true});
+
     window.onload = () => {
         const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
         quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button onclick="window.sq(${i})" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
