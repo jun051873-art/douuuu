@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 視覺校準版</title>
+    <title>在幹嘛 1 號 - 空間完美版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
@@ -19,24 +19,24 @@
         @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
         .main-container { width: 100%; height: 500%; display: flex; flex-direction: column; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        .page { width: 100%; height: 20%; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(10dvh + var(--safe-top)); overflow: hidden; }
+        .page { width: 100%; height: 20%; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(8dvh + var(--safe-top)); overflow: hidden; }
         h1 { font-size: 32px; letter-spacing: 14px; font-weight: 300; margin: 0; color: #1c1c1e; text-align: center; }
 
         .dots-container { position: fixed; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #1c1c1e; transform: scale(2.5); }
 
-        /* 透視：調高舞台避位 */
-        .galaxy-stage { width: 100%; height: 24dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 3dvh; overflow: visible; }
+        /* 💡 透視：舞台下移，確保不遮擋標題 [cite: 2026-03-08] */
+        .galaxy-stage { width: 100%; height: 22dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
 
-        /* 💡 指標微縮版：字體稍微小一點，排版稍微下移 [cite: 2026-03-08] */
-        .classic-insight { width: 82%; margin-top: 8dvh; text-align: left; }
-        .insight-row { margin-bottom: 18px; border-left: 1.5px solid #f2f2f7; padding-left: 16px; }
-        .insight-label { font-size: 11px; color: #aeaeb2; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 2px; }
-        .insight-value { font-size: 22px; font-weight: 700; color: #1c1c1e; display: flex; align-items: baseline; gap: 6px; }
-        .insight-bar-bg { width: 100%; height: 3.5px; background: #f2f2f7; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        /* 💡 指標底座化：更小、更靠下、更精緻 [cite: 2026-03-08] */
+        .classic-insight { width: 80%; margin-top: 9dvh; text-align: left; }
+        .insight-row { margin-bottom: 16px; border-left: 1px solid #f2f2f7; padding-left: 14px; }
+        .insight-label { font-size: 10px; color: #aeaeb2; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 1px; text-transform: uppercase; }
+        .insight-value { font-size: 20px; font-weight: 700; color: #1c1c1e; display: flex; align-items: baseline; gap: 5px; }
+        .insight-bar-bg { width: 100%; height: 3px; background: #f8f8f9; border-radius: 1.5px; margin-top: 6px; overflow: hidden; }
         .insight-bar-fill { height: 100%; transition: 1.5s cubic-bezier(0.16, 1, 0.3, 1); }
 
         .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; }
@@ -67,17 +67,17 @@
         <div class="classic-insight">
             <div class="insight-row">
                 <div class="insight-label">工作產出</div>
-                <div class="insight-value"><span id="workVal">0</span><small style="font-size:11px; color:#aeaeb2; font-weight:300;">%</small></div>
+                <div class="insight-value"><span id="workVal">0</span><small style="font-size:10px; color:#aeaeb2; font-weight:300;">%</small></div>
                 <div class="insight-bar-bg"><div id="workClassic" class="insight-bar-fill" style="width:0%; background:#0071e3;"></div></div>
             </div>
             <div class="insight-row">
                 <div class="insight-label">生活能量</div>
-                <div class="insight-value"><span id="lifeVal">0</span><small style="font-size:11px; color:#aeaeb2; font-weight:300;">%</small></div>
+                <div class="insight-value"><span id="lifeVal">0</span><small style="font-size:10px; color:#aeaeb2; font-weight:300;">%</small></div>
                 <div class="insight-bar-bg"><div id="lifeClassic" class="insight-bar-fill" style="width:0%; background:#34c759;"></div></div>
             </div>
             <div class="insight-row">
                 <div class="insight-label">情緒脈絡</div>
-                <div class="insight-value"><span id="moodVal">0</span><small style="font-size:11px; color:#aeaeb2; font-weight:300;">%</small></div>
+                <div class="insight-value"><span id="moodVal">0</span><small style="font-size:10px; color:#aeaeb2; font-weight:300;">%</small></div>
                 <div class="insight-bar-bg"><div id="moodClassic" class="insight-bar-fill" style="width:0%; background:#ff3b30;"></div></div>
             </div>
         </div>
@@ -144,7 +144,7 @@
                     const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
                     if(rawDate !== lastDate) { area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}</div>`; lastDate = rawDate; }
                     const div = document.createElement('div'); div.className = 'memory-item';
-                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main" style="font-size:18px; font-weight:600; color:#2c2c2e; line-height:1.6; margin-bottom:12px;">${d.action}</div><div class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                     let delTimer; div.onmousedown = () => delTimer = setTimeout(() => { if(confirm('刪除紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
                     div.onmouseup = () => clearTimeout(delTimer); div.ontouchstart = div.onmousedown; div.ontouchend = div.onmouseup;
                     area.appendChild(div);
@@ -157,6 +157,7 @@
         } catch(e) {}
     };
 
+    /* 💡 透視：氣泡與指標空間最優化 [cite: 2026-03-08] */
     window.loadInsight = async () => {
         try {
             const snap = await getDocs(collection(db, "daily_logs"));
@@ -173,7 +174,7 @@
             document.getElementById('moodVal').innerText = mp; document.getElementById('moodClassic').style.width = mp + '%';
             const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]); const s2 = document.getElementById('stage2'); s2.innerHTML = '';
             const coords = [{x:0, y:0}, {x:1.1, y:-0.4}, {x:-1.1, y:0.5}, {x:0.7, y:1.1}, {x:-0.8, y:-1.1}, {x:0.3, y:-1.2}, {x:-0.3, y:1.2}];
-            sorted.forEach(([name, count], i) => { if (i >= 7) return; const coord = coords[i]; const ratio = (sorted[0] && sorted[0][1]) ? count / sorted[0][1] : 0.5; const size = 48 + (ratio * 80); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 120}px - ${size/2}px); top:calc(50% + ${coord.y * 100}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${10+(ratio*3)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*10-5)+'px'}; --b-y:${(Math.random()*10-5)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
+            sorted.forEach(([name, count], i) => { if (i >= 7) return; const coord = coords[i]; const ratio = (sorted[0] && sorted[0][1]) ? count / sorted[0][1] : 0.5; const size = 46 + (ratio * 75); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 120}px - ${size/2}px); top:calc(50% + ${coord.y * 90}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${9.5+(ratio*3)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*10-5)+'px'}; --b-y:${(Math.random()*10-5)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
         } catch(e) {}
     };
 
