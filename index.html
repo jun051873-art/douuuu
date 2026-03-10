@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 最終機能版</title>
+    <title>在幹嘛 1 號 - 極致簡約版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
@@ -26,12 +26,10 @@
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #1c1c1e; transform: scale(2.5); }
 
-        /* 透視舞台 [cite: 2026-03-08] */
         .galaxy-stage { width: 100%; height: 22dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
 
-        /* 指標樣式 [cite: 2026-03-08] */
         .classic-insight { width: 80%; margin-top: 9dvh; text-align: left; }
         .insight-row { margin-bottom: 16px; border-left: 1.5px solid #f2f2f7; padding-left: 14px; }
         .insight-label { font-size: 10px; color: #aeaeb2; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 1px; }
@@ -39,12 +37,12 @@
         .insight-bar-bg { width: 100%; height: 3px; background: #f8f8f9; border-radius: 1.5px; margin-top: 6px; overflow: hidden; }
         .insight-bar-fill { height: 100%; transition: 1.5s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* 回憶頁面 - 解鎖點擊與輸入 */
         .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         .date-anchor { position: relative; font-size: 11px; font-weight: 600; margin: 35px 0 20px -24px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; }
         .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
         .weather-active-label, .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
-        .weather-btn { background: transparent; border: none; padding: 8px 10px; font-size: 13px; color: #aeaeb2; cursor: pointer; display: inline-block; }
+        .weather-btn { background: transparent; border: none; padding: 6px; font-size: 16px; cursor: pointer; filter: grayscale(1); transition: 0.2s; }
+        .weather-btn:active { filter: grayscale(0); transform: scale(1.2); }
 
         #timeMachine { position: absolute; top: 12dvh; width: 88%; background: rgba(255,255,255,0.98); border-radius: 30px; z-index: 3000; display: none; padding: 20px; backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; }
@@ -52,9 +50,12 @@
         .heat-dot { width: 3px; height: 3px; background: #8e8e93; border-radius: 50%; display: inline-block; margin: 0 1px; }
 
         .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; z-index: 100; }
-        .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; cursor: pointer; }
-        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-        .square-tag.selected { background: #1c1c1e; color: #fff; border: none; transform: scale(1.05); }
+        .pill-tag { padding: 13px 24px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 14px; margin: 6px; cursor: pointer; }
+        
+        /* 💡 標籤庫網格排版：固定三排 [cite: 2026-03-10] */
+        #stage1 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 90%; margin-top: 4vh; }
+        .square-tag { width: 100%; aspect-ratio: 1/1; border-radius: 18px; border: 0.8px solid #eee; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; }
+        .square-tag.selected { background: #1c1c1e; color: #fff; border: none; }
     </style>
 </head>
 <body>
@@ -64,10 +65,10 @@
 
 <div class="main-container" id="mainContainer">
     <section class="page"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;font-size:17px" placeholder="此刻心情..."><button id="sendBtn" style="background:#1c1c1e;color:#fff;border:none;border-radius:50%;width:34px;height:34px">↑</button></div></section>
-    <section class="page"><h1>標籤</h1><p style="font-size: 12px; color: #ddd; margin: 15px 0;">點擊切換 · 長按刪除</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button id="addTagBtn" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
+    <section class="page"><h1>標籤</h1><p style="font-size: 10px; color: #aeaeb2; margin-top: 10px;">上限 12 個 · 長按刪除</p><div id="stage1"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button id="addTagBtn" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div class="classic-insight"><div class="insight-row"><div class="insight-label">工作產出</div><div class="insight-value"><span id="workVal">0</span><small style="font-size:10px; color:#aeaeb2;">%</small></div><div class="insight-bar-bg"><div id="workClassic" class="insight-bar-fill" style="width:0%; background:#0071e3;"></div></div></div><div class="insight-row"><div class="insight-label">生活能量</div><div class="insight-value"><span id="lifeVal">0</span><small style="font-size:10px; color:#aeaeb2;">%</small></div><div class="insight-bar-bg"><div id="lifeClassic" class="insight-bar-fill" style="width:0%; background:#34c759;"></div></div></div><div class="insight-row"><div class="insight-label">情緒脈絡</div><div class="insight-value"><span id="moodVal">0</span><small style="font-size:10px; color:#aeaeb2;">%</small></div><div class="insight-bar-bg"><div id="moodClassic" class="insight-bar-fill" style="width:0%; background:#ff3b30;"></div></div></div></div></section>
     <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span id="tmBtn" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px; padding: 10px;">時光機▼</span></h1><div id="timeMachine"><div style="display:flex;justify-content:space-between;margin-bottom:15px;"><button id="prevM" style="border:none;background:none;font-size:18px;">‹</button><div id="calTitle" style="font-weight:600;"></div><button id="nextM" style="border:none;background:none;font-size:18px;">›</button></div><div class="cal-grid" id="calGrid"></div></div><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><p style="margin-top:30px; font-size:11px; color:#ddd; text-align:center;">長按紀錄條目可局部刪除紀錄</p></section>
+    <section class="page"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div></section>
 </div>
 
 <script type="module">
@@ -83,7 +84,6 @@
 
     function showToast(msg) { const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); }
 
-    /* 💡 同步雲端標籤 [cite: 2026-03-06] */
     const syncTags = async () => { try { await setDoc(doc(db, "app_data", "user_settings"), { myPills: JSON.stringify(tags) }); } catch(e) {} };
     const loadTags = async () => {
         try {
@@ -92,14 +92,13 @@
         } catch(e) {}
     };
 
-    /* 💡 修復天氣與心情：強制全域暴露 [cite: 2026-03-09] */
     window.updW = async (id, w, isCust) => {
         if(!w) return;
         try {
             await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust });
             showToast(isCust ? '已珍藏' : '已紀錄');
             window.loadMemories();
-        } catch(e) { console.error("Firebase Error"); }
+        } catch(e) {}
     };
 
     const triggerSplash = (idx) => {
@@ -113,13 +112,13 @@
     };
 
     window.handleTagClick = async (tagName) => {
-        await addDoc(collection(db, "daily_logs"), { action: tagName, type: 'tag', weather: '曬', isCustom: false, timestamp: serverTimestamp() });
+        await addDoc(collection(db, "daily_logs"), { action: tagName, type: 'tag', weather: '☀️', isCustom: false, timestamp: serverTimestamp() });
         showToast('已紀錄'); loadInsight();
     };
 
     window.saveAction = async (t, v, isCust) => {
         const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return;
-        await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: t==='input'?'':(v||'曬'), isCustom: isCust||false, timestamp: serverTimestamp() });
+        await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: '☀️', isCustom: isCust||false, timestamp: serverTimestamp() });
         showToast(t === 'input' || isCust ? '已珍藏' : '已紀錄');
         if(t === 'input') document.getElementById('userInput').value = ''; renderAll();
     };
@@ -132,9 +131,10 @@
             if(d.type === 'input') {
                 const date = d.timestamp ? d.timestamp.toDate() : new Date();
                 const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
-                if(rawDate !== lastDate) { area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${date.getMonth()+1}月${date.getDate()}日</div>`; lastDate = rawDate; }
+                if(rawDate !== lastDate) { area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${rawDate}</div>`; lastDate = rawDate; }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div class="w-btn-row"><button class="weather-btn" onclick="window.updW('${d.id}','晴',false)">晴</button><button class="weather-btn" onclick="window.updW('${d.id}','陰',false)">陰</button><button class="weather-btn" onclick="window.updW('${d.id}','雨',false)">雨</button></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                // 💡 圖像化天氣選單 [cite: 2026-03-10]
+                div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || '☀️'}</span></div><div class="content-main">${d.action}</div><div class="w-btn-row"><button class="weather-btn" onclick="window.updW('${d.id}','☀️',false)">☀️</button><button class="weather-btn" onclick="window.updW('${d.id}','⛅',false)">⛅</button><button class="weather-btn" onclick="window.updW('${d.id}','☁️',false)">☁️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌩️',false)">🌩️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌨️',false)">🌨️</button><button class="weather-btn" onclick="window.updW('${d.id}','☔',false)">☔</button><button class="weather-btn" onclick="window.updW('${d.id}','❄️',false)">❄️</button></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                 area.appendChild(div);
                 let delTimer; div.onmousedown = () => delTimer = setTimeout(() => { if(confirm('刪除紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
                 div.onmouseup = () => clearTimeout(delTimer); div.ontouchstart = div.onmousedown; div.ontouchend = div.onmouseup;
@@ -177,11 +177,19 @@
         sorted.forEach(([name, count], i) => { if (i >= 7) return; const coord = coords[i]; const ratio = count / sorted[0][1]; const size = 46 + (ratio * 75); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 120}px - ${size/2}px); top:calc(50% + ${coord.y * 90}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${9.5+(ratio*3)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*10-5)+'px'}; --b-y:${(Math.random()*10-5)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
     };
 
+    /* 💡 標籤渲染邏輯：P0 鎖定 5 個，P1 鎖定 12 個 [cite: 2026-03-10] */
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1'); s0.innerHTML = ''; s1.innerHTML = '';
+        let p0Count = 0;
         tags.forEach((t, i) => {
-            if(t.selected) { const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name; b.onclick = (e) => { e.stopImmediatePropagation(); window.handleTagClick(t.name); }; s0.appendChild(b); }
-            const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag'; b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:10px;opacity:0.5">${t.count||0}</span>`;
+            // P0: 僅顯示前 5 個勾選標籤
+            if(t.selected && p0Count < 5) { 
+                const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name; 
+                b.onclick = (e) => { e.stopImmediatePropagation(); window.handleTagClick(t.name); }; s0.appendChild(b); p0Count++;
+            }
+            // P1: 網格顯示所有標籤 (最多 12 個)
+            const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
+            b2.innerHTML = `<span>${t.name}</span>`;
             let timer; b2.onmousedown = () => timer = setTimeout(async () => { if(confirm('刪除標籤？')){ tags.splice(i,1); renderAll(); await syncTags(); } }, 1000); b2.onmouseup = () => clearTimeout(timer); b2.ontouchstart = b2.onmousedown; b2.ontouchend = b2.onmouseup;
             b2.onclick = async (e) => { e.stopImmediatePropagation(); t.selected = !t.selected; renderAll(); await syncTags(); }; s1.appendChild(b2);
         });
@@ -190,18 +198,22 @@
     window.onload = async () => {
         await loadTags();
         document.getElementById('sendBtn').onclick = (e) => { e.stopImmediatePropagation(); window.saveAction('input'); };
-        document.getElementById('addTagBtn').onclick = async (e) => { e.stopImmediatePropagation(); const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); await syncTags(); document.getElementById('newTagInput').value=''; showToast('已記憶'); } };
+        /* 💡 新增標籤限制：最多 12 個 [cite: 2026-03-10] */
+        document.getElementById('addTagBtn').onclick = async (e) => { 
+            e.stopImmediatePropagation(); 
+            if(tags.length >= 12) { showToast('請先刪除舊標籤'); return; }
+            const v = document.getElementById('newTagInput').value; 
+            if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); await syncTags(); document.getElementById('newTagInput').value=''; showToast('已記憶'); } 
+        };
         document.getElementById('tmBtn').onclick = (e) => { e.stopPropagation(); window.tm(); };
         document.getElementById('prevM').onclick = (e) => { e.stopPropagation(); window.changeMonth(-1); };
         document.getElementById('nextM').onclick = (e) => { e.stopPropagation(); window.changeMonth(1); };
         renderAll(); triggerSplash(0);
     };
 
-    /* 💡 滑動攔截修復 [cite: 2026-03-08] */
     window.addEventListener('touchend', e => {
         const dY = window.startY - e.changedTouches[0].clientY;
-        const target = e.target;
-        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.closest('.weather-btn')) return; // 點擊輸入框或按鈕時不翻頁
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('.weather-btn')) return;
         if (Math.abs(dY) > 80 && document.getElementById('timeMachine').style.display !== 'block') { cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
     }, {passive: false});
     window.addEventListener('touchstart', e => { window.startY = e.touches[0].clientY; }, {passive: true});
