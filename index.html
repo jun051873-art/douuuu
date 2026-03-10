@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 最終穩壓版</title>
+    <title>在幹嘛 1 號 - iPhone 13 精緻版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; }
@@ -13,41 +13,36 @@
         #etherealToast { position: fixed; bottom: 12dvh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 12px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
         #etherealToast.active { opacity: 1; }
 
-        #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.8s; }
-        #splashLayer.active { opacity: 1; pointer-events: all; }
-        #splashLayer h2 { font-size: 17px; font-weight: 200; letter-spacing: 6px; color: #1c1c1e; animation: textBreath 2.4s ease-in-out forwards; }
-        @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
-
         .main-container { width: 500%; height: 100%; display: flex; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .page { width: 20%; height: 100%; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(7dvh + var(--safe-top)); overflow: hidden; }
-        h1 { font-size: 28px; letter-spacing: 12px; font-weight: 300; margin: 0; color: #1c1c1e; text-align: center; }
+        h1 { font-size: 26px; letter-spacing: 12px; font-weight: 300; margin: 0; color: #1c1c1e; }
 
         .dots-container { position: fixed; bottom: calc(4dvh + var(--safe-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 1000; }
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.3s; }
-        .dot.active { background: #1c1c1e; transform: scale(2.2); }
+        .dot.active { background: #000; transform: scale(2); }
 
-        /* 透視比例校準 [cite: 2026-03-08] */
+        /* 透視比例校準 */
         .galaxy-stage { width: 100%; height: 26dvh; position: relative; margin-top: 5dvh; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
         
-        .classic-insight { width: 85%; margin-top: 8dvh; text-align: left; }
-        .insight-row { margin-bottom: 18px; border-left: 1.5px solid #f2f2f7; padding-left: 16px; }
-        .insight-bar-bg { width: 100%; height: 3px; background: #f8f8f9; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+        .insight-row { width: 85%; border-left: 1.5px solid #f2f2f7; padding-left: 16px; margin-bottom: 12px; }
+        .insight-bar { height: 3px; background: #f8f8f9; border-radius: 2px; margin-top: 6px; overflow: hidden; }
 
-        /* 回憶區域與垃圾桶 [cite: 2026-03-10] */
+        /* 回憶：紅色圓形垃圾桶 */
         .scrollable-area { width: 85%; overflow-y: auto; height: 68dvh; border-left: 1.2px solid #f2f2f7; padding-left: 20px; margin-top: 1vh; touch-action: pan-y !important; -webkit-overflow-scrolling: touch; }
         .date-anchor { font-size: 11px; font-weight: 600; margin: 30px 0 15px -20px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; }
-        .trash-btn { width: 26px; height: 26px; background: #ff3b30; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 12px; margin-left: 10px; }
+        .content-main { font-size: 17px; font-weight: 700; color: #1c1c1e; line-height: 1.4; flex: 1; }
+        .trash-btn { width: 28px; height: 28px; background: #ff3b30; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 12px; margin-left: 10px; box-shadow: 0 4px 10px rgba(255,59,48,0.2); }
 
-        /* 完整月曆網格 */
-        #timeMachine { position: fixed; top: 12dvh; left: 50%; transform: translateX(-50%); width: 88%; background: #fff; border-radius: 24px; z-index: 3000; display: none; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 1px solid #f2f2f7; touch-action: auto; }
-        .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; color: #aeaeb2; margin-bottom: 15px; font-weight: 600; }
+        /* 完整月份網格 */
+        #timeMachine { position: fixed; top: 12dvh; left: 50%; transform: translateX(-50%); width: 92%; background: #fff; border-radius: 24px; z-index: 3000; display: none; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); border: 1px solid #f2f2f7; touch-action: auto; }
+        .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; color: #aeaeb2; margin-bottom: 12px; font-weight: 600; }
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-        .cal-day { font-size: 14px; padding: 10px 0; border-radius: 8px; position: relative; color: #1c1c1e; }
+        .cal-day { font-size: 15px; padding: 12px 0; border-radius: 10px; position: relative; color: #1c1c1e; }
         .cal-dot { width: 4px; height: 4px; background: #ff3b30; border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
 
-        .input-section { position: absolute; bottom: calc(14dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #1c1c1e; padding: 6px; background: #fff; z-index: 100; width: 210px; }
+        .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2.2px solid #1c1c1e; padding: 6px; background: #fff; z-index: 100; width: 210px; }
         .pill-tag { padding: 12px 24px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 14px; margin: 6px; cursor: pointer; }
         #stage1 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 90%; margin-top: 4vh; }
         .square-tag { aspect-ratio: 1; border-radius: 18px; border: 0.8px solid #eee; background: #fbfbfb; display: flex; align-items: center; justify-content: center; font-size: 12px; }
@@ -60,13 +55,12 @@
 
 <div class="main-container" id="mainContainer">
     <section class="page"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:100%;text-align:center;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#1c1c1e;color:#fff;border:none;border-radius:50%;width:30px;height:30px">↑</button></div></section>
-    
-    <section class="page"><h1>標籤</h1><p style="font-size: 10px; color: #aeaeb2; margin-top: 10px;">上限 12 個 · 長按刪除</p><div id="stage1"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:100%;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.handleAddNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:30px;height:30px">＋</button></div></section>
-    
-    <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div class="classic-insight" id="insightDashboard"></div></section>
-    
-    <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px; padding: 10px;">時光機▼</span></h1><div id="timeMachine"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><button onclick="window.changeMonth(-1)" style="border:none;background:none;font-size:22px;">‹</button><div id="calTitle" style="font-weight:700;"></div><button onclick="window.changeMonth(1)" style="border:none;background:none;font-size:22px;">›</button></div><div class="cal-header"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div><div class="cal-grid" id="calGrid"></div></div><div id="memoryArea" class="scrollable-area"></div></section>
-    
+    <section class="page"><h1>標籤</h1><p style="font-size: 10px; color: #aeaeb2; margin-top: 10px;">上限 12 個 · 長按刪除</p><div id="stage1"></div><div class="input-section" style="width:200px"><input type="text" id="newTagInput" style="border:none;width:100%;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.handleAddNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:30px;height:30px">＋</button></div></section>
+    <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightDashboard" style="width: 85%; margin-top: 8dvh;"></div></section>
+    <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px; padding: 10px;">時光機▼</span></h1><div id="timeMachine">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><button onclick="window.changeMonth(-1)" style="border:none;background:none;font-size:22px;">‹</button><div id="calTitle" style="font-weight:700;"></div><button onclick="window.changeMonth(1)" style="border:none;background:none;font-size:22px;">›</button></div>
+        <div class="cal-header"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div><div class="cal-grid" id="calGrid"></div>
+    </div><div id="memoryArea" class="scrollable-area"></div></section>
     <section class="page"><h1>設定</h1><div id="quoteEditor" class="scrollable-area" style="margin-top: 5vh; height: 50dvh;"></div></section>
 </div>
 
@@ -87,7 +81,7 @@
         if(snap.exists() && snap.data().myPills) { tags = JSON.parse(snap.data().myPills); renderAll(); }
     };
 
-    /* 💡 紅色垃圾桶刪除：二次確認鎖死 [cite: 2026-03-10] */
+    /* 💡 二次確認垃圾桶 */
     window.delLog = async (id) => { if(confirm('確定要刪除這則心情嗎？')) { await deleteDoc(doc(db, "daily_logs", id)); showToast('已移除'); window.loadMemories(); } };
 
     const triggerSplash = (idx) => {
@@ -106,6 +100,8 @@
         showToast(t === 'input' ? '已珍藏' : '已紀錄'); if(t === 'input') document.getElementById('userInput').value = ''; renderAll();
     };
 
+    window.updW = async (id, w) => { await updateDoc(doc(db, "daily_logs", id), { weather: w }); showToast('天氣已紀錄'); window.loadMemories(); };
+
     window.loadMemories = async () => {
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         logsCache = snap.docs.map(d => ({id: d.id, ...d.data()})).filter(d => d.action);
@@ -116,7 +112,8 @@
                 const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
                 if(rawDate !== lastDate) { area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${rawDate}</div>`; lastDate = rawDate; }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:17px;font-weight:700;color:#1c1c1e;">${d.action}</div><button class="trash-btn" onclick="window.delLog('${d.id}')">✕</button></div><div style="font-size:10px;color:#aeaeb2;margin-top:4px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</div>`;
+                // 💡 天氣標籤 + 紅色垃圾桶
+                div.innerHTML = `<div class="content-row"><div class="content-main">${d.action}</div><button class="trash-btn" onclick="window.delLog('${d.id}')">🗑️</button></div><div style="display:flex;align-items:center;margin-top:4px;"><span style="font-size:10px;color:#aeaeb2;margin-right:10px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="display:flex;gap:5px;">${['☀️','⛅','☁️','🌨️','☔'].map(w => `<span onclick="window.updW('${d.id}','${w}')" style="cursor:pointer;opacity:${d.weather===w?'1':'0.3'};">${w}</span>`).join('')}</div></div>`;
                 area.appendChild(div);
             }
         });
@@ -127,7 +124,7 @@
     window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = (t.style.display === 'block' ? 'none' : 'block'); };
     window.changeMonth = (d) => { viewDate.setMonth(viewDate.getMonth() + d); renderCalendar(); };
 
-    /* 💡 完整月份網格 */
+    /* 💡 真正全月網格月曆 */
     window.renderCalendar = () => {
         const grid = document.getElementById('calGrid'); if(!grid) return; grid.innerHTML = '';
         const year = viewDate.getFullYear(), month = viewDate.getMonth();
@@ -136,24 +133,20 @@
         for(let i=0; i<start; i++) grid.innerHTML += '<div></div>';
         for(let d=1; d<=days; d++) {
             const has = logsCache.some(l => { const ld = l.timestamp?.toDate() || new Date(); return ld.getFullYear()===year && ld.getMonth()===month && ld.getDate()===d; });
-            const el = document.createElement('div'); el.className = 'cal-day'; el.innerHTML = `${d}${has ? '<div class="cal-dot"></div>' : ''}`;
-            el.onclick = () => jumpTo(`${month+1}月${d}日`); grid.appendChild(el);
+            const dayEl = document.createElement('div'); dayEl.className = 'cal-day'; dayEl.innerHTML = `${d}${has ? '<div class="cal-dot"></div>' : ''}`;
+            dayEl.onclick = () => jumpTo(`${month+1}月${d}日`); grid.appendChild(dayEl);
         }
     };
 
     window.loadInsight = async () => {
         const snap = await getDocs(collection(db, "daily_logs"));
         let w=0, l=0, m=0; const counts = {};
-        snap.forEach(d => { const act = d.data().action; if(d.data().type==='tag') counts[act] = (counts[act]||0)+1; if(act.includes('工作')) w++; else if(act.includes('休息')) l++; else m++; });
-        const total = (w+l+m)||1;
-        document.getElementById('insightDashboard').innerHTML = `
-            <div class="insight-row"><div style="font-size:10px; color:#aeaeb2;">工作產出</div><div style="font-size:20px; font-weight:700;">${Math.round(w/total*100)}%</div><div class="insight-bar-bg"><div style="height:100%; width:${(w/total*100)}%; background:#0071e3;"></div></div></div>
-            <div class="insight-row"><div style="font-size:10px; color:#aeaeb2;">生活能量</div><div style="font-size:20px; font-weight:700;">${Math.round(l/total*100)}%</div><div class="insight-bar-bg"><div style="height:100%; width:${(l/total*100)}%; background:#34c759;"></div></div></div>
-            <div class="insight-row"><div style="font-size:10px; color:#aeaeb2;">情緒脈絡</div><div style="font-size:20px; font-weight:700;">${Math.round(m/total*100)}%</div><div class="insight-bar-bg"><div style="height:100%; width:${(m/total*100)}%; background:#ff3b30;"></div></div></div>
-        `;
-        const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]); const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+        snap.forEach(d => { const act = d.data().action; if(d.data().type === 'tag') counts[act] = (counts[act] || 0) + 1; if(act.includes('工作')) w++; else if(act.includes('休息')) l++; else m++; });
+        const total = (w + l + m) || 1;
+        document.getElementById('insightDashboard').innerHTML = `<div class="insight-row"><div style="font-size:10px; color:#aeaeb2;">工作產出</div><div style="font-size:20px; font-weight:700;">${Math.round(w/total*100)}%</div><div class="insight-bar"><div style="height:100%; width:${(w/total*100)}%; background:#0071e3;"></div></div></div><div class="insight-row"><div style="font-size:10px; color:#aeaeb2;">生活能量</div><div style="font-size:20px; font-weight:700;">${Math.round(l/total*100)}%</div><div class="insight-bar"><div style="height:100%; width:${(l/total*100)}%; background:#34c759;"></div></div></div><div class="insight-row"><div style="font-size:10px; color:#aeaeb2;">情緒脈絡</div><div style="font-size:20px; font-weight:700;">${Math.round(m/total*100)}%</div><div class="insight-bar"><div style="height:100%; width:${(m/total*100)}%; background:#ff3b30;"></div></div></div>`;
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]); const s2 = document.getElementById('stage2'); s2.innerHTML = '';
         const coords = [{x:0, y:0}, {x:1.1, y:-0.4}, {x:-1.1, y:0.5}, {x:0.7, y:1.1}, {x:-0.8, y:-1.1}];
-        sorted.forEach(([name, count], i) => { if(i>=5) return; const coord=coords[i]; const ratio=count/(sorted[0][1]||1); const sz=42+(ratio*65); const b=document.createElement('div'); b.className='sphere'; b.style.cssText=`width:${sz}px; height:${sz}px; left:calc(50% + ${coord.x*115}px - ${sz/2}px); top:calc(50% + ${coord.y*85}px - ${sz/2}px); background:rgb(${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]}); color:${i<3?'#fff':'#000'}; font-size:${8.5+(ratio*3)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-x:${(Math.random()*10-5)+'px'}; --b-y:${(Math.random()*10-5)+'px'};`; b.innerHTML=`<span>${name}</span>`; s2.appendChild(b); });
+        sorted.forEach(([name, count], i) => { if (i >= 5) return; const coord = coords[i]; const ratio = count / (sorted[0][1]||1); const sz = 40 + (ratio * 60); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${sz}px; height:${sz}px; left:calc(50% + ${coord.x * 110}px - ${sz/2}px); top:calc(50% + ${coord.y * 80}px - ${sz/2}px); background:rgb(${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]}); color:${i<3?'#fff':'#000'}; font-size:${8+(ratio*3)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-x:${(Math.random()*10-5)+'px'}; --b-y:${(Math.random()*10-5)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
     };
 
     window.renderAll = () => {
@@ -172,16 +165,12 @@
     window.onload = async () => { await loadTags(); const ed = document.getElementById('quoteEditor'); quotes.forEach((q, i) => { const d=document.createElement('div'); d.style.padding='15px'; d.innerHTML=`<input id="q-${i}" value="${q}" style="border:none;width:80%;font-size:15px"><button onclick="window.sq(${i})" style="background:#1c1c1e;color:#fff;border-radius:10px;padding:8px 14px;font-size:12px;">確定</button>`; ed.appendChild(d); }); renderAll(); triggerSplash(0); };
     window.sq = (i) => { quotes[i] = document.getElementById('q-'+i).value; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast('已鎖定'); };
 
-    /* 💡 極致絲滑翻頁：橫向絕對判定 [cite: 2026-03-10] */
     window.addEventListener('touchstart', e => { window.startX = e.touches[0].clientX; window.startY = e.touches[0].clientY; }, {passive: true});
     window.addEventListener('touchend', e => {
         const dX = window.startX - e.changedTouches[0].clientX;
         const dY = window.startY - e.changedTouches[0].clientY;
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('#timeMachine')) return;
-        // 核心：只要橫向位移顯著大於縱向位移且位移超過 30px，即刻翻頁 [cite: 2026-03-10]
-        if (Math.abs(dX) > Math.abs(dY) && Math.abs(dX) > 30) { 
-            cur = dX > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); 
-        }
+        if (Math.abs(dX) > Math.abs(dY) && Math.abs(dX) > 30) { cur = dX > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
     }, {passive: false});
 </script>
 </body>
