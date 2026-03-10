@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 精緻對齊版</title>
+    <title>在幹嘛 1 號 - 經典穩定版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; }
@@ -13,37 +13,40 @@
         #etherealToast { position: fixed; bottom: 18dvh; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
         #etherealToast.active { opacity: 1; }
 
-        .main-container { width: 500%; height: 100%; display: flex; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        .page { width: 20%; height: 100%; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(7dvh + var(--safe-top)); overflow: hidden; }
-        h1 { font-size: 24px; letter-spacing: 12px; font-weight: 300; margin: 0; color: #1c1c1e; }
+        #splashLayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.8s; }
+        #splashLayer.active { opacity: 1; pointer-events: all; }
+        #splashLayer h2 { font-size: 18px; font-weight: 200; letter-spacing: 6px; color: #1c1c1e; animation: textBreath 2.4s ease-in-out forwards; }
+        @keyframes textBreath { 0% { opacity: 0; filter: blur(10px); } 30% { opacity: 1; filter: blur(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* 指示點移至最底部 */
-        .dots-container { position: fixed; bottom: calc(2.5dvh + var(--safe-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 14px; z-index: 2000; }
-        .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.3s; }
+        .main-container { width: 500%; height: 100%; display: flex; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .page { width: 20%; height: 100%; flex-shrink: 0; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(8dvh + var(--safe-top)); overflow: hidden; }
+        h1 { font-size: 26px; letter-spacing: 12px; font-weight: 300; margin: 0; color: #1c1c1e; text-align: center; }
+
+        /* 💡 修正：點點指示器完全避位 [cite: 2026-03-10] */
+        .dots-container { position: fixed; bottom: calc(2dvh + var(--safe-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 14px; z-index: 2000; padding: 10px; }
+        .dot { width: 4px; height: 4px; background: #d2d2d7; border-radius: 50%; transition: 0.3s; }
         .dot.active { background: #000; transform: scale(2); }
 
-        /* 💡 透視：比例與避位修正 */
-        .galaxy-stage { width: 100%; height: 26dvh; position: relative; margin-top: 4dvh; }
+        .galaxy-stage { width: 100%; height: 26dvh; position: relative; margin-top: 6dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
-        .insight-row { width: 85%; border-left: 1.2px solid #f2f2f7; padding-left: 16px; margin-bottom: 12px; margin-top: 3vh; }
-        .insight-bar { height: 2.5px; background: #f8f8f9; border-radius: 1px; margin-top: 6px; overflow: hidden; width: 100%; }
 
-        /* 💡 回憶：指定垃圾桶圖案與位置修正 */
-        .scrollable-area { width: 85%; overflow-y: auto; height: 68dvh; border-left: 1px solid #f2f2f7; padding-left: 20px; margin-top: 1vh; touch-action: pan-y !important; -webkit-overflow-scrolling: touch; }
+        /* 💡 列表時光機 [cite: 2026-03-10] */
+        #timeMachine { position: fixed; top: 12dvh; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(255,255,255,0.98); border-radius: 24px; z-index: 3000; display: none; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 0.5px solid #eee; max-height: 40dvh; overflow-y: auto; touch-action: auto; }
+        .tm-item { padding: 15px; border-bottom: 0.5px solid #f2f2f7; font-size: 14px; color: #1c1c1e; font-weight: 500; }
+
+        /* 💡 回憶區域與垃圾桶位置 [cite: 2026-03-10] */
+        .scrollable-area { width: 85%; overflow-y: auto; height: 68dvh; border-left: 1.2px solid #f2f2f7; padding-left: 20px; margin-top: 1vh; touch-action: pan-y !important; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
         .date-row { display: flex; align-items: center; margin: 30px 0 15px -20px; }
         .date-anchor { font-size: 11px; font-weight: 600; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; }
-        .trash-icon-btn { width: 22px; height: 22px; margin-left: 10px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffd9d9"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>') no-repeat center; background-size: contain; border: none; cursor: pointer; }
+        .trash-icon-btn { width: 20px; height: 20px; margin-left: 8px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffd9d9"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>') no-repeat center; background-size: contain; border: none; cursor: pointer; }
 
-        /* 💡 真正的月份日曆 */
-        #timeMachine { position: fixed; top: 11dvh; left: 50%; transform: translateX(-50%); width: 92%; background: #fff; border-radius: 20px; z-index: 3000; display: none; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 0.5px solid #eee; touch-action: auto; }
-        .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; color: #aeaeb2; margin-bottom: 12px; font-weight: 600; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-        .cal-day { font-size: 14px; padding: 12px 0; border-radius: 50%; position: relative; color: #1c1c1e; }
-        .cal-dot { width: 4px; height: 4px; background: #ff3b30; border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
+        .memory-item { margin-bottom: 25px; width: 100%; }
+        .weather-display { font-size: 10px; color: #aeaeb2; margin-bottom: 4px; display: block; }
+        .content-main { font-size: 18px; font-weight: 700; color: #1c1c1e; margin-bottom: 8px; }
 
-        /* 心情輸入框鎖定位置 */
-        .input-section { position: absolute; bottom: calc(8dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #1c1c1e; padding: 6px; background: #fff; z-index: 100; width: 210px; }
+        /* 💡 鎖定底部心情對話框位置 [cite: 2026-03-10] */
+        .input-section { position: absolute; bottom: calc(8dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2.2px solid #1c1c1e; padding: 6px; background: #fff; z-index: 100; width: 210px; }
         .pill-tag { padding: 12px 24px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 14px; margin: 6px; }
         #stage1 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 90%; margin-top: 4vh; }
         .square-tag { aspect-ratio: 1; border-radius: 18px; border: 0.8px solid #eee; background: #fbfbfb; display: flex; align-items: center; justify-content: center; font-size: 12px; }
@@ -57,8 +60,8 @@
 <div class="main-container" id="mainContainer">
     <section class="page"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:100%;text-align:center;font-size:16px" placeholder="此刻心情..."><button onclick="window.saveAction('input')" style="background:#1c1c1e;color:#fff;border:none;border-radius:50%;width:30px;height:30px">↑</button></div></section>
     <section class="page"><h1>標籤</h1><p style="font-size: 10px; color: #aeaeb2; margin-top: 10px;">上限 12 個 · 長按刪除</p><div id="stage1"></div><div class="input-section" style="width:200px"><input type="text" id="newTagInput" style="border:none;width:100%;text-align:center;font-size:16px" placeholder="新增標籤..."><button onclick="window.handleAddNewTag()" style="background:#000;color:#fff;border:none;border-radius:50%;width:30px;height:30px">＋</button></div></section>
-    <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightDashboard" style="width: 85%; margin-top: 5dvh;"></div></section>
-    <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px; padding: 10px;">時光機▼</span></h1><div id="timeMachine"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><button onclick="window.changeMonth(-1)" style="border:none;background:none;font-size:20px;">‹</button><div id="calTitle" style="font-weight:700;"></div><button onclick="window.changeMonth(1)" style="border:none;background:none;font-size:20px;">›</button></div><div class="cal-header"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div><div class="cal-grid" id="calGrid"></div></div><div id="memoryArea" class="scrollable-area"></div></section>
+    <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightDashboard" style="width: 85%; margin-top: 3vh;"></div></section>
+    <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span onclick="window.tm()" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px; padding: 10px;">時光機▼</span></h1><div id="timeMachine"></div><div id="memoryArea" class="scrollable-area"></div></section>
     <section class="page"><h1>設定</h1><div id="quoteEditor" class="scrollable-area" style="margin-top: 5vh; height: 50dvh;"></div></section>
 </div>
 
@@ -69,7 +72,7 @@
     const db = getFirestore(initializeApp(firebaseConfig));
 
     let tags = [{ name: '☕ 休息', selected: true }, { name: '💇 工作', selected: true }];
-    let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
+    let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["接受不完美的自己","每個都可以是你","詩人 你也可以"];
     let viewDate = new Date(); let logsCache = []; let cur = 0;
 
     const showToast = (m) => { const t = document.getElementById('etherealToast'); t.innerText = m; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); };
@@ -103,39 +106,26 @@
         const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
         logsCache = snap.docs.map(d => ({id: d.id, ...d.data()})).filter(d => d.action);
         const area = document.getElementById('memoryArea'); area.innerHTML = ''; let lastDate = "";
+        const tm = document.getElementById('timeMachine'); tm.innerHTML = '';
+        
         logsCache.forEach(d => {
             if(d.type === 'input') {
                 const date = d.timestamp ? d.timestamp.toDate() : new Date();
                 const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
                 if(rawDate !== lastDate) { 
                     area.innerHTML += `<div class="date-row" id="date-${rawDate}"><div class="date-anchor">${rawDate}</div><button class="trash-icon-btn" onclick="window.delLog('${d.id}')"></button></div>`; 
+                    tm.innerHTML += `<div class="tm-item" onclick="window.jumpTo('${rawDate}')">${date.getFullYear()}年 ${rawDate}</div>`;
                     lastDate = rawDate; 
                 }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:16px; font-weight:700; color:#1c1c1e; margin-bottom:8px;">${d.action}</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:10px;color:#aeaeb2;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="display:flex;gap:5px;">${['☀️','⛅','☁️','🌨️','☔'].map(w => `<span onclick="window.updW('${d.id}','${w}')" style="cursor:pointer;opacity:${d.weather===w?'1':'0.3'};">${w}</span>`).join('')}</div></div>`;
+                div.innerHTML = `<span class="weather-display">${d.weather || ''}</span><div class="content-main">${d.action}</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:10px;color:#aeaeb2;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span><div style="display:flex;gap:8px;">${['☀️','⛅','☁️','🌨️','☔'].map(w => `<span onclick="window.updW('${d.id}','${w}')" style="cursor:pointer;font-size:14px;opacity:${d.weather===w?'1':'0.3'};">${w}</span>`).join('')}</div></div>`;
                 area.appendChild(div);
             }
         });
-        renderCalendar();
     };
 
+    window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
     window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = (t.style.display === 'block' ? 'none' : 'block'); };
-    window.changeMonth = (d) => { viewDate.setMonth(viewDate.getMonth() + d); renderCalendar(); };
-
-    /* 💡 真正月份日曆邏輯 */
-    window.renderCalendar = () => {
-        const grid = document.getElementById('calGrid'); if(!grid) return; grid.innerHTML = '';
-        const year = viewDate.getFullYear(), month = viewDate.getMonth();
-        document.getElementById('calTitle').innerText = `${year}年 ${month+1}月`;
-        const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month+1, 0).getDate();
-        for(let i=0; i<firstDay; i++) grid.innerHTML += '<div></div>';
-        for(let d=1; d<=daysInMonth; d++) {
-            const hasLog = logsCache.some(l => { const ld = l.timestamp?.toDate() || new Date(); return ld.getFullYear()===year && ld.getMonth()===month && ld.getDate()===d; });
-            const dayEl = document.createElement('div'); dayEl.className = 'cal-day'; dayEl.innerHTML = `${d}${hasLog ? '<div class="cal-dot"></div>' : ''}`;
-            dayEl.onclick = () => { const target = `${month+1}月${d}日`; const el = document.getElementById('date-'+target); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
-            grid.appendChild(dayEl);
-        }
-    };
 
     window.loadInsight = async () => {
         const snap = await getDocs(collection(db, "daily_logs"));
