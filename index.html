@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 縱向翻頁版</title>
+    <title>在幹嘛 1 號 - 穩定定稿版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; touch-action: none; }
         * { -webkit-tap-highlight-color: transparent; outline: none !important; box-sizing: border-box; }
+        
+        /* 💡 核心修正：禁止文字選取以利長按刪除 [cite: 2026-03-10] */
+        .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; -webkit-user-select: none !important; user-select: none !important; }
         input { -webkit-user-select: auto !important; user-select: auto !important; touch-action: auto !important; }
 
         #etherealToast { position: fixed; top: 46dvh; left: 50%; transform: translateX(-50%); color: #3a3a3c; font-size: 17px; font-weight: 200; letter-spacing: 5px; opacity: 0; transition: 1s; z-index: 9999; pointer-events: none; }
@@ -63,7 +66,7 @@
     <section class="page"><h1>標籤</h1><p style="font-size: 10px; color: #aeaeb2; margin-top: 10px;">上限 12 個 · 長按刪除</p><div id="stage1"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button id="addTagBtn" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div class="classic-insight"><div class="insight-row"><div class="insight-label">工作產出</div><div class="insight-value"><span id="workVal">0</span><small style="font-size:10px; color:#aeaeb2;">%</small></div><div class="insight-bar-bg"><div id="workClassic" class="insight-bar-fill" style="width:0%; background:#0071e3;"></div></div></div><div class="insight-row"><div class="insight-label">生活能量</div><div class="insight-value"><span id="lifeVal">0</span><small style="font-size:10px; color:#aeaeb2;">%</small></div><div class="insight-bar-bg"><div id="lifeClassic" class="insight-bar-fill" style="width:0%; background:#34c759;"></div></div></div><div class="insight-row"><div class="insight-label">情緒脈絡</div><div class="insight-value"><span id="moodVal">0</span><small style="font-size:10px; color:#aeaeb2;">%</small></div><div class="insight-bar-bg"><div id="moodClassic" class="insight-bar-fill" style="width:0%; background:#ff3b30;"></div></div></div></div></section>
     <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span id="tmBtn" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px; padding: 10px;">時光機▼</span></h1><div id="timeMachine"><div style="display:flex;justify-content:space-between;margin-bottom:15px;"><button id="prevM" style="border:none;background:none;font-size:18px;">‹</button><div id="calTitle" style="font-weight:600;"></div><button id="nextM" style="border:none;background:none;font-size:18px;">›</button></div><div class="cal-grid" id="calGrid"></div></div><div id="memoryArea" class="scrollable-area"></div></section>
-    <section class="page"><h1>設定</h1><div id="quoteEditor" class="scrollable-area" style="margin-top: 5vh; height: 45dvh;"></div><p style="margin-top:20px; font-size:10px; color:#ddd; text-align:center;">長按紀錄或標籤可刪除</p></section>
+    <section class="page"><h1>設定</h1><div id="quoteEditor" class="scrollable-area" style="margin-top: 5vh; height: 45dvh;"></div><p style="margin-top:20px; font-size:10px; color:#ddd; text-align:center;">長按標籤或紀錄可刪除</p></section>
 </div>
 
 <script type="module">
@@ -81,21 +84,18 @@
 
     const syncTags = async () => { try { await setDoc(doc(db, "app_data", "user_settings"), { myPills: JSON.stringify(tags) }); } catch(e) {} };
     const loadTags = async () => {
-        try {
-            const snap = await getDoc(doc(db, "app_data", "user_settings"));
-            if(snap.exists() && snap.data().myPills) { tags = JSON.parse(snap.data().myPills); renderAll(); }
-        } catch(e) {}
+        const snap = await getDoc(doc(db, "app_data", "user_settings"));
+        if(snap.exists() && snap.data().myPills) { tags = JSON.parse(snap.data().myPills); renderAll(); }
     };
 
     window.updW = async (id, w, isCust) => {
         if(!w) return;
         await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust });
-        showToast(isCust ? '已珍藏' : '已紀錄');
-        window.loadMemories();
+        showToast(isCust ? '已珍藏' : '已紀錄'); window.loadMemories();
     };
 
     window.delLog = async (id) => {
-        if(confirm('確定刪除？')) { await deleteDoc(doc(db, "daily_logs", id)); showToast('已移除'); window.loadMemories(); }
+        if(confirm('確定刪除這則紀錄？')) { await deleteDoc(doc(db, "daily_logs", id)); showToast('已移除'); window.loadMemories(); }
     };
 
     const triggerSplash = (idx) => {
@@ -130,8 +130,14 @@
                 const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
                 if(rawDate !== lastDate) { area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${rawDate}</div>`; lastDate = rawDate; }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || '☀️'}</span></div><div class="content-main" oncontextmenu="return false;">${d.action}</div><div class="w-btn-row"><button class="weather-btn" onclick="window.updW('${d.id}','☀️',false)">☀️</button><button class="weather-btn" onclick="window.updW('${d.id}','⛅',false)">⛅</button><button class="weather-btn" onclick="window.updW('${d.id}','☁️',false)">☁️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌩️',false)">🌩️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌨️',false)">🌨️</button><button class="weather-btn" onclick="window.updW('${d.id}','☔',false)">☔</button><button class="weather-btn" onclick="window.updW('${d.id}','❄️',false)">❄️</button></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
-                let delT; div.addEventListener('touchstart', (e) => { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') delT = setTimeout(() => window.delLog(d.id), 800); }, {passive: true});
+                // 💡 禁止文字選取以利長按
+                div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || '☀️'}</span></div><div class="content-main">${d.action}</div><div class="w-btn-row"><button class="weather-btn" onclick="window.updW('${d.id}','☀️',false)">☀️</button><button class="weather-btn" onclick="window.updW('${d.id}','⛅',false)">⛅</button><button class="weather-btn" onclick="window.updW('${d.id}','☁️',false)">☁️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌩️',false)">🌩️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌨️',false)">🌨️</button><button class="weather-btn" onclick="window.updW('${d.id}','☔',false)">☔</button><button class="weather-btn" onclick="window.updW('${d.id}','❄️',false)">❄️</button></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                
+                let delT; div.addEventListener('touchstart', (e) => { 
+                    if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                        delT = setTimeout(() => window.delLog(d.id), 800); // 💡 長按 0.8s 刪除 [cite: 2026-03-10]
+                    }
+                }, {passive: true});
                 div.addEventListener('touchend', () => clearTimeout(delT), {passive: true});
                 area.appendChild(div);
             }
@@ -206,19 +212,18 @@
         renderAll(); triggerSplash(0);
     };
 
-    /* 💡 極致解封：縱向滑動絕對優先 [cite: 2026-03-10] */
+    /* 💡 極致解封：翻頁門檻提高至 90px，防誤觸 [cite: 2026-03-10] */
     window.addEventListener('touchstart', e => { window.startY = e.touches[0].clientY; window.startX = e.touches[0].clientX; window.flickTime = Date.now(); }, {passive: true});
 
     window.addEventListener('touchend', e => {
         const dY = window.startY - e.changedTouches[0].clientY;
         const dX = window.startX - e.changedTouches[0].clientX;
-        const speed = Math.abs(dY) / (Date.now() - window.flickTime);
         const target = e.target;
 
         if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.closest('.weather-btn')) return;
         
-        // 核心修正：判斷縱向翻頁。條件：位移超過 40px 且垂直位移大於水平位移 [cite: 2026-03-10]
-        if (Math.abs(dY) > Math.abs(dX) && (Math.abs(dY) > 40 || speed > 0.5) && document.getElementById('timeMachine').style.display !== 'block') {
+        // 核心修正：翻頁門檻提高 (90px) 且必須垂直位移顯著大於水平 [cite: 2026-03-10]
+        if (Math.abs(dY) > Math.abs(dX) && Math.abs(dY) > 90 && document.getElementById('timeMachine').style.display !== 'block') {
             const next = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
             if (next !== cur) { cur = next; triggerSplash(cur); }
         }
