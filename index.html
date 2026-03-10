@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 穩定定稿版</title>
+    <title>在幹嘛 1 號 - 穩定加固版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; touch-action: none; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; }
         * { -webkit-tap-highlight-color: transparent; outline: none !important; box-sizing: border-box; }
         
-        /* 💡 核心修正：禁止文字選取以利長按刪除 [cite: 2026-03-10] */
-        .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; -webkit-user-select: none !important; user-select: none !important; }
+        /* 💡 只有輸入框允許選取與交互 [cite: 2026-03-10] */
         input { -webkit-user-select: auto !important; user-select: auto !important; touch-action: auto !important; }
 
         #etherealToast { position: fixed; top: 46dvh; left: 50%; transform: translateX(-50%); color: #3a3a3c; font-size: 17px; font-weight: 200; letter-spacing: 5px; opacity: 0; transition: 1s; z-index: 9999; pointer-events: none; }
@@ -29,24 +28,28 @@
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #1c1c1e; transform: scale(2.5); }
 
+        /* 透視視覺 [cite: 2026-03-08] */
         .galaxy-stage { width: 100%; height: 22dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6dvh; overflow: visible; }
         .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; }
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
 
         .classic-insight { width: 80%; margin-top: 9dvh; text-align: left; }
-        .insight-row { margin-bottom: 16px; border-left: 1.5px solid #f2f2f7; padding-left: 14px; }
+        .insight-row { margin-bottom: 16px; border-left: 1px solid #f2f2f7; padding-left: 14px; }
         .insight-label { font-size: 10px; color: #aeaeb2; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 1px; }
         .insight-value { font-size: 20px; font-weight: 700; color: #1c1c1e; display: flex; align-items: baseline; gap: 5px; }
-        .insight-bar-bg { width: 100%; height: 3px; background: #f8f8f9; border-radius: 1.5px; margin-top: 6px; overflow: hidden; }
+        .insight-bar-bg { width: 100%; height: 3.5px; background: #f8f8f9; border-radius: 2px; margin-top: 6px; overflow: hidden; }
         .insight-bar-fill { height: 100%; transition: 1.5s cubic-bezier(0.16, 1, 0.3, 1); }
 
+        /* 回憶區域加固 [cite: 2026-03-09, 2026-03-10] */
         .scrollable-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; touch-action: pan-y !important; -webkit-overflow-scrolling: touch; }
         .date-anchor { position: relative; font-size: 11px; font-weight: 600; margin: 35px 0 20px -24px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; }
-        .weather-btn { background: transparent; border: none; padding: 6px; font-size: 18px; cursor: pointer; }
+        .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
+        .weather-btn { background: transparent; border: none; padding: 8px; font-size: 18px; cursor: pointer; }
 
-        #timeMachine { position: fixed; top: 12dvh; left: 50%; transform: translateX(-50%); width: 88%; background: rgba(255,255,255,0.98); border-radius: 30px; z-index: 3000; display: none; padding: 20px; backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        /* 時光機顯示核心修正 [cite: 2026-03-10] */
+        #timeMachine { position: fixed; top: 12dvh; left: 50%; transform: translateX(-50%); width: 88%; background: rgba(255,255,255,0.98); border-radius: 30px; z-index: 3000; display: none; padding: 20px; backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); touch-action: auto; }
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; }
-        .cal-day { font-size: 14px; padding: 10px 0; border-radius: 12px; cursor: pointer; color: #1c1c1e; }
+        .cal-day { font-size: 14px; padding: 10px 0; border-radius: 12px; position: relative; cursor: pointer; color: #1c1c1e; }
         .heat-dot { width: 3px; height: 3px; background: #8e8e93; border-radius: 50%; display: inline-block; margin: 0 1px; }
 
         .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; z-index: 100; }
@@ -84,18 +87,20 @@
 
     const syncTags = async () => { try { await setDoc(doc(db, "app_data", "user_settings"), { myPills: JSON.stringify(tags) }); } catch(e) {} };
     const loadTags = async () => {
-        const snap = await getDoc(doc(db, "app_data", "user_settings"));
-        if(snap.exists() && snap.data().myPills) { tags = JSON.parse(snap.data().myPills); renderAll(); }
+        try {
+            const snap = await getDoc(doc(db, "app_data", "user_settings"));
+            if(snap.exists() && snap.data().myPills) { tags = JSON.parse(snap.data().myPills); renderAll(); }
+        } catch(e) {}
     };
 
+    /* 💡 全域暴露的核心機能 [cite: 2026-03-09] */
     window.updW = async (id, w, isCust) => {
-        if(!w) return;
         await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust });
         showToast(isCust ? '已珍藏' : '已紀錄'); window.loadMemories();
     };
 
     window.delLog = async (id) => {
-        if(confirm('確定刪除這則紀錄？')) { await deleteDoc(doc(db, "daily_logs", id)); showToast('已移除'); window.loadMemories(); }
+        if(confirm('確定刪除？')) { await deleteDoc(doc(db, "daily_logs", id)); showToast('已移除'); window.loadMemories(); }
     };
 
     const triggerSplash = (idx) => {
@@ -130,12 +135,11 @@
                 const rawDate = `${date.getMonth()+1}月${date.getDate()}日`;
                 if(rawDate !== lastDate) { area.innerHTML += `<div id="date-${rawDate}" class="date-anchor">${rawDate}</div>`; lastDate = rawDate; }
                 const div = document.createElement('div'); div.className = 'memory-item';
-                // 💡 禁止文字選取以利長按
-                div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || '☀️'}</span></div><div class="content-main">${d.action}</div><div class="w-btn-row"><button class="weather-btn" onclick="window.updW('${d.id}','☀️',false)">☀️</button><button class="weather-btn" onclick="window.updW('${d.id}','⛅',false)">⛅</button><button class="weather-btn" onclick="window.updW('${d.id}','☁️',false)">☁️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌩️',false)">🌩️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌨️',false)">🌨️</button><button class="weather-btn" onclick="window.updW('${d.id}','☔',false)">☔</button><button class="weather-btn" onclick="window.updW('${d.id}','❄️',false)">❄️</button></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || '☀️'}</span></div><div class="content-main" style="user-select:none;">${d.action}</div><div class="w-btn-row"><button class="weather-btn" onclick="window.updW('${d.id}','☀️',false)">☀️</button><button class="weather-btn" onclick="window.updW('${d.id}','⛅',false)">⛅</button><button class="weather-btn" onclick="window.updW('${d.id}','☁️',false)">☁️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌩️',false)">🌩️</button><button class="weather-btn" onclick="window.updW('${d.id}','🌨️',false)">🌨️</button><button class="weather-btn" onclick="window.updW('${d.id}','☔',false)">☔</button><button class="weather-btn" onclick="window.updW('${d.id}','❄️',false)">❄️</button></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="心情..."><button onclick="window.updW('${d.id}', document.getElementById('cust-${d.id}').value, true)" style="background:#000;color:#fff;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                 
                 let delT; div.addEventListener('touchstart', (e) => { 
                     if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                        delT = setTimeout(() => window.delLog(d.id), 800); // 💡 長按 0.8s 刪除 [cite: 2026-03-10]
+                        delT = setTimeout(() => window.delLog(d.id), 800); // 💡 長按修復 [cite: 2026-03-10]
                     }
                 }, {passive: true});
                 div.addEventListener('touchend', () => clearTimeout(delT), {passive: true});
@@ -212,20 +216,21 @@
         renderAll(); triggerSplash(0);
     };
 
-    /* 💡 極致解封：翻頁門檻提高至 90px，防誤觸 [cite: 2026-03-10] */
-    window.addEventListener('touchstart', e => { window.startY = e.touches[0].clientY; window.startX = e.touches[0].clientX; window.flickTime = Date.now(); }, {passive: true});
+    /* 💡 極致解鎖：翻頁靈敏度回歸 [cite: 2026-03-10] */
+    window.addEventListener('touchstart', e => { 
+        window.startY = e.touches[0].clientY; 
+        window.startX = e.touches[0].clientX;
+    }, {passive: true});
 
     window.addEventListener('touchend', e => {
-        const dY = window.startY - e.changedTouches[0].clientY;
         const dX = window.startX - e.changedTouches[0].clientX;
+        const dY = window.startY - e.changedTouches[0].clientY;
         const target = e.target;
-
         if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.closest('.weather-btn')) return;
         
-        // 核心修正：翻頁門檻提高 (90px) 且必須垂直位移顯著大於水平 [cite: 2026-03-10]
-        if (Math.abs(dY) > Math.abs(dX) && Math.abs(dY) > 90 && document.getElementById('timeMachine').style.display !== 'block') {
-            const next = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0);
-            if (next !== cur) { cur = next; triggerSplash(cur); }
+        // 核心修正：垂直位移大於 40px 即觸發翻頁，恢復絲滑感 [cite: 2026-03-10]
+        if (Math.abs(dY) > Math.abs(dX) && Math.abs(dY) > 40 && document.getElementById('timeMachine').style.display !== 'block') { 
+            cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); 
         }
     }, {passive: false});
 </script>
