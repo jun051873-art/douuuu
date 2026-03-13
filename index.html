@@ -140,22 +140,19 @@
     };
 
     window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
-// 💡 升級版：自動分辨天氣圖標或自訂文字
-    window.updW = async (id, w, isCust) => {
-    // 如果是點擊「確定」(isCust為true)，則去抓對應輸入框的值
-    const finalVal = w || (isCust ? document.getElementById('cust-' + id).value : null);
-    
-    if(!finalVal) return; // 空白則不動作
+    window.updW = async (id, w, isCust) => { if(!w) return; await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); window.loadMemories(); showToast(isCust?'已珍藏':'已紀錄'); };
+    window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
 
-    try {
-        await updateDoc(doc(db, "daily_logs", id), { 
-            weather: finalVal, 
-            isCustom: !!isCust 
-        });
-        showToast(isCust ? '已珍藏' : '已紀錄');
-        window.loadMemories(); // 立即重新載入列表
-    } catch(e) { console.error("同步失敗", e); }
-};
+    window.loadInsight = async () => {
+        try {
+            const snap = await getDocs(collection(db, "daily_logs")); const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]); const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+            const coords = [{x:0, y:0}, {x:0.1, y:-1.2}, {x:1, y:-0.5}, {x:1.1, y:0.5}, {x:0.3, y:1.2}, {x:-0.95, y:0.7}, {x:-1.1, y:-0.4}];
+            sorted.forEach(([name, count], i) => { if (i >= 7) return; const coord = coords[i]; const ratio = (sorted[0] && sorted[0][1]) ? count / sorted[0][1] : 0.5; const size = 52 + (ratio * 102); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*14-7)+'px'}; --b-y:${(Math.random()*14-7)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
+            document.getElementById('insightArea').innerHTML = `重心：${(sorted[0] && sorted[0][0]) || '--'}<br>紀錄總量：${snap.size} 則<br>最常時間：14:00 - 16:00`;
+        } catch(e) {}
+    };
+
     window.renderAll = () => {
         const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1'); s0.innerHTML = ''; s1.innerHTML = '';
         tags.forEach((t, i) => {
