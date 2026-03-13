@@ -142,9 +142,9 @@
     window.changeMonth = (offset) => { viewDate.setMonth(viewDate.getMonth() + offset); window.renderCalendar(); };
     window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
     window.updW = async (id, w, isCust) => { 
-        if(!w) return; await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); 
+        if(!w) return; try { await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); 
         const lb = document.getElementById('label-'+id); if(lb){ lb.innerText = w; lb.className = isCust ? 'custom-active-label' : 'weather-active-label'; }
-        showToast(isCust?'已珍藏':'已紀錄'); 
+        const inputField = document.getElementById('cust-'+id); if(inputField) inputField.value = ''; showToast(isCust?'已珍藏':'已紀錄'); } catch(e) {}
     };
     window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
 
