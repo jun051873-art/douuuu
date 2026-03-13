@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -99,6 +100,24 @@
         showToast(t === 'input' || isCust ? '已珍藏' : '已紀錄');
         if(t === 'input') document.getElementById('userInput').value = ''; renderAll();
     };
+
+    // 💡 請放在 window.saveAction 下方
+window.updW = async (id, w, isCust) => {
+    // 如果是點擊「確定」按鈕(isCust為true)，則從輸入框抓取文字
+    if(!w && isCust) w = document.getElementById('cust-'+id).value;
+    if(!w) return; // 如果沒有內容則不執行
+    
+    try {
+        await updateDoc(doc(db, "daily_logs", id), { 
+            weather: w, 
+            isCustom: isCust 
+        });
+        showToast(isCust ? '已珍藏' : '已紀錄');
+        window.loadMemories(); // 💡 重新載入，確保畫面同步顯示更新後的狀態
+    } catch(e) {
+        console.error("雲端同步失敗", e);
+    }
+};
 
     window.loadMemories = async () => {
         try {
