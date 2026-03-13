@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -9,7 +8,7 @@
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
         * { -webkit-tap-highlight-color: transparent; outline: none !important; -webkit-user-select: none; box-sizing: border-box; }
-        input { -webkit-user-select: auto; outline: none !important; border: none !important; }
+        input { -webkit-user-select: auto !important; outline: none !important; border: none !important; }
 
         #etherealToast { position: fixed; top: 46dvh; left: 50%; transform: translateX(-50%); color: #3a3a3c; font-size: 17px; font-weight: 200; letter-spacing: 5px; opacity: 0; transition: 1s; z-index: 9999; pointer-events: none; }
         #etherealToast.active { opacity: 0.7; transform: translateX(-50%) translateY(-25px); }
@@ -75,7 +74,6 @@
 
     function showToast(msg) { const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); }
 
-    // 💡 核心新增：標籤同步鎖 [cite: 2026-03-13]
     const syncTags = async () => { try { await setDoc(doc(db, "app_data", "user_settings"), { myPills: JSON.stringify(tags) }); } catch(e) {} };
     const loadTags = async () => {
         try {
@@ -101,23 +99,16 @@
         if(t === 'input') document.getElementById('userInput').value = ''; renderAll();
     };
 
-    // 💡 請放在 window.saveAction 下方
-window.updW = async (id, w, isCust) => {
-    // 如果是點擊「確定」按鈕(isCust為true)，則從輸入框抓取文字
-    if(!w && isCust) w = document.getElementById('cust-'+id).value;
-    if(!w) return; // 如果沒有內容則不執行
-    
-    try {
-        await updateDoc(doc(db, "daily_logs", id), { 
-            weather: w, 
-            isCustom: isCust 
-        });
-        showToast(isCust ? '已珍藏' : '已紀錄');
-        window.loadMemories(); // 💡 重新載入，確保畫面同步顯示更新後的狀態
-    } catch(e) {
-        console.error("雲端同步失敗", e);
-    }
-};
+    // 💡 修正鎖定：單一強大的更新路徑 [cite: 2026-03-13]
+    window.updW = async (id, w, isCust) => {
+        const finalVal = w || (isCust ? document.getElementById('cust-' + id).value : null);
+        if(!finalVal) return;
+        try {
+            await updateDoc(doc(db, "daily_logs", id), { weather: finalVal, isCustom: !!isCust });
+            showToast(isCust ? '已珍藏' : '已紀錄');
+            window.loadMemories(); 
+        } catch(e) { console.error("同步失敗", e); }
+    };
 
     window.loadMemories = async () => {
         try {
@@ -131,14 +122,14 @@ window.updW = async (id, w, isCust) => {
                     const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
                     if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getMonth()+1}月${date.getDate()}日" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
                     const div = document.createElement('div'); div.className = 'memory-item';
-                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" data-id="${d.id}" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                     let delTimer;
                     div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除這則紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
                     div.ontouchend = () => clearTimeout(delTimer);
                     area.appendChild(div);
                     const row = div.querySelector('.w-btn-row');
-                    ['晴','陰','雨','風','雪','曬'].forEach(w => { const b = document.createElement('button'); b.className='weather-btn'; b.innerText=w; b.onclick=(e)=>{e.stopPropagation(); window.updW(d.id,w,false)}; row.appendChild(b); });
-                    div.querySelector('.c-btn').onclick=(e)=>{e.stopPropagation(); window.updW(d.id, document.getElementById('cust-'+d.id).value, true)};
+                    ['晴','陰','雨','風','雪','曬'].forEach(w => { const b = document.createElement('button'); b.className='weather-btn'; b.innerText=w; b.onclick=(e)=>{e.stopPropagation(); window.updW(d.id, w, false)}; row.appendChild(b); });
+                    div.querySelector('.c-btn').onclick=(e)=>{e.stopPropagation(); window.updW(d.id, null, true)};
                 }
             });
             window.renderCalendar();
@@ -159,7 +150,6 @@ window.updW = async (id, w, isCust) => {
     };
 
     window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
-    window.updW = async (id, w, isCust) => { if(!w) return; await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); window.loadMemories(); showToast(isCust?'已珍藏':'已紀錄'); };
     window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
 
     window.loadInsight = async () => {
@@ -168,7 +158,7 @@ window.updW = async (id, w, isCust) => {
             const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]); const s2 = document.getElementById('stage2'); s2.innerHTML = '';
             const coords = [{x:0, y:0}, {x:0.1, y:-1.2}, {x:1, y:-0.5}, {x:1.1, y:0.5}, {x:0.3, y:1.2}, {x:-0.95, y:0.7}, {x:-1.1, y:-0.4}];
             sorted.forEach(([name, count], i) => { if (i >= 7) return; const coord = coords[i]; const ratio = (sorted[0] && sorted[0][1]) ? count / sorted[0][1] : 0.5; const size = 52 + (ratio * 102); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*14-7)+'px'}; --b-y:${(Math.random()*14-7)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
-            document.getElementById('insightArea').innerHTML = `重心：${(sorted[0] && sorted[0][0]) || '--'}<br>紀錄總量：${snap.size} 則<br>最常時間：14:00 - 16:00`;
+            document.getElementById('insightArea').innerHTML = `重心：${(sorted[0] && sorted[0][0]) || '--'}<br>紀錄總量：${snap.size} 則`;
         } catch(e) {}
     };
 
@@ -178,8 +168,7 @@ window.updW = async (id, w, isCust) => {
             if(t.selected) { const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name; b.onclick = (e) => { e.stopPropagation(); window.saveAction('tag', t.name); }; s0.appendChild(b); }
             const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
             b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:10px;opacity:0.5">${t.count||0}</span>`;
-            let timer; 
-            b2.ontouchstart = () => timer = setTimeout(async () => { if(confirm('刪除標籤？')){ tags.splice(i,1); renderAll(); await syncTags(); } }, 1000); 
+            let timer; b2.ontouchstart = () => timer = setTimeout(async () => { if(confirm('刪除標籤？')){ tags.splice(i,1); renderAll(); await syncTags(); } }, 1000); 
             b2.ontouchend = () => clearTimeout(timer);
             b2.onclick = async (e) => { e.stopPropagation(); t.selected = !t.selected; renderAll(); await syncTags(); }; s1.appendChild(b2);
         });
@@ -192,9 +181,7 @@ window.updW = async (id, w, isCust) => {
         document.getElementById('tmBtn').onclick = (e) => { e.stopImmediatePropagation(); window.tm(); };
         document.getElementById('prevM').onclick = (e) => { e.stopPropagation(); window.changeMonth(-1); };
         document.getElementById('nextM').onclick = (e) => { e.stopPropagation(); window.changeMonth(1); };
-        
-        const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
-        quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button class="q-save" data-i="${i}" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
+        const ed = document.getElementById('quoteEditor'); quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button class="q-save" data-i="${i}" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
         document.querySelectorAll('.q-save').forEach(b => b.onclick = () => { quotes[b.dataset.i] = document.getElementById('q-'+b.dataset.i).value; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast('已鎖定'); });
         renderAll(); triggerSplash(0);
     };
