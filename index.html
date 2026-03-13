@@ -31,7 +31,7 @@
         @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
         #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 6.5dvh; text-align: center; }
 
-        .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; }
+        .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
         .date-anchor { position: relative; font-size: 11px; font-weight: 600; margin: 40px 0 24px -24px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; letter-spacing: 1px; }
         .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
         .weather-active-label, .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
@@ -74,7 +74,6 @@
 
     function showToast(msg) { const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); }
 
-    // 💡 核心新增：標籤同步鎖 [cite: 2026-03-13]
     const syncTags = async () => { try { await setDoc(doc(db, "app_data", "user_settings"), { myPills: JSON.stringify(tags) }); } catch(e) {} };
     const loadTags = async () => {
         try {
@@ -97,7 +96,8 @@
         const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return;
         await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: t==='input'?'':(v||'曬'), isCustom: isCust||false, timestamp: serverTimestamp() });
         showToast(t === 'input' || isCust ? '已珍藏' : '已紀錄');
-        if(t === 'input') document.getElementById('userInput').value = ''; renderAll();
+        if(t === 'input') { document.getElementById('userInput').value = ''; if(cur === 3) loadMemories(); } 
+        renderAll();
     };
 
     window.loadMemories = async () => {
@@ -112,7 +112,7 @@
                     const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
                     if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getMonth()+1}月${date.getDate()}日" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
                     const div = document.createElement('div'); div.className = 'memory-item';
-                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" data-id="${d.id}" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span id="label-${d.id}" class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" data-id="${d.id}" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                     let delTimer;
                     div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除這則紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
                     div.ontouchend = () => clearTimeout(delTimer);
@@ -133,14 +133,19 @@
         const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month+1, 0).getDate();
         for(let i=0; i<firstDay; i++) grid.innerHTML += '<div></div>';
         for(let d=1; d<=daysInMonth; d++) {
-            const dayLogs = logsCache.filter(l => { const ld = l.timestamp?.toDate() || new Date(); return ld.getMonth() === month && ld.getDate() === d; });
+            const dayLogs = logsCache.filter(l => { const ld = l.timestamp?.toDate() || new Date(); return ld.getMonth() === month && ld.getDate() === d && l.type === 'input'; });
             const dayEl = document.createElement('div'); dayEl.className = 'cal-day'; dayEl.innerHTML = `${d}<div style="display:block">${dayLogs.slice(0,3).map(()=>'<div class="heat-dot"></div>').join('')}</div>`;
             dayEl.onclick = (e) => { e.stopPropagation(); window.jumpTo(`${month+1}月${d}日`); }; grid.appendChild(dayEl);
         }
     };
 
+    window.changeMonth = (offset) => { viewDate.setMonth(viewDate.getMonth() + offset); window.renderCalendar(); };
     window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
-    window.updW = async (id, w, isCust) => { if(!w) return; await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); window.loadMemories(); showToast(isCust?'已珍藏':'已紀錄'); };
+    window.updW = async (id, w, isCust) => { 
+        if(!w) return; await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); 
+        const lb = document.getElementById('label-'+id); if(lb){ lb.innerText = w; lb.className = isCust ? 'custom-active-label' : 'weather-active-label'; }
+        showToast(isCust?'已珍藏':'已紀錄'); 
+    };
     window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
 
     window.loadInsight = async () => {
