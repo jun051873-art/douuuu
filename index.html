@@ -116,30 +116,15 @@
                     let delTimer;
                     div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除這則紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
                     div.ontouchend = () => clearTimeout(delTimer);
-                    // --- 從這裡開始替換 ---
                     area.appendChild(div);
                     const row = div.querySelector('.w-btn-row');
-
-                    // 1. 接通天氣按鈕
-                    ['晴','陰','雨','風','雪','曬'].forEach(w => { 
-                        const b = document.createElement('button'); 
-                        b.className = 'weather-btn'; 
-                        b.innerText = w; 
-                        b.onclick = (e) => { e.stopPropagation(); window.updW(d.id, w, false); }; 
-                        row.appendChild(b); 
-                    });
-
-                    // 2. 接通確定按鈕 (修正版)
-                    div.querySelector('.c-btn').onclick = (e) => {
-                        e.stopPropagation(); 
-                        window.updW(d.id, null, true); 
-                    };
+                    ['晴','陰','雨','風','雪','曬'].forEach(w => { const b = document.createElement('button'); b.className='weather-btn'; b.innerText=w; b.onclick=(e)=>{e.stopPropagation(); window.updW(d.id,w,false)}; row.appendChild(b); });
+                    div.querySelector('.c-btn').onclick=(e)=>{e.stopPropagation(); window.updW(d.id, document.getElementById('cust-'+d.id).value, true)};
                 }
             });
             window.renderCalendar();
-        } catch(e) { console.error("回憶載入錯誤", e); }
+        } catch(e) {}
     };
-    // --- 替換結束 ---
 
     window.renderCalendar = () => {
         const grid = document.getElementById('calGrid'); if(!grid) return; grid.innerHTML = '';
