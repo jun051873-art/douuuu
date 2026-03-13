@@ -112,7 +112,7 @@
                     const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
                     if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getMonth()+1}月${date.getDate()}日" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
                     const div = document.createElement('div'); div.className = 'memory-item';
-                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span id="label-${d.id}" class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" data-id="${d.id}" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span id="label-${d.id}" class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}" style="${d.isCustom?'background:#1c1c1e;color:#fff':''}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" data-id="${d.id}" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                     let delTimer;
                     div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除這則紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
                     div.ontouchend = () => clearTimeout(delTimer);
@@ -144,7 +144,12 @@
     window.updW = async (id, w, isCust) => { 
         if(!w) return; try { 
             await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); 
-            const lb = document.getElementById('label-'+id); if(lb){ lb.innerText = w; lb.className = isCust ? 'custom-active-label' : 'weather-active-label'; }
+            const lb = document.getElementById('label-'+id); 
+            if(lb){ 
+                lb.innerText = w; 
+                if(isCust) { lb.className = 'custom-active-label'; lb.style.background = '#1c1c1e'; lb.style.color = '#fff'; }
+                else { lb.className = 'weather-active-label'; lb.style.background = '#f2f2f7'; lb.style.color = '#8e8e93'; }
+            }
             const inp = document.getElementById('cust-'+id); if(inp) inp.value = '';
             showToast(isCust?'已珍藏':'已紀錄'); 
         } catch(e) {}
@@ -160,7 +165,7 @@
                 if (i >= 7) return; 
                 const coord = coords[i]; 
                 const ratio = (sorted[0] && sorted[0][1]) ? count / sorted[0][1] : 0.5; 
-                const size = 52 + (ratio * 102); // 💡 回歸黃金視覺比例大小
+                const size = 52 + (ratio * 102); 
                 const b = document.createElement('div'); b.className = 'sphere'; 
                 b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*14-7)+'px'}; --b-y:${(Math.random()*14-7)+'px'};`; 
                 b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); 
