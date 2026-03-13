@@ -98,12 +98,34 @@
     const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
     const db = getFirestore(initializeApp(firebaseConfig));
 
-    let tags = JSON.parse(localStorage.getItem('myPills')) || [{ name: '☕ 休息', selected: true, count: 0 }, { name: '💇 工作', selected: true, count: 0 }];
+    let tags = [];
     let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["：（多久沒問問自己了呢）", "每個都可以是你", "接受不完美的自己", "你值得擁有", "詩人 你也可以"];
     let viewDate = new Date(); let logsCache = []; let cur = 0;
 
     function showToast(msg) { const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); }
+// 💡 請插入在第 106 行
+const syncTags = async () => { 
+    try { await setDoc(doc(db, "app_data", "user_settings"), { myPills: JSON.stringify(tags) }); } catch(e) { console.error("同步失敗", e); } 
+};
 
+const loadTags = async () => {
+    try {
+        const snap = await getDoc(doc(db, "app_data", "user_settings"));
+        if(snap.exists() && snap.data().myPills) { tags = JSON.parse(snap.data().myPills); } 
+        renderAll();
+    } catch(e) { console.error("讀取失敗", e); }
+};
+    document.getElementById('addTagBtn').onclick = async (e) => { // 💡 加 async
+    e.stopImmediatePropagation(); 
+    const v = document.getElementById('newTagInput').value; 
+    if(v){ 
+        tags.unshift({name:v, selected:true, count:0}); 
+        renderAll(); 
+        await syncTags(); // 💡 加入這行：新增即存雲端
+        document.getElementById('newTagInput').value=''; 
+        showToast('已紀錄'); 
+    } 
+};
     const triggerSplash = (idx) => {
         const s = document.getElementById('splashLayer'); s.innerHTML = `<h2>${quotes[idx]}</h2>`; s.classList.add('active');
         setTimeout(() => {
@@ -203,21 +225,55 @@
             const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
             b2.innerHTML = `<span>${t.name}</span><br><span style="font-size:10px;opacity:0.5">${t.count||0}</span>`;
             let timer; b2.onmousedown = () => timer = setTimeout(() => { if(confirm('刪除標籤？')){ tags.splice(i,1); renderAll(); localStorage.setItem('myPills', JSON.stringify(tags)); } }, 1000); b2.onmouseup = () => clearTimeout(timer); b2.ontouchstart = b2.onmousedown; b2.ontouchend = b2.onmouseup;
-            b2.onclick = (e) => { e.stopImmediatePropagation(); t.selected = !t.selected; renderAll(); localStorage.setItem('myPills', JSON.stringify(tags)); }; s1.appendChild(b2);
-        });
+          // 💡 修改後的第 228 行
+b2.onclick = async (e) => { // 這裡加了 async
+    e.stopImmediatePropagation(); 
+    t.selected = !t.selected; 
+    renderAll(); 
+    await syncTags(); // 💡 關鍵！加上這行，點擊就會立刻存入 Firebase 雲端
+};
+
+   window.onload = async () => { 
+    // 💡 第一步：開機立刻抓雲端標籤，解決劃掉 App 消失的問題
+    await loadTags(); 
+
+    // 💡 第二步：原本的功能鎖死，不作更動
+    document.getElementById('sendBtn').onclick = (e) => { e.stopImmediatePropagation(); window.saveAction('input'); };
+    
+    // 💡 第三步：新增標籤按鈕「同步通電」
+    document.getElementById('addTagBtn').onclick = async (e) => { 
+        e.stopImmediatePropagation(); 
+        const v = document.getElementById('newTagInput').value; 
+        if(v){ 
+            tags.unshift({name:v, selected:true, count:0}); 
+            renderAll(); 
+            await syncTags(); // 👈 存入雲端鎖死
+            document.getElementById('newTagInput').value=''; 
+            showToast('已紀錄'); 
+        } 
     };
 
-    window.onload = () => {
-        document.getElementById('sendBtn').onclick = (e) => { e.stopImmediatePropagation(); window.saveAction('input'); };
-        document.getElementById('addTagBtn').onclick = (e) => { e.stopImmediatePropagation(); const v = document.getElementById('newTagInput').value; if(v){ tags.unshift({name:v, selected:true, count:0}); renderAll(); document.getElementById('newTagInput').value=''; showToast('已紀錄'); } };
-        document.getElementById('tmBtn').onclick = (e) => { e.stopPropagation(); window.tm(); };
-        document.getElementById('prevM').onclick = (e) => { e.stopPropagation(); window.changeMonth(-1); };
-        document.getElementById('nextM').onclick = (e) => { e.stopPropagation(); window.changeMonth(1); };
-        const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
-        quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button class="q-save" data-i="${i}" style="background:#1c1c1e;color:#fff;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
-        document.querySelectorAll('.q-save').forEach(b => b.onclick = () => { quotes[b.dataset.i] = document.getElementById('q-'+b.dataset.i).value; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast('已鎖定'); });
-        renderAll(); triggerSplash(0);
-    };
+    document.getElementById('tmBtn').onclick = (e) => { e.stopPropagation(); window.tm(); };
+    document.getElementById('prevM').onclick = (e) => { e.stopPropagation(); window.changeMonth(-1); };
+    document.getElementById('nextM').onclick = (e) => { e.stopPropagation(); window.changeMonth(1); };
+    
+    // 💡 金句編輯器邏輯恢復
+    const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
+    quotes.forEach((q, i) => { 
+        ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button class="q-save" data-i="${i}" style="background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; 
+    });
+    
+    document.querySelectorAll('.q-save').forEach(b => {
+        b.onclick = () => { 
+            quotes[b.dataset.i] = document.getElementById('q-'+b.dataset.i).value; 
+            localStorage.setItem('myQuotes', JSON.stringify(quotes)); 
+            showToast('已鎖定'); 
+        };
+    });
+
+    // 💡 啟動第一個標語
+    triggerSplash(0);
+};
 
     window.addEventListener('touchstart', e => { window.startY = e.touches[0].clientY; window.tmActive = (document.getElementById('timeMachine').style.display === 'block'); }, {passive: true});
     window.addEventListener('touchend', e => {
