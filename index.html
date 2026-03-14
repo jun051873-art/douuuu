@@ -102,31 +102,66 @@
     };
 
     window.loadMemories = async () => {
-        try {
-            const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-            logsCache = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            const area = document.getElementById('memoryArea'); area.innerHTML = ''; let lastDate = "";
-            if (logsCache.length === 0) { area.innerHTML = '<div style="text-align:center; color:#ddd; margin-top:50px; font-size:13px;">尚無回憶...</div>'; }
-            logsCache.forEach(d => {
-                if(d.type === 'input') {
-                    const date = d.timestamp ? d.timestamp.toDate() : new Date();
-                    const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
-                    if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getMonth()+1}月${date.getDate()}日" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
-                    const div = document.createElement('div'); div.className = 'memory-item';
-                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span id="label-${d.id}" class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
-                    let delTimer;
-                    div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除這則紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
-                    div.ontouchend = () => clearTimeout(delTimer);
-                    area.appendChild(div);
-                    const row = div.querySelector('.w-btn-row');
-                    ['晴','陰','雨','風','雪','曬'].forEach(w => { const b = document.createElement('button'); b.className='weather-btn'; b.innerText=w; b.onclick=(e)=>{e.stopPropagation(); window.updW(d.id,w,false)}; row.appendChild(b); });
-                    div.querySelector('.c-btn').onclick=(e)=>{e.stopPropagation(); const custV = document.getElementById('cust-'+d.id).value; window.updW(d.id, custV, true)};
-                }
-            });
-            window.renderCalendar();
-        } catch(e) {}
-    };
+    try {
+        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+        logsCache = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        const area = document.getElementById('memoryArea'); area.innerHTML = ''; let lastDate = "";
+        
+        if (logsCache.length === 0) { area.innerHTML = '<div style="text-align:center; color:#ddd; margin-top:50px; font-size:13px;">尚無回憶...</div>'; }
+        
+        logsCache.forEach(d => {
+            if(d.type === 'input') {
+                const date = d.timestamp ? d.timestamp.toDate() : new Date();
+                const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
+                if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getMonth()+1}月${date.getDate()}日" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
+                
+                const div = document.createElement('div'); div.className = 'memory-item';
+                div.style.marginBottom = "30px";
+                
+                // 💡 這裡定義了時間旁邊那個灰色區塊的 ID: label-紀錄ID
+                div.innerHTML = `
+                    <div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">
+                        ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} 
+                        <span id="label-${d.id}" class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}" style="${d.isCustom?'background:#1c1c1e;color:#fff':''}">${d.weather || ''}</span>
+                    </div>
+                    <div class="content-main" style="font-size:18px; font-weight:600; color:#2c2c2e; margin-bottom:12px;">${d.action}</div>
+                    <div class="w-btn-row" style="display:flex; gap:10px; margin-bottom:10px;"></div>
+                    <div style="display:flex; align-items:center;">
+                        <input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情...">
+                        <button class="c-btn" style="background:#000;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;margin-left:10px;">確定</button>
+                    </div>
+                `;
 
+                // 長按刪除邏輯
+                let delTimer;
+                div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除這則紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
+                div.ontouchend = () => clearTimeout(delTimer);
+                area.appendChild(div);
+
+                // 🎯 天氣按鈕：點擊立刻同步並「飛上去」
+                const row = div.querySelector('.w-btn-row');
+                ['晴','陰','雨','風','雪','曬'].forEach(w => { 
+                    const b = document.createElement('button'); 
+                    b.className = 'weather-btn'; 
+                    b.innerText = w; 
+                    b.onclick = async (e) => { 
+                        e.stopPropagation(); 
+                        await window.updW(d.id, w, false); 
+                    }; 
+                    row.appendChild(b); 
+                });
+
+                // 🎯 確定按鈕：點擊抓取輸入框並同步
+                div.querySelector('.c-btn').onclick = async (e) => {
+                    e.stopPropagation();
+                    const val = document.getElementById('cust-'+d.id).value;
+                    if(val) { await window.updW(d.id, val, true); }
+                };
+            }
+        });
+        window.renderCalendar();
+    } catch(e) { console.error("回憶載入錯誤", e); }
+};
     window.renderCalendar = () => {
         const grid = document.getElementById('calGrid'); if(!grid) return; grid.innerHTML = '';
         const year = viewDate.getFullYear(), month = viewDate.getMonth();
