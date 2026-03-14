@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 備忘錄純淨版</title>
+    <title>在幹嘛 1 號 - 最終極簡歸位版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
@@ -26,22 +26,32 @@
         .dot { width: 3px; height: 3px; background: #d2d2d7; border-radius: 50%; transition: 0.4s; }
         .dot.active { background: #1c1c1e; transform: scale(2.5); }
 
-        .memory-area { width: 88%; overflow-y: auto; height: 75dvh; border-left: 1.2px solid #f2f2f7; padding-left: 20px; margin-top: 2vh; -webkit-overflow-scrolling: touch; }
+        .galaxy-stage { width: 100%; height: 40dvh; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 8.5dvh; overflow: visible; }
+        .sphere { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(0,0,0,0.03); animation: bubbleFloat var(--b-dur) infinite ease-in-out; }
+        @keyframes bubbleFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(var(--b-x), var(--b-y)) scale(1.04); } 66% { transform: translate(calc(var(--b-x) * -0.7), calc(var(--b-y) * 1.1)) scale(0.98); } }
+        #insightArea { width: 82%; font-size: 13px; color: #aeaeb2; line-height: 2.8; margin-top: 6.5dvh; text-align: center; }
+
+        .memory-area { width: 88%; overflow-y: auto; height: 75dvh; border-left: 1.2px solid #f2f2f7; padding-left: 20px; margin-top: 2vh; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
         .date-anchor { font-size: 11px; font-weight: 600; margin: 40px 0 20px -20px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; letter-spacing: 1px; }
         
         .memory-item { margin-bottom: 35px; }
-        /* 🎯 備忘錄樣式：時間與註記並排 */
         .time-row { display: flex; align-items: baseline; gap: 10px; font-size: 11px; color: #aeaeb2; margin-bottom: 8px; }
-        .note-display { font-weight: 400; color: #c7c7cc; }
+        .note-display { font-weight: 400; color: #c7c7cc; background: #f2f2f7; padding: 2px 6px; border-radius: 4px; }
         
         .content-main { font-size: 19px; font-weight: 600; color: #1c1c1e; line-height: 1.4; margin-bottom: 12px; }
-        
-        /* 🎯 制定心情輸入框 */
         .memo-input { width: 90%; border: none; background: #f9f9f9; padding: 8px 12px; border-radius: 10px; font-size: 13px; color: #3a3a3c; transition: 0.3s; }
         .memo-input:focus { background: #f2f2f7; }
 
+        #timeMachine { position: absolute; top: 16dvh; width: 88%; background: rgba(255,255,255,0.98); border-radius: 30px; z-index: 2000; display: none; padding: 20px; backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; }
+        .cal-day { font-size: 14px; padding: 10px 0; border-radius: 12px; position: relative; cursor: pointer; }
+        .heat-dot { width: 3px; height: 3px; background: #8e8e93; border-radius: 50%; display: inline-block; margin: 0 1px; }
+
         .input-section { position: absolute; bottom: calc(12dvh + var(--safe-bottom)); display: flex; align-items: center; border-bottom: 2px solid #2c2c2e; padding: 6px; background: #fff; z-index: 100; }
         .pill-tag { padding: 13px 30px; border-radius: 40px; background: #1c1c1e; color: #fff; border: none; font-size: 15px; margin: 9px; cursor: pointer; }
+        .square-tag { width: 75px; height: 75px; border-radius: 20px; border: 0.8px solid #eee; margin: 8px; background: #fbfbfb; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+        .square-tag.selected { background: #1c1c1e; color: #fff; border: none; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -52,26 +62,39 @@
 <div class="main-container" id="mainContainer">
     <section class="page"><h1>現在在幹嘛</h1><div id="stage0" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%; margin-top:4vh;"></div><div class="input-section"><input type="text" id="userInput" style="border:none;width:180px;text-align:center;font-size:17px" placeholder="此刻心情..."><button id="sendBtn" style="background:#1c1c1e;color:#fff;border-radius:50%;width:34px;height:34px">↑</button></div></section>
     <section class="page"><h1>標籤</h1><p style="font-size: 12px; color: #ddd; margin: 15px 0;">點擊切換標籤</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%;"></div></section>
-    <section class="page"><h1>透視</h1><div id="stage2" style="height:40dvh; display:flex; align-items:center; justify-content:center;">數據分析中...</div></section>
-    <section class="page"><h1>回憶</h1><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page"><h1>設定</h1></section>
+    <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea"></div></section>
+    <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span id="tmBtn" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px;">時光機▼</span></h1><div id="timeMachine"><div class="cal-header"><button id="prevM" style="border:none;background:none;font-size:18px;">‹</button><div id="calTitle" style="font-weight:600; font-size:16px;"></div><button id="nextM" style="border:none;background:none;font-size:18px;">›</button></div><div class="cal-grid" id="calGrid"></div></div><div id="memoryArea" class="memory-area"></div></section>
+    <section class="page"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div></section>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, query, orderBy, serverTimestamp, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     
     const firebaseConfig = { apiKey: "AIzaSyAt3NMGtToRrMbau8kIYyOybgIvH65a8rA", authDomain: "now-doing.firebaseapp.com", projectId: "now-doing", storageBucket: "now-doing.firebasestorage.app", messagingSenderId: "234295652644", appId: "1:234295652644:web:c9b3c37de32d9448d443b1" };
     const db = getFirestore(initializeApp(firebaseConfig));
 
-    let tags = []; let cur = 0;
+    let tags = []; let quotes = JSON.parse(localStorage.getItem('myQuotes')) || ["接受不完美的自己", "每個都可以是你", "詩人 你也可以"];
+    let viewDate = new Date(); let logsCache = []; let cur = 0;
+
+    function showToast(msg) { const t = document.getElementById('etherealToast'); t.innerText = msg; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2000); }
+
+    const syncTags = async () => { try { await setDoc(doc(db, "app_data", "user_settings"), { myPills: JSON.stringify(tags) }); } catch(e) {} };
+    const loadTags = async () => {
+        try {
+            const snap = await getDoc(doc(db, "app_data", "user_settings"));
+            if(snap.exists() && snap.data().myPills) { tags = JSON.parse(snap.data().myPills); } 
+            else { tags = [{ name: '☕ 休息', selected: true }, { name: '💇 工作', selected: true }]; }
+            renderAll();
+        } catch(e) {}
+    };
 
     const triggerSplash = (idx) => {
-        const s = document.getElementById('splashLayer'); s.innerHTML = `<h2>探索第 ${idx+1} 維度</h2>`; s.classList.add('active');
+        const s = document.getElementById('splashLayer'); s.innerHTML = `<h2>${quotes[idx] || "問問自己"}</h2>`; s.classList.add('active');
         setTimeout(() => {
             document.getElementById('mainContainer').style.transform = `translateY(-${idx * 20}%)`;
             document.querySelectorAll('.dot').forEach((d,i) => d.className = i === idx ? 'dot active' : 'dot');
-            if(idx === 3) loadMemories();
+            if(idx === 2) loadInsight(); if(idx === 3) loadMemories();
         }, 1200);
         setTimeout(() => s.classList.remove('active'), 2600);
     };
@@ -81,62 +104,112 @@
         if(!val) return;
         try {
             await addDoc(collection(db, "daily_logs"), { action: val, type: t, memo: "", timestamp: serverTimestamp() });
+            showToast('已紀錄');
             if(t === 'input') document.getElementById('userInput').value = '';
-            triggerSplash(3);
+            renderAll();
         } catch(e) {}
     };
 
-    // 💡 備忘錄核心邏輯：日期時間旁邊顯示 memo
     window.loadMemories = async () => {
-        const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
-        const area = document.getElementById('memoryArea'); area.innerHTML = ''; let lastDate = "";
-        
-        snap.forEach(d => {
-            const data = d.data();
-            if(data.type === 'input') {
-                const date = data.timestamp ? data.timestamp.toDate() : new Date();
-                const dStr = `${date.getMonth()+1}月${date.getDate()}日`;
-                if(dStr !== lastDate) { area.innerHTML += `<div class="date-anchor">${dStr}</div>`; lastDate = dStr; }
-                
-                const item = document.createElement('div');
-                item.className = 'memory-item';
-                item.innerHTML = `
-                    <div class="time-row">
-                        <span>${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span>
-                        <span class="note-display" id="display-${d.id}">${data.memo || ''}</span>
-                    </div>
-                    <div class="content-main">${data.action}</div>
-                    <input type="text" class="memo-input" placeholder="制定心情備忘..." value="${data.memo || ''}" data-id="${d.id}">
-                `;
-                
-                // 💡 即時保存備忘錄
-                const input = item.querySelector('.memo-input');
-                input.onblur = async () => {
-                    const newMemo = input.value;
-                    await updateDoc(doc(db, "daily_logs", d.id), { memo: newMemo });
-                    document.getElementById(`display-${d.id}`).innerText = newMemo;
-                };
-                area.appendChild(item);
-            }
+        try {
+            const snap = await getDocs(query(collection(db, "daily_logs"), orderBy("timestamp", "desc")));
+            logsCache = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            const area = document.getElementById('memoryArea'); area.innerHTML = ''; let lastDate = "";
+            
+            logsCache.forEach(d => {
+                if(d.type === 'input') {
+                    const date = d.timestamp ? d.timestamp.toDate() : new Date();
+                    const dStr = `${date.getMonth()+1}月${date.getDate()}日`;
+                    if(dStr !== lastDate) { area.innerHTML += `<div id="date-${dStr}" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
+                    
+                    const div = document.createElement('div');
+                    div.className = 'memory-item';
+                    div.innerHTML = `
+                        <div class="time-row">
+                            <span>${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</span>
+                            <span class="note-display" id="display-${d.id}">${d.memo || ''}</span>
+                        </div>
+                        <div class="content-main">${d.action}</div>
+                        <input type="text" class="memo-input" placeholder="制定心情備忘..." value="${d.memo || ''}">
+                    `;
+                    
+                    const input = div.querySelector('.memo-input');
+                    input.onblur = async () => {
+                        const newMemo = input.value;
+                        await updateDoc(doc(db, "daily_logs", d.id), { memo: newMemo });
+                        document.getElementById(`display-${d.id}`).innerText = newMemo;
+                        if(newMemo) showToast('已保存備忘');
+                    };
+                    area.appendChild(div);
+                }
+            });
+            window.renderCalendar();
+        } catch(e) {}
+    };
+
+    window.loadInsight = async () => {
+        try {
+            const snap = await getDocs(collection(db, "daily_logs")); 
+            const counts = {}; const hours = new Array(24).fill(0);
+            snap.forEach(d => { 
+                const data = d.data();
+                if(data.type === 'tag') counts[data.action] = (counts[data.action] || 0) + 1;
+                if(data.timestamp) { const h = data.timestamp.toDate().getHours(); hours[h]++; }
+            });
+            const sortedTags = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+            const peakHour = hours.indexOf(Math.max(...hours));
+            document.getElementById('insightArea').innerHTML = `重心：${(sortedTags[0] && sortedTags[0][0]) || '--'}<br>最常紀錄時間：${peakHour}:00 - ${peakHour+1}:00<br>紀錄總量：${snap.size} 則`;
+            const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+            const coords = [{x:0, y:0}, {x:1.1, y:-0.4}, {x:-1.1, y:0.5}, {x:0.7, y:1.1}, {x:-0.8, y:-1.1}];
+            sortedTags.forEach(([name, count], i) => { if (i >= 5) return; const coord = coords[i]; const ratio = count / sortedTags[0][1]; const sz = 50 + (ratio * 90); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${sz}px; height:${sz}px; left:calc(50% + ${coord.x * 120}px - ${sz/2}px); top:calc(50% + ${coord.y * 105}px - ${sz/2}px); background:rgb(${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]}); color:${i<3?'#fff':'#000'}; font-size:${11+(ratio*4)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*12-6)+'px'}; --b-y:${(Math.random()*12-6)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
+        } catch(e) {}
+    };
+
+    window.renderCalendar = () => {
+        const grid = document.getElementById('calGrid'); if(!grid) return; grid.innerHTML = '';
+        const year = viewDate.getFullYear(), month = viewDate.getMonth();
+        document.getElementById('calTitle').innerText = `${year}年 ${month+1}月`;
+        const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month+1, 0).getDate();
+        for(let i=0; i<firstDay; i++) grid.innerHTML += '<div></div>';
+        for(let d=1; d<=daysInMonth; d++) {
+            const hasLog = logsCache.some(l => { const ld = l.timestamp?.toDate() || new Date(); return ld.getMonth() === month && ld.getDate() === d && l.type === 'input'; });
+            const dayEl = document.createElement('div'); dayEl.className = 'cal-day'; dayEl.innerHTML = `${d}<div style="display:block">${hasLog ? '<div class="heat-dot"></div>' : ''}</div>`;
+            dayEl.onclick = (e) => { e.stopPropagation(); window.jumpTo(`${month+1}月${d}`); }; grid.appendChild(dayEl);
+        }
+    };
+
+    window.jumpTo = (dStr) => { const el = document.getElementById('date-'+dStr); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
+    window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
+
+    window.renderAll = () => {
+        const s0 = document.getElementById('stage0'), s1 = document.getElementById('stage1'); s0.innerHTML = ''; s1.innerHTML = '';
+        tags.forEach((t, i) => {
+            if(t.selected) { const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t.name; b.onclick = (e) => { e.stopPropagation(); window.saveAction('tag', t.name); }; s0.appendChild(b); }
+            const b2 = document.createElement('button'); b2.className = t.selected ? 'square-tag selected' : 'square-tag';
+            b2.innerHTML = `<span>${t.name}</span>`;
+            let timer; b2.ontouchstart = () => timer = setTimeout(async () => { if(confirm('刪除標籤？')){ tags.splice(i,1); renderAll(); await syncTags(); } }, 1000); b2.ontouchend = () => clearTimeout(timer);
+            b2.onclick = async (e) => { e.stopPropagation(); t.selected = !t.selected; renderAll(); await syncTags(); }; s1.appendChild(b2);
         });
     };
 
     window.onload = async () => {
+        await loadTags();
         document.getElementById('sendBtn').onclick = () => window.saveAction('input');
-        const snap = await getDocs(collection(db, "daily_logs")); // 簡單標籤模擬
-        const s0 = document.getElementById('stage0');
-        ['☕ 休息', '💇 工作', '📖 閱讀'].forEach(t => {
-            const b = document.createElement('button'); b.className = 'pill-tag'; b.innerText = t;
-            b.onclick = () => window.saveAction('tag', t); s0.appendChild(b);
-        });
+        document.getElementById('tmBtn').onclick = () => window.tm();
+        const ed = document.getElementById('quoteEditor'); ed.innerHTML = '';
+        quotes.forEach((q, i) => { ed.innerHTML += `<div style="padding:15px; border-bottom:0.5px solid #eee; display:flex; align-items:center;"><input id="q-${i}" style="flex:1; border:none; font-size:16px;" value="${q}"><button class="q-save" data-i="${i}" style="background:#1c1c1e;color:#fff;border-radius:10px;padding:8px 14px;font-size:13px;">確定</button></div>`; });
+        document.querySelectorAll('.q-save').forEach(b => b.onclick = () => { quotes[b.dataset.i] = document.getElementById('q-'+b.dataset.i).value; localStorage.setItem('myQuotes', JSON.stringify(quotes)); showToast('已鎖定'); });
         triggerSplash(0);
     };
 
-    window.addEventListener('touchstart', e => window.startY = e.touches[0].clientY);
+    window.addEventListener('touchstart', e => { window.startY = e.touches[0].clientY; window.tmActive = (document.getElementById('timeMachine').style.display === 'block'); }, {passive: true});
     window.addEventListener('touchend', e => {
+        if (window.tmActive) return;
         const dY = window.startY - e.changedTouches[0].clientY;
-        if (Math.abs(dY) > 100) { cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
-    });
+        const zone = e.target.closest('.memory-area') || e.target.closest('#quoteEditor');
+        if (zone) { if ((dY < -130 && zone.scrollTop <= 0) || (dY > 130 && (zone.scrollTop + zone.offsetHeight >= zone.scrollHeight))) { cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); } }
+        else if (Math.abs(dY) > 80) { cur = dY > 0 ? Math.min(cur + 1, 4) : Math.max(cur - 1, 0); triggerSplash(cur); }
+    }, {passive: true});
 </script>
 </body>
 </html>
