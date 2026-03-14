@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>在幹嘛 1 號 - 極簡純淨版</title>
+    <title>在幹嘛 1 號 - 透視補完版</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
@@ -57,7 +57,7 @@
     <section class="page"><h1>標籤</h1><p style="font-size: 12px; color: #ddd; margin: 15px 0;">點擊切換 · 長按刪除</p><div id="stage1" style="display:flex; flex-wrap:wrap; justify-content:center; width:90%;"></div><div class="input-section"><input type="text" id="newTagInput" style="border:none;width:180px;text-align:center;font-size:16px" placeholder="新增標籤..."><button id="addTagBtn" style="background:#000;color:#fff;border:none;border-radius:50%;width:32px;height:32px">＋</button></div></section>
     <section class="page"><h1>透視</h1><div id="stage2" class="galaxy-stage"></div><div id="insightArea"></div></section>
     <section class="page"><h1 style="display:flex; align-items: baseline; justify-content: center;">回憶<span id="tmBtn" style="font-size: 11px; color: #aeaeb2; cursor:pointer; font-weight: 300; letter-spacing: -0.5px;">時光機▼</span></h1><div id="timeMachine"><div class="cal-header"><button id="prevM" style="border:none;background:none;font-size:18px;">‹</button><div id="calTitle" style="font-weight:600; font-size:16px;"></div><button id="nextM" style="border:none;background:none;font-size:18px;">›</button></div><div class="cal-grid" id="calGrid"></div></div><div id="memoryArea" class="memory-area"></div></section>
-    <section class="page"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><p style="margin-top:30px; font-size:11px; color:#ddd; text-align:center;">長按回憶條目可刪除紀錄</p></section>
+    <section class="page"><h1>設定</h1><div id="quoteEditor" style="width: 82%; margin-top: 5vh; max-height: 45dvh; overflow-y: auto;"></div><p style="margin-top:30px; font-size:11px; color:#ddd; text-align:center;">長按回憶紀錄可刪除</p></section>
 </div>
 
 <script type="module">
@@ -116,15 +116,25 @@
                     if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getMonth()+1}月${date.getDate()}日" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
                     
                     const div = document.createElement('div'); div.className = 'memory-item';
+                    div.style.padding = "10px 0";
                     div.innerHTML = `
                         <div style="font-size:11px; color:#aeaeb2; margin-bottom:8px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}</div>
                         <div class="content-main">${d.action}</div>
                     `;
-                    area.appendChild(div);
-
+                    
+                    // 長按刪除
                     let delTimer;
-                    div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
+                    div.ontouchstart = () => delTimer = setTimeout(async () => { 
+                        if(confirm('刪除這條紀錄？')){ 
+                            await deleteDoc(doc(db,"daily_logs",d.id)); 
+                            showToast('已刪除');
+                            window.loadMemories(); 
+                        }
+                    }, 1000);
                     div.ontouchend = () => clearTimeout(delTimer);
+                    div.ontouchmove = () => clearTimeout(delTimer);
+
+                    area.appendChild(div);
                 }
             });
             window.renderCalendar();
@@ -133,13 +143,40 @@
 
     window.loadInsight = async () => {
         try {
-            const snap = await getDocs(collection(db, "daily_logs")); const counts = {};
-            snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
+            const snap = await getDocs(collection(db, "daily_logs")); 
+            const counts = {}; const hours = new Array(24).fill(0);
+            
+            snap.forEach(d => { 
+                const data = d.data();
+                if(data.type === 'tag') counts[data.action] = (counts[data.action] || 0) + 1;
+                if(data.timestamp) {
+                    const h = data.timestamp.toDate().getHours();
+                    hours[h]++;
+                }
+            });
+
             const sortedTags = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-            document.getElementById('insightArea').innerHTML = `重心：${(sortedTags[0] && sortedTags[0][0]) || '--'}<br>紀錄總量：${snap.size} 則`;
+            const peakHour = hours.indexOf(Math.max(...hours));
+            
+            // 補回：最常紀錄時間顯示
+            document.getElementById('insightArea').innerHTML = `
+                重心：${(sortedTags[0] && sortedTags[0][0]) || '--'}<br>
+                最常紀錄時間：${peakHour}:00 - ${peakHour+1}:00<br>
+                紀錄總量：${snap.size} 則
+            `;
+
             const s2 = document.getElementById('stage2'); s2.innerHTML = '';
             const coords = [{x:0, y:0}, {x:1.1, y:-0.4}, {x:-1.1, y:0.5}, {x:0.7, y:1.1}, {x:-0.8, y:-1.1}];
-            sortedTags.forEach(([name, count], i) => { if (i >= 5) return; const coord = coords[i]; const ratio = count / sortedTags[0][1]; const sz = 50 + (ratio * 90); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${sz}px; height:${sz}px; left:calc(50% + ${coord.x * 120}px - ${sz/2}px); top:calc(50% + ${coord.y * 105}px - ${sz/2}px); background:rgb(${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]}); color:${i<3?'#fff':'#000'}; font-size:${11+(ratio*4)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*12-6)+'px'}; --b-y:${(Math.random()*12-6)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
+            sortedTags.forEach(([name, count], i) => { 
+                if (i >= 5) return; 
+                const coord = coords[i]; const ratio = count / sortedTags[0][1]; 
+                const sz = 50 + (ratio * 90); 
+                const b = document.createElement('div'); 
+                b.className = 'sphere'; 
+                b.style.cssText = `width:${sz}px; height:${sz}px; left:calc(50% + ${coord.x * 120}px - ${sz/2}px); top:calc(50% + ${coord.y * 105}px - ${sz/2}px); background:rgb(${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]},${[0, 80, 130, 180, 210][i]}); color:${i<3?'#fff':'#000'}; font-size:${11+(ratio*4)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*12-6)+'px'}; --b-y:${(Math.random()*12-6)+'px'};`; 
+                b.innerHTML = `<span>${name}</span>`; 
+                s2.appendChild(b); 
+            });
         } catch(e) {}
     };
 
