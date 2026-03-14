@@ -97,22 +97,49 @@
     };
 
     window.updW = async (id, w, isCust) => {
-        if(!w && !isCust) return;
-        const finalVal = isCust ? document.getElementById('cust-' + id).value : w;
-        if(!finalVal) return;
+        const val = isCust ? document.getElementById('cust-' + id).value : w;
+        if(!val) return;
+
         try {
-            await updateDoc(doc(db, "daily_logs", id), { weather: finalVal, isCustom: !!isCust });
+            // 🎯 強制寫入 Firebase 指定的文件欄位
+            await updateDoc(doc(db, "daily_logs", id), { 
+                weather: val, 
+                isCustom: !!isCust 
+            });
+
+            // 🎯 同步讓畫面標籤變色
+            const lb = document.getElementById('label-' + id);
+            if(lb) {
+                lb.innerText = val;
+                lb.className = isCust ? 'custom-active-label' : 'weather-active-label';
+                if(isCust) {
+                    lb.style.background = '#1c1c1e';
+                    lb.style.color = '#fff';
+                } else {
+                    lb.style.background = '#f2f2f7';
+                    lb.style.color = '#8e8e93';
+                }
+            }
             showToast(isCust ? '已珍藏' : '已紀錄');
-            window.loadMemories();
-        } catch(e) { console.error("同步失敗", e); }
+        } catch(e) { showToast('雲端同步失敗'); }
     };
 
     window.saveAction = async (t, v, isCust) => {
-        const val = t === 'input' ? document.getElementById('userInput').value : v; if(!val) return;
-        await addDoc(collection(db, "daily_logs"), { action: val, type: t, weather: t==='input'?'':(v||'曬'), isCustom: isCust||false, timestamp: serverTimestamp() });
-        showToast(t === 'input' || isCust ? '已珍藏' : '已紀錄');
-        if(t === 'input') document.getElementById('userInput').value = '';
-        renderAll();
+        const val = t === 'input' ? document.getElementById('userInput').value : v; 
+        if(!val) return;
+
+        try {
+            await addDoc(collection(db, "daily_logs"), { 
+                action: val, 
+                type: t, 
+                weather: '', // 💡 關鍵：這裡預留空欄位，Firebase 後台才會出現 weather 欄位
+                isCustom: isCust || false, 
+                timestamp: serverTimestamp() 
+            });
+            showToast(t === 'input' || isCust ? '已珍藏' : '已紀錄');
+            if(t === 'input') document.getElementById('userInput').value = '';
+            renderAll();
+        } catch(e) { console.error("存檔失敗", e); }
     };
 
     window.loadMemories = async () => {
