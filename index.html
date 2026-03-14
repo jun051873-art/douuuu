@@ -34,7 +34,8 @@
         .memory-area { width: 82%; overflow-y: auto; height: 65dvh; border-left: 1.2px solid #f2f2f7; padding-left: 24px; margin-top: 2vh; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
         .date-anchor { position: relative; font-size: 11px; font-weight: 600; margin: 40px 0 24px -24px; padding: 4px 10px; background: #2c2c2e; color: #fff; border-radius: 4px; display: inline-block; letter-spacing: 1px; }
         .content-main { font-size: 18px; font-weight: 600; color: #2c2c2e; line-height: 1.6; margin-bottom: 12px; }
-        .weather-active-label, .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; }
+        .weather-active-label, .custom-active-label { background: #f2f2f7; color: #8e8e93; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; border: 0.5px solid #e5e5ea; transition: 0.3s; }
+        .custom-active-label { background: #1c1c1e; color: #fff; border: none; }
         .weather-btn { background: transparent; border: none; padding: 6px 8px; font-size: 12px; color: #aeaeb2; cursor: pointer; }
 
         #timeMachine { position: absolute; top: 16dvh; width: 88%; background: rgba(255,255,255,0.98); border-radius: 30px; z-index: 2000; display: none; padding: 20px; backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
@@ -112,14 +113,14 @@
                     const dStr = `${date.getMonth()+1}月${date.getDate()}日 週${['日','一','二','三','四','五','六'][date.getDay()]}`;
                     if(dStr !== lastDate) { area.innerHTML += `<div id="date-${date.getMonth()+1}月${date.getDate()}日" class="date-anchor">${dStr}</div>`; lastDate = dStr; }
                     const div = document.createElement('div'); div.className = 'memory-item';
-                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span id="label-${d.id}" class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}" style="${d.isCustom?'background:#1c1c1e;color:#fff':''}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" data-id="${d.id}" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
+                    div.innerHTML = `<div style="font-size:11px; color:#aeaeb2; margin-bottom:6px;">${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')} <span id="label-${d.id}" class="${d.isCustom ? 'custom-active-label' : 'weather-active-label'}">${d.weather || ''}</span></div><div class="content-main">${d.action}</div><div style="display:flex; margin-top:6px;" class="w-btn-row"></div><div style="display:flex;align-items:center;margin-top:8px;"><input type="text" id="cust-${d.id}" style="border:none; border-bottom:0.5px solid #f2f2f7; font-size:14px; width:110px;" placeholder="制定心情..."><button class="c-btn" style="background:#000;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;margin-left:8px;">確定</button></div>`;
                     let delTimer;
                     div.ontouchstart = () => delTimer = setTimeout(() => { if(confirm('刪除這則紀錄？')){ deleteDoc(doc(db,"daily_logs",d.id)); window.loadMemories(); }}, 1000);
                     div.ontouchend = () => clearTimeout(delTimer);
                     area.appendChild(div);
                     const row = div.querySelector('.w-btn-row');
                     ['晴','陰','雨','風','雪','曬'].forEach(w => { const b = document.createElement('button'); b.className='weather-btn'; b.innerText=w; b.onclick=(e)=>{e.stopPropagation(); window.updW(d.id,w,false)}; row.appendChild(b); });
-                    div.querySelector('.c-btn').onclick=(e)=>{e.stopPropagation(); window.updW(d.id, document.getElementById('cust-'+d.id).value, true)};
+                    div.querySelector('.c-btn').onclick=(e)=>{e.stopPropagation(); const custV = document.getElementById('cust-'+d.id).value; window.updW(d.id, custV, true)};
                 }
             });
             window.renderCalendar();
@@ -141,36 +142,38 @@
 
     window.changeMonth = (offset) => { viewDate.setMonth(viewDate.getMonth() + offset); window.renderCalendar(); };
     window.jumpTo = (id) => { const el = document.getElementById('date-'+id); if(el) { document.getElementById('memoryArea').scrollTop = el.offsetTop - 20; window.tm(); } };
+    
     window.updW = async (id, w, isCust) => { 
         if(!w) return; try { 
             await updateDoc(doc(db, "daily_logs", id), { weather: w, isCustom: isCust }); 
             const lb = document.getElementById('label-'+id); 
             if(lb){ 
                 lb.innerText = w; 
-                if(isCust) { lb.className = 'custom-active-label'; lb.style.background = '#1c1c1e'; lb.style.color = '#fff'; }
-                else { lb.className = 'weather-active-label'; lb.style.background = '#f2f2f7'; lb.style.color = '#8e8e93'; }
+                if(isCust) { lb.className = 'custom-active-label'; }
+                else { lb.className = 'weather-active-label'; }
             }
             const inp = document.getElementById('cust-'+id); if(inp) inp.value = '';
             showToast(isCust?'已珍藏':'已紀錄'); 
         } catch(e) {}
     };
+    
     window.tm = () => { const t = document.getElementById('timeMachine'); t.style.display = t.style.display==='block'?'none':'block'; };
 
     window.loadInsight = async () => {
         try {
-            const snap = await getDocs(collection(db, "daily_logs")); const counts = {}; snap.forEach(d => { if(d.data().type === 'tag') counts[d.data().action] = (counts[d.data().action] || 0) + 1; });
-            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]); const s2 = document.getElementById('stage2'); s2.innerHTML = '';
-            const coords = [{x:0, y:0}, {x:0.1, y:-1.2}, {x:1, y:-0.5}, {x:1.1, y:0.5}, {x:0.3, y:1.2}, {x:-0.95, y:0.7}, {x:-1.1, y:-0.4}];
-            sorted.forEach(([name, count], i) => { 
-                if (i >= 7) return; 
-                const coord = coords[i]; 
-                const ratio = (sorted[0] && sorted[0][1]) ? count / sorted[0][1] : 0.5; 
-                const size = 52 + (ratio * 102); 
-                const b = document.createElement('div'); b.className = 'sphere'; 
-                b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*14-7)+'px'}; --b-y:${(Math.random()*14-7)+'px'};`; 
-                b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); 
+            const snap = await getDocs(collection(db, "daily_logs")); const counts = {}; 
+            let timeSlots = {};
+            snap.forEach(d => { 
+                const data = d.data();
+                if(data.type === 'tag') counts[data.action] = (counts[data.action] || 0) + 1; 
+                if(data.timestamp) { const h = data.timestamp.toDate().getHours(); const s = `${h}:00 - ${h+1}:00`; timeSlots[s] = (timeSlots[s] || 0) + 1; }
             });
-            document.getElementById('insightArea').innerHTML = `重心：${(sorted[0] && sorted[0][0]) || '--'}<br>紀錄總量：${snap.size} 則<br>最常時間：14:00 - 16:00`;
+            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+            const sortedSlots = Object.entries(timeSlots).sort((a,b) => b[1] - a[1]);
+            const s2 = document.getElementById('stage2'); s2.innerHTML = '';
+            const coords = [{x:0, y:0}, {x:0.1, y:-1.2}, {x:1, y:-0.5}, {x:1.1, y:0.5}, {x:0.3, y:1.2}, {x:-0.95, y:0.7}, {x:-1.1, y:-0.4}];
+            sorted.forEach(([name, count], i) => { if (i >= 7) return; const coord = coords[i]; const ratio = (sorted[0] && sorted[0][1]) ? count / sorted[0][1] : 0.5; const size = 52 + (ratio * 102); const b = document.createElement('div'); b.className = 'sphere'; b.style.cssText = `width:${size}px; height:${size}px; left:calc(50% + ${coord.x * 138}px - ${size/2}px); top:calc(50% + ${coord.y * 138}px - ${size/2}px); background:rgb(${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]},${[0, 80, 130, 180, 210, 230, 245][i]}); color:${i<3?'#fff':'#000'}; font-weight:600; font-size:${11+(ratio*5)}px; z-index:${100-i}; --b-dur:${(3.5+Math.random()*3)+'s'}; --b-delay:${(Math.random()*-5)+'s'}; --b-x:${(Math.random()*14-7)+'px'}; --b-y:${(Math.random()*14-7)+'px'};`; b.innerHTML = `<span>${name}</span>`; s2.appendChild(b); });
+            document.getElementById('insightArea').innerHTML = `重心：${(sorted[0] && sorted[0][0]) || '--'}<br>紀錄總量：${snap.size} 則<br>最熱時段：${(sortedSlots[0] && sortedSlots[0][0]) || '-- : --'}`;
         } catch(e) {}
     };
 
